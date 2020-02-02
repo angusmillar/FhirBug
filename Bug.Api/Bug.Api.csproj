@@ -1,0 +1,52 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <UserSecretsId>0d14951d-ac82-4ce8-9c2c-d85f63d56a3a</UserSecretsId>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    <DockerComposeProjectPath>..\docker-compose.dcproj</DockerComposeProjectPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Hl7.Fhir.R4" Version="1.4.0" />
+    <PackageReference Include="Hl7.Fhir.STU3" Version="1.4.0" />
+    <PackageReference Include="Microsoft.AspNet.WebApi.Core" Version="5.2.7" />
+    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.9.8">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="3.1.0" />
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.9.10" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="3.1.0" />
+    <PackageReference Include="NLog" Version="4.6.8" />
+    <PackageReference Include="NLog.Web.AspNetCore" Version="4.9.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Bug.R4Fhir\Bug.R4Fhir.csproj" />
+    <ProjectReference Include="..\Bug.Stu3Fhir\Bug.Stu3Fhir.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="nlog.config" CopyToOutputDirectory="PreserveNewest" />          
+  </ItemGroup>
+
+  <Target Name="ChangeAliasesOfStrongNameAssemblies" BeforeTargets="FindReferenceAssembliesForReferences;ResolveReferences">
+    <!--<ItemGroup>
+      <ReferencePath Condition="'%(FileName)' == 'Hl7.Fhir.DSTU2.Core'">
+        <Aliases>dstu2</Aliases>
+      </ReferencePath>
+    </ItemGroup>-->
+    <ItemGroup>
+      <ReferencePath Condition="'%(FileName)' == 'Hl7.Fhir.STU3.Core'">
+        <Aliases>Stu3</Aliases>
+      </ReferencePath>
+    </ItemGroup>
+    <ItemGroup>
+      <ReferencePath Condition="'%(FileName)' == 'Hl7.Fhir.R4.Core'">
+        <Aliases>R4</Aliases>
+      </ReferencePath>
+    </ItemGroup>   
+  </Target>
+
+</Project>

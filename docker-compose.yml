@@ -1,0 +1,58 @@
+version: '3.4'
+
+### Services ################################################################################################'
+services:
+  #----- Bug.Api -----------------------------------------------------------------------------------------'        
+  bug.api:
+    image: ${DOCKER_REGISTRY-}bugapi
+    build:
+      context: .
+      dockerfile: Bug.Api/Dockerfile
+    ports:
+        - "8080:80"
+        - "8443:443"
+    networks:
+        - bugNet
+  #----- postgres SQL DB -----------------------------------------------------------------------------------------'        
+  postgres:
+    container_name: postgresSQL
+    image: postgres
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: w8etheb
+      POSTGRES_DB: PyroDB
+      PGDATA: /data/postgres
+    volumes:
+        - postgres:/data/postgres
+    #Don't need to expose post as the network 'postgres' allows the containes to talk to each other'
+    ports:
+      - "5432:5432"
+    networks:
+        - bugNet
+    restart: unless-stopped
+  
+  #----- PgAdmin -----------------------------------------------------------------------------------------------'        
+  pgadmin:
+    container_name: pgAdmin
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: angusbmillar@gmail.com
+      PGADMIN_DEFAULT_PASSWORD: 3agepufa
+    volumes:
+        - pgadmin:/root/.pgadmin
+    ports:
+        - "5050:80"
+    networks:
+        - bugNet
+    restart: unless-stopped
+
+### Networks ################################################################################################'
+
+networks:
+  bugNet:
+    driver: bridge
+
+### Volumes ################################################################################################'
+volumes:
+  postgres:
+  pgadmin:
