@@ -14,9 +14,9 @@ namespace Bug.Api.Controllers
   [ApiController]
   public class FhirR4Controller : ControllerBase
   {
-    private readonly ILogger<FhirR4Controller> _logger;
+    private readonly ILogger _logger;
 
-    public FhirR4Controller(ILogger<FhirR4Controller> logger)
+    public FhirR4Controller(ILogger logger)
     {
       _logger = logger;
       _logger.LogDebug(1, "Angus NLog injected into HomeController");

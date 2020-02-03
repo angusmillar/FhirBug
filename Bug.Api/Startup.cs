@@ -14,20 +14,23 @@ using Microsoft.Extensions.Logging;
 using System.Buffers;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Bug.Api.Middleware;
+using SimpleInjector;
 
 namespace Bug.Api
 {
   public class Startup
   {
+    private Container container = new SimpleInjector.Container();
+    public IConfiguration Configuration { get; }
+
     public Startup(IConfiguration configuration)
     {
+      container.Options.ResolveUnregisteredConcreteTypes = false;
       Configuration = configuration;
     }
 
-    public IConfiguration Configuration { get; }
-
     // This method gets called by the runtime. Use this method to add services to the container.
-    public static void ConfigureServices(IServiceCollection services)
+    public void ConfigureServices(IServiceCollection services)
     {
       // If using Kestrel:
       services.Configure<KestrelServerOptions>(options =>
@@ -60,17 +63,42 @@ namespace Bug.Api
         config.Filters.Add(new FhirVersionParameterFilter());
         
       });
-      
+
+      services.AddSimpleInjector(container, options =>
+      {
+        options.AutoCrossWireFrameworkComponents = true;
+        options.AddLogging();
+        
+        options.AddAspNetCore()
+               .AddControllerActivation();                  
+      });
+
+      InitializeContainer();
+
+    }
+
+    private void InitializeContainer()
+    {
+      // Add application services. For instance:
+      //container.Register<IUserService, UserService>(Lifestyle.Singleton);
+
+      //container.RegisterConditional(
+      //  typeof(ILogger),
+      //  c => typeof(Logger<>).MakeGenericType(c.Consumer.ImplementationType),
+      //  Lifestyle.Singleton,
+      //  _ => true);
     }
 
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-    public static void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+    public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
     {
+      app.UseSimpleInjector(container);
+
       if (env.IsDevelopment())
-      {
-        app.UseExceptionHandler("/system/error");
-        //app.UseDeveloperExceptionPage();
+      {        
+        app.UseDeveloperExceptionPage();
       }
+
       app.UseMiddleware(typeof(ErrorHandlingMiddleware));
 
       app.UseHttpsRedirection();
@@ -83,6 +111,8 @@ namespace Bug.Api
       {
         endpoints.MapControllers();
       });
+
+      container.Verify();
     }
   }
 }

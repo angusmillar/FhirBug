@@ -1,0 +1,20 @@
+2020-01-27 01:48:32.8301 Info Message Template Auto Format enabled
+2020-01-27 01:48:32.8679 Info Loading assembly: NLog.Web.AspNetCore
+2020-01-27 01:48:33.0218 Info Adding target FileTarget(Name=allfile)
+2020-01-27 01:48:33.0456 Warn Error has been raised. Exception: NLog.NLogConfigurationException: Target 'ownFile-web' not found for logging rule: *.
+2020-01-27 01:48:33.1065 Info Found 22 configuration items
+2020-01-27 01:53:10.6712 Info Message Template Auto Format enabled
+2020-01-27 01:53:10.7047 Info Loading assembly: NLog.Web.AspNetCore
+2020-01-27 01:53:10.8566 Info Adding target FileTarget(Name=allfile)
+2020-01-27 01:53:10.8824 Warn Error has been raised. Exception: NLog.NLogConfigurationException: Target 'ownFile-web' not found for logging rule: *.
+2020-01-27 01:53:10.9568 Info Found 22 configuration items
+2020-01-27 02:02:31.4780 Info Message Template Auto Format enabled
+2020-01-27 02:02:31.5209 Info Loading assembly: NLog.Web.AspNetCore
+2020-01-27 02:02:31.6876 Info Adding target FileTarget(Name=allfile)
+2020-01-27 02:02:31.7111 Warn Error has been raised. Exception: NLog.NLogConfigurationException: Target 'ownFile-web' not found for logging rule: *.
+2020-01-27 02:02:31.7479 Info Found 22 configuration items
+2020-01-27 02:09:00.6147 Info Message Template Auto Format enabled
+2020-01-27 02:09:00.6434 Info Loading assembly: NLog.Web.AspNetCore
+2020-01-27 02:09:00.7983 Info Adding target FileTarget(Name=allfile)
+2020-01-27 02:09:00.8462 Warn Error has been raised. Exception: NLog.NLogConfigurationException: Target 'ownFile-web' not found for logging rule: *.
+2020-01-27 02:09:00.9389 Info Found 22 configuration items

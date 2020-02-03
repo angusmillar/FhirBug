@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
+using Microsoft.Extensions.Logging;
 
 namespace Bug.Api.Controllers
 {
@@ -14,6 +15,13 @@ namespace Bug.Api.Controllers
   [ApiController]
   public class FhirStu3Controller : ControllerBase
   {
+    private readonly ILogger _logger;
+
+    public FhirStu3Controller(ILogger logger)
+    {
+      _logger = logger;
+      _logger.LogError("FhirStu3Controller Construtor");
+    }
 
     //#####################################################################
     //##|GET|##############################################################
@@ -40,7 +48,7 @@ namespace Bug.Api.Controllers
         Cap.ResourceBase = new Uri("http://localhost/fhir");
 
       }).ConfigureAwait(false);
-
+      _logger.LogError("Hello Metadata");
       return new FhirActionResult(HttpStatusCode.OK, Cap);
     }
 

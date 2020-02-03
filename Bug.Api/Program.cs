@@ -14,7 +14,8 @@ namespace Bug.Api
   {
     public static void Main(string[] args)
     {
-      var logger = NLog.Web.NLogBuilder.ConfigureNLog("nlog.config").GetCurrentClassLogger();
+      var logger = NLog.Web.NLogBuilder.ConfigureNLog("nlog.config")
+                                       .GetCurrentClassLogger();
       try
       {
         logger.Debug("FhirBug server starting up.");
@@ -42,7 +43,7 @@ namespace Bug.Api
       .ConfigureLogging(logging =>
       {
         logging.ClearProviders();
-        logging.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Trace);
+        logging.SetMinimumLevel(LogLevel.Trace);
       })
       .UseNLog();  // NLog: Setup NLog for Dependency injection
   }
