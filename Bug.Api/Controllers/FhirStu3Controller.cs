@@ -8,6 +8,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using Microsoft.Extensions.Logging;
+using Bug.Logic.Commands;
+using Bug.Logic;
+using Bug.Common.Enums;
 
 namespace Bug.Api.Controllers
 {
@@ -16,11 +19,15 @@ namespace Bug.Api.Controllers
   public class FhirStu3Controller : ControllerBase
   {
     private readonly ILogger _logger;
+    private readonly ICommandHandler<UpdateResourceCommand> _UpdateServerOptionsCommandHandler;
 
-    public FhirStu3Controller(ILogger logger)
+    private readonly FhirMajorVersion _FhirMajorVersion = FhirMajorVersion.Stu3;
+
+    public FhirStu3Controller(ILogger logger, ICommandHandler<UpdateResourceCommand> UpdateServerOptionsCommandHandler)
     {
       _logger = logger;
-      _logger.LogInformation($"FhirStu3Controller Construtor {DateTime.Now.ToShortDateString()}");
+      _UpdateServerOptionsCommandHandler = UpdateServerOptionsCommandHandler;
+      _logger.LogInformation($"FhirStu3Controller Construtor {DateTimeOffset.Now.Offset.ToString()}");
     }
 
     //#####################################################################
@@ -48,7 +55,7 @@ namespace Bug.Api.Controllers
         Cap.ResourceBase = new Uri("http://localhost/fhir");
 
       }).ConfigureAwait(false);
-      _logger.LogError($"Hello Metadata {DateTime.Now.ToShortDateString()}");
+      _logger.LogError($"Hello Metadata {DateTime.Now.ToString()}");
       return new FhirActionResult(HttpStatusCode.OK, Cap);
     }
 
@@ -124,9 +131,26 @@ namespace Bug.Api.Controllers
     [HttpPut("{resourceName}/{fhirId}")]
     public async Task<ActionResult<Stu3Model.Resource>> Put(string resourceName, string fhirId, [FromBody] Stu3Model.Resource resource)
     {
-      string resname = resourceName;
-      string id = fhirId;
-      if (resource != null)
+      if (resource == null)
+        return BadRequest();
+
+      if (resource.Meta != null)
+      {
+        resource.Meta.LastUpdated = DateTimeOffset.Now;
+      } else
+      {
+        resource.Meta = new Stu3Model.Meta() { LastUpdated = DateTimeOffset.Now };
+      }
+      var command = new UpdateResourceCommand()
+      {
+        FhirMajorVersion = _FhirMajorVersion,
+        RequestUri = new Uri(this.Request.Path),
+        Resource = resource
+      };
+
+      await _UpdateServerOptionsCommandHandler.Handle(command);
+      
+      
         resource.ResourceBase = new Uri("http://localhost/fhir");      
       return StatusCode(404, resource);
     }

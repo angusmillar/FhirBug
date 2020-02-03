@@ -24,6 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Bug.Logic\Bug.Logic.csproj" />
     <ProjectReference Include="..\Bug.R4Fhir\Bug.R4Fhir.csproj" />
     <ProjectReference Include="..\Bug.Stu3Fhir\Bug.Stu3Fhir.csproj" />
   </ItemGroup>

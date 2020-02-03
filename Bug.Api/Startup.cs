@@ -15,6 +15,7 @@ using System.Buffers;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Bug.Api.Middleware;
 using SimpleInjector;
+using Bug.Logic.Commands;
 
 namespace Bug.Api
 {
@@ -82,11 +83,14 @@ namespace Bug.Api
       // Add application services. For instance:
       //container.Register<IUserService, UserService>(Lifestyle.Singleton);
 
-      //container.RegisterConditional(
-      //  typeof(ILogger),
-      //  c => typeof(Logger<>).MakeGenericType(c.Consumer.ImplementationType),
-      //  Lifestyle.Singleton,
-      //  _ => true);
+      container.Register(typeof(ICommandHandler<>),
+        AppDomain.CurrentDomain.GetAssemblies());
+
+      
+
+      
+
+
     }
 
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
