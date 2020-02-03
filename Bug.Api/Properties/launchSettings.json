@@ -20,7 +20,7 @@
     "Bug.Api": {
       "commandName": "Project",
       "launchBrowser": true,
-      "launchUrl": "weatherforecast",
+      "launchUrl": "stu3/fhir/metadata",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },

@@ -18,7 +18,7 @@ namespace Bug.Api
                                        .GetCurrentClassLogger();
       try
       {
-        logger.Debug("FhirBug server starting up.");
+        logger.Info("Fhirbug server is starting up.");
         CreateHostBuilder(args).Build().Run();
       }
       catch (Exception exception)

@@ -20,7 +20,7 @@ namespace Bug.Api.Controllers
     public FhirStu3Controller(ILogger logger)
     {
       _logger = logger;
-      _logger.LogError("FhirStu3Controller Construtor");
+      _logger.LogInformation($"FhirStu3Controller Construtor {DateTime.Now.ToShortDateString()}");
     }
 
     //#####################################################################
@@ -48,7 +48,7 @@ namespace Bug.Api.Controllers
         Cap.ResourceBase = new Uri("http://localhost/fhir");
 
       }).ConfigureAwait(false);
-      _logger.LogError("Hello Metadata");
+      _logger.LogError($"Hello Metadata {DateTime.Now.ToShortDateString()}");
       return new FhirActionResult(HttpStatusCode.OK, Cap);
     }
 
