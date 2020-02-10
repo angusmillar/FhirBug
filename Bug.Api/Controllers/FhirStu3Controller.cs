@@ -1,16 +1,16 @@
 ﻿extern alias Stu3;
-using Stu3Model = Stu3.Hl7.Fhir.Model;
+using Bug.Common.Enums;
+using Bug.Logic.Command;
+using Bug.Logic.Command.FhirApi;
+using Bug.Logic.Command.FhirApi.Update;
+using Bug.Logic.Interfaces.CompositionRoot;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using System.Net;
-using Microsoft.Extensions.Logging;
-using Bug.Logic.Commands;
-using Bug.Logic;
-using Bug.Common.Enums;
+using System.Threading.Tasks;
+using Stu3Model = Stu3.Hl7.Fhir.Model;
 
 namespace Bug.Api.Controllers
 {
@@ -19,14 +19,16 @@ namespace Bug.Api.Controllers
   public class FhirStu3Controller : ControllerBase
   {
     private readonly ILogger _logger;
-    private readonly ICommandHandler<UpdateResourceCommand> _UpdateServerOptionsCommandHandler;
+    private readonly IFhirApiCommandHandlerFactory IFhirApiCommandHandlerFactory;
+    //private readonly ICommandHandler<FhirApiCommand, FhirApiOutcome> _FhirApiCommandHandler;
 
     private readonly FhirMajorVersion _FhirMajorVersion = FhirMajorVersion.Stu3;
 
-    public FhirStu3Controller(ILogger logger, ICommandHandler<UpdateResourceCommand> UpdateServerOptionsCommandHandler)
+    public FhirStu3Controller(ILogger logger, IFhirApiCommandHandlerFactory IFhirApiCommandHandlerFactory)
     {
       _logger = logger;
-      _UpdateServerOptionsCommandHandler = UpdateServerOptionsCommandHandler;
+      //_FhirApiCommandHandler = FhirApiCommandHandler;
+      this.IFhirApiCommandHandlerFactory = IFhirApiCommandHandlerFactory;
       _logger.LogInformation($"FhirStu3Controller Construtor {DateTimeOffset.Now.Offset.ToString()}");
     }
 
@@ -50,7 +52,7 @@ namespace Bug.Api.Controllers
         Cap.Software = new Stu3Model.CapabilityStatement.SoftwareComponent();
         Cap.Software.Name = "FhirBug";
         //Cap.FhirVersion = Stu3Model.FHIRVersion.N4_0_0;
-        Cap.Format = new List<string>() { "xml", "json" }; 
+        Cap.Format = new List<string>() { "xml", "json" };
 
         Cap.ResourceBase = new Uri("http://localhost/fhir");
 
@@ -83,7 +85,7 @@ namespace Bug.Api.Controllers
     [HttpGet, Route("{resourceName}")]
     public async Task<ActionResult<Stu3Model.Resource>> GetSearch(string resourceName)
     {
-      string test1 = resourceName;      
+      string test1 = resourceName;
       return StatusCode((int)HttpStatusCode.OK, GetTestPateint());
     }
 
@@ -106,16 +108,24 @@ namespace Bug.Api.Controllers
     [HttpPost("{resourceName}")]
     public async Task<ActionResult<Stu3Model.Resource>> Post(string resourceName, [FromBody]Stu3Model.Resource resource)
     {
-      string resname = resourceName;
-      if (resource != null)
-        resource.ResourceBase = new Uri("http://localhost/fhir");
+      if (resource == null)
+        return BadRequest();
 
-      //throw new Common.Exceptions.FhirFatalException(System.Net.HttpStatusCode.BadRequest, new string[] { "error1", "error2" });
-      //throw new Exception("normal exception message");
-      return StatusCode(200, resource);
+      var command = new Logic.Command.FhirApi.Create.CreateCommand()
+      {
+        FhirMajorVersion = _FhirMajorVersion,
+        RequestUri = new Uri(this.Request.Path),
+        Resource = resource
+      };
+
+      var CreateCommandHandler = this.IFhirApiCommandHandlerFactory.GetCreateCommand();
+      FhirApiOutcome AcceptedAtActionResult = await CreateCommandHandler.Handle(command);
+
+      resource.ResourceBase = new Uri("http://localhost/fhir");
+      return new FhirActionResult(AcceptedAtActionResult.httpStatusCode, AcceptedAtActionResult.resource as Stu3Model.Resource);
     }
 
-    [HttpPost, Route("{resourceName}/_search")]    
+    [HttpPost, Route("{resourceName}/_search")]
     public async Task<ActionResult<Stu3Model.Resource>> PostFormSearch(string resourceName, [FromBody] System.Net.Http.Formatting.FormDataCollection FormDataCollection)
     {
       string resname = resourceName;
@@ -133,26 +143,19 @@ namespace Bug.Api.Controllers
     {
       if (resource == null)
         return BadRequest();
-
-      if (resource.Meta != null)
-      {
-        resource.Meta.LastUpdated = DateTimeOffset.Now;
-      } else
-      {
-        resource.Meta = new Stu3Model.Meta() { LastUpdated = DateTimeOffset.Now };
-      }
-      var command = new UpdateResourceCommand()
+      
+      var command = new Logic.Command.FhirApi.Update.UpdateCommand()
       {
         FhirMajorVersion = _FhirMajorVersion,
         RequestUri = new Uri(this.Request.Path),
         Resource = resource
       };
 
-      await _UpdateServerOptionsCommandHandler.Handle(command);
-      
-      
-        resource.ResourceBase = new Uri("http://localhost/fhir");      
-      return StatusCode(404, resource);
+      var UpdateCommandHandler = this.IFhirApiCommandHandlerFactory.GetUpdateCommand();
+      FhirApiOutcome AcceptedAtActionResult = await UpdateCommandHandler.Handle(command);
+
+      resource.ResourceBase = new Uri("http://localhost/fhir");
+      return new FhirActionResult(AcceptedAtActionResult.httpStatusCode, AcceptedAtActionResult.resource as Stu3Model.Resource);
     }
 
     //#####################################################################

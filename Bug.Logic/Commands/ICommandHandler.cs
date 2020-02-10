@@ -1,12 +1,15 @@
-﻿using System;
+﻿using Bug.Logic.Command.FhirApi;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Bug.Logic.Commands
+namespace Bug.Logic.Command
 {
-  public interface ICommandHandler<TCommand>
+  public interface ICommandHandler<TCommand, TOutcome>    
+    where TCommand : FhirApiCommand
+    where TOutcome : FhirApiOutcome
   {
-    Task Handle(TCommand command);
+    Task<TOutcome> Handle(TCommand command);
   }
 }

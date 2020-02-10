@@ -20,10 +20,12 @@
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="3.1.0" />
     <PackageReference Include="NLog" Version="4.6.8" />
     <PackageReference Include="NLog.Web.AspNetCore" Version="4.9.0" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="3.1.1.2" />
     <PackageReference Include="SimpleInjector.Integration.AspNetCore.Mvc.Core" Version="4.9.0" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Bug.Data\Bug.Data.csproj" />
     <ProjectReference Include="..\Bug.Logic\Bug.Logic.csproj" />
     <ProjectReference Include="..\Bug.R4Fhir\Bug.R4Fhir.csproj" />
     <ProjectReference Include="..\Bug.Stu3Fhir\Bug.Stu3Fhir.csproj" />

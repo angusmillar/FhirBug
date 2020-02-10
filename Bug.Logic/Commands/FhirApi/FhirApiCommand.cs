@@ -2,13 +2,13 @@
 using System.Collections.Generic;
 using System.Text;
 using Bug.Common.Enums;
-namespace Bug.Logic
+namespace Bug.Logic.Command.FhirApi
 {
-  public class UpdateResourceCommand
+  public abstract class FhirApiCommand
   {
-    public Uri RequestUri { get; set; }
-    public object Resource { get; set; }
+    public Uri RequestUri { get; set; }    
     public FhirMajorVersion FhirMajorVersion { get; set; }
+    public string RequestHeaders { get; set; }
 
   }
 }

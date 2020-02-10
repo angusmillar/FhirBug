@@ -13,7 +13,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bug.Common", "Bug.Common\Bu
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bug.Stu3Fhir", "Bug.Stu3Fhir\Bug.Stu3Fhir.csproj", "{D90D2F08-8D0E-444B-B6D1-4B85EBBEA6F2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bug.Logic", "Bug.Logic\Bug.Logic.csproj", "{F4FED051-B418-4492-9DAF-E091042AF5ED}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bug.Logic", "Bug.Logic\Bug.Logic.csproj", "{F4FED051-B418-4492-9DAF-E091042AF5ED}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bug.Data", "Bug.Data\Bug.Data.csproj", "{A5D762F9-7703-4ED8-AC14-20F0E60AE6F0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bug.Test.Logic", "Bug.Test.Logic\Bug.Test.Logic.csproj", "{1B02CF2E-9D00-4CE0-A50F-C3D59020DCF4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,6 +49,14 @@ Global
 		{F4FED051-B418-4492-9DAF-E091042AF5ED}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F4FED051-B418-4492-9DAF-E091042AF5ED}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F4FED051-B418-4492-9DAF-E091042AF5ED}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A5D762F9-7703-4ED8-AC14-20F0E60AE6F0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A5D762F9-7703-4ED8-AC14-20F0E60AE6F0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A5D762F9-7703-4ED8-AC14-20F0E60AE6F0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A5D762F9-7703-4ED8-AC14-20F0E60AE6F0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1B02CF2E-9D00-4CE0-A50F-C3D59020DCF4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1B02CF2E-9D00-4CE0-A50F-C3D59020DCF4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1B02CF2E-9D00-4CE0-A50F-C3D59020DCF4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1B02CF2E-9D00-4CE0-A50F-C3D59020DCF4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

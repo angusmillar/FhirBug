@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
@@ -10,6 +10,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Bug.Common\Bug.Common.csproj" />
+    <ProjectReference Include="..\Bug.R4Fhir\Bug.R4Fhir.csproj" />
+    <ProjectReference Include="..\Bug.Stu3Fhir\Bug.Stu3Fhir.csproj" />
   </ItemGroup>
 
 </Project>

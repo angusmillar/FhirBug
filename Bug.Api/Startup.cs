@@ -15,7 +15,11 @@ using System.Buffers;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Bug.Api.Middleware;
 using SimpleInjector;
-using Bug.Logic.Commands;
+using Bug.Logic.Command;
+using Bug.Logic.Interfaces.Repository;
+using Bug.Data;
+//using Npgsql;
+using Microsoft.EntityFrameworkCore;
 
 namespace Bug.Api
 {
@@ -44,6 +48,9 @@ namespace Bug.Api
       {
         options.AllowSynchronousIO = true;
       });
+
+      // Add to the built-in ServiceCollection
+      services.AddDbContext<AppDbContext>(options => options.UseNpgsql(Configuration.GetConnectionString("DatabaseConnection")));
 
       services.AddControllers();
       services.AddMvcCore(config =>
@@ -83,11 +90,40 @@ namespace Bug.Api
       // Add application services. For instance:
       //container.Register<IUserService, UserService>(Lifestyle.Singleton);
 
-      container.Register(typeof(ICommandHandler<>),
+      //Register all ICommandHandlers
+      container.Register(typeof(ICommandHandler<,>),
         AppDomain.CurrentDomain.GetAssemblies());
 
+      //Wrap all ICommandHandlers with this Decorator
+      container.RegisterDecorator(typeof(ICommandHandler<,>),
+        typeof(Bug.Logic.Command.FhirApi.Decorator.FhirApiCommandDecorator<,>));
       
+      //Wrap all ICommandHandlers with this Decorator
+      container.RegisterDecorator(typeof(ICommandHandler<,>),
+        typeof(Bug.Logic.Command.FhirApi.Decorator.FhirApiCommandLoggingDecorator<,>));
+      
+      //Only wrap ICommandHandlers with this Decorator where the TCommand is an UpdateCommand
+      container.RegisterDecorator(typeof(ICommandHandler<,>),
+        typeof(Bug.Logic.Command.FhirApi.Update.Decorator.UpdateValidatorDecorator<,>),
+        c =>
+        {
+          return (c.ServiceType.GenericTypeArguments[0].Name == typeof(Bug.Logic.Command.FhirApi.Update.UpdateCommand).Name);
+        }
+      );
 
+
+      container.Register<Bug.Logic.Interfaces.CompositionRoot.IFhirApiCommandHandlerFactory, Bug.Api.CompositionRoot.FhirApiCommandHandlerFactory>(Lifestyle.Singleton);
+      
+      
+      container.Register<Bug.Stu3Fhir.IFhirResourceSupport, Bug.Stu3Fhir.FhirResourceSupport>(Lifestyle.Scoped);
+      container.Register<Bug.R4Fhir.IFhirResourceSupport, Bug.R4Fhir.FhirResourceSupport>(Lifestyle.Scoped);
+      container.Register<Bug.Logic.Interfaces.CompositionRoot.IFhirResourceSupportFactory, Bug.Api.CompositionRoot.FhirResourceSupportFactory>(Lifestyle.Singleton);
+
+      container.Register<Bug.Stu3Fhir.IFhirResourceIdSupport, Bug.Stu3Fhir.FhirResourceSupport>(Lifestyle.Scoped);
+      container.Register<Bug.R4Fhir.IFhirResourceIdSupport, Bug.R4Fhir.FhirResourceSupport>(Lifestyle.Scoped);
+      container.Register<Bug.Logic.Interfaces.CompositionRoot.IFhirResourceIdSupportFactory, Bug.Api.CompositionRoot.FhirResourceIdSupportFactory>(Lifestyle.Singleton);
+
+      container.Register<IResourceStoreRepository, Bug.Data.Repository.ResourceStoreRepository>(Lifestyle.Scoped);
       
 
 
@@ -118,5 +154,8 @@ namespace Bug.Api
 
       container.Verify();
     }
+
+
+    
   }
 }
