@@ -7,48 +7,54 @@ using System.Text;
 using System.Threading.Tasks;
 using Bug.Logic.Interfaces.CompositionRoot;
 using Bug.Logic.Interfaces.Repository;
+using Bug.Stu3Fhir.Serialization;
+using Bug.R4Fhir.Serialization;
+using Bug.Common.Compression;
+using Bug.Common.Exceptions;
 
 namespace Bug.Logic.Command.FhirApi.Create
 {
   public class CreateCommandHandler : ICommandHandler<CreateCommand, FhirApiOutcome>
-  {    
-    private readonly IFhirResourceSupportFactory IResourceMetaSupportFactory;
+  {        
     private readonly IResourceStoreRepository IResourceStoreRepository;
+    private readonly IStu3SerializationToJsonBytes IStu3SerializationToJsonBytes;
+    private readonly IR4SerializationToJsonBytes IR4SerializationToJsonBytes;
+    private readonly IGZipper IGZipper;
 
-    public CreateCommandHandler(IFhirResourceSupportFactory iResourceMetaSupportFactory, IResourceStoreRepository IResourceStoreRepository)
-    {      
-      this.IResourceMetaSupportFactory = iResourceMetaSupportFactory;
+    public CreateCommandHandler( 
+      IResourceStoreRepository IResourceStoreRepository,
+      IStu3SerializationToJsonBytes IStu3SerializationToJsonBytes,
+      IR4SerializationToJsonBytes IR4SerializationToJsonBytes,
+      IGZipper IGZipper)
+    {            
       this.IResourceStoreRepository = IResourceStoreRepository;
+      this.IStu3SerializationToJsonBytes = IStu3SerializationToJsonBytes;
+      this.IR4SerializationToJsonBytes = IR4SerializationToJsonBytes;
+      this.IGZipper = IGZipper;
     }
 
     public async Task<FhirApiOutcome> Handle(CreateCommand command)
-    {    
+    {
+      byte[] ResourceBytes = null;
       switch (command.FhirMajorVersion)
       {
-        case FhirMajorVersion.Stu3:
-          var Stu3MetaSupport = IResourceMetaSupportFactory.GetStu3();
-          Stu3MetaSupport.SetLastUpdated(DateTimeOffset.Now, command.Resource);
-          Stu3MetaSupport.SetVersion("1", command.Resource);
-          var x = Bug.Stu3Fhir.SerializationSupport.SerializeToJson()
+        case FhirMajorVersion.Stu3:                    
+          ResourceBytes = IStu3SerializationToJsonBytes.SerializeToJsonBytes(command.Resource);
           break;
-        case FhirMajorVersion.R4:
-          var R4MetaSupport = IResourceMetaSupportFactory.GetStu3();
-          R4MetaSupport.SetLastUpdated(DateTimeOffset.Now, command.Resource);
-          R4MetaSupport.SetVersion("1", command.Resource);
+        case FhirMajorVersion.R4:          
+          ResourceBytes = IR4SerializationToJsonBytes.SerializeToJsonBytes(command.Resource);
           break;
-        case FhirMajorVersion.Unknown:
-          throw new Bug.Common.Exceptions.FhirFatalException(System.Net.HttpStatusCode.InternalServerError, "Unknown FHIR Version.");
         default:
-          throw new Bug.Common.Exceptions.FhirFatalException(System.Net.HttpStatusCode.InternalServerError, $"Unknown FHIR Version of : {command.FhirMajorVersion.GetLiteral()}");
+          throw new FhirVersionFatalException(command.FhirMajorVersion);
       }
 
       var ResourceStore = new DomainModel.ResourceStore()
       {
-        FhirId = Common.FhirTools.FhirGuidSupport.NewFhirGuid(),
+        FhirId = command.FhirId,
         IsCurrent = true,
         IsDeleted = false,
-        VersionId = "1",
-        Blob = Common.FhirTools.
+        VersionId = command.VersionId,
+        Blob = IGZipper.Compress(ResourceBytes)
       };
 
       IResourceStoreRepository.Add(ResourceStore);
@@ -56,9 +62,11 @@ namespace Bug.Logic.Command.FhirApi.Create
 
       var OutCome = new FhirApiOutcome()
       {
-        httpStatusCode = System.Net.HttpStatusCode.OK,
-        fhirMajorVersion = command.FhirMajorVersion,
-        resource = command.Resource
+        ResourceId = ResourceStore.FhirId,
+        HttpStatusCode = System.Net.HttpStatusCode.Created,
+        FhirMajorVersion = command.FhirMajorVersion,
+        Resource = command.Resource,
+        ResourceVersionId = ResourceStore.VersionId
       };
 
       return OutCome;

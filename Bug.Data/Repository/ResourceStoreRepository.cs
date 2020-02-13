@@ -6,6 +6,7 @@ using System.Linq;
 using Bug.Data.Repository.Base;
 using Bug.Logic.DomainModel;
 using Bug.Logic.Interfaces.Repository;
+using System.Threading.Tasks;
 //using System.Data.Entity;
 
 namespace Bug.Data.Repository
@@ -15,9 +16,9 @@ namespace Bug.Data.Repository
     public ResourceStoreRepository(AppDbContext context)
       : base(context) { }
 
-    public ResourceStore GetByFhirId(string fhirId)
+    public async Task<ResourceStore> GetByFhirIdAsync(string fhirId)
     {
-      return DbSet.FirstOrDefault(x => x.FhirId == fhirId);
+      return await DbSet.FirstOrDefaultAsync(x => x.FhirId == fhirId);
     }
     
   }

@@ -40,7 +40,7 @@ namespace Bug.Logic.Command.FhirApi
 
       var OutCome = new FhirApiOutcome()
       {
-        httpStatusCode = System.Net.HttpStatusCode.OK,        
+        HttpStatusCode = System.Net.HttpStatusCode.OK,        
       };
       return OutCome;
     }

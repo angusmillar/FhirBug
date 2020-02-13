@@ -3,15 +3,14 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Bug.Stu3Fhir
+namespace Bug.R4Fhir.ResourceSupport
 {
-  public class FhirResourceSupport : IFhirResourceSupport
+  public class FhirResourceSupport : IFhirResourceIdSupport, IFhirResourceVersionSupport, IFhirResourceLastUpdatedSupport
   {
     public void SetLastUpdated(DateTimeOffset dateTimeOffset, object resource)
     {
       NullCheck(resource, "resource");
-
-      Resource Res = (Resource)resource;
+      Resource Res = ResourceCast(resource);
       CreateMeta(Res);
       Res.Meta.LastUpdated = dateTimeOffset;
     }
@@ -19,14 +18,14 @@ namespace Bug.Stu3Fhir
     public DateTimeOffset? GetLastUpdated(object resource)
     {
       NullCheck(resource, "resource");
-      Resource Res = (Resource)resource;
+      Resource Res = ResourceCast(resource);
       return Res?.Meta?.LastUpdated;
     }
 
     public void SetVersion(string versionId, object resource)
     {
       NullCheck(resource, "resource");
-      Resource Res = (Resource)resource;
+      Resource Res = ResourceCast(resource);
       CreateMeta(Res);
       Res.Meta.VersionId = versionId;
     }
@@ -34,15 +33,24 @@ namespace Bug.Stu3Fhir
     public string GetVersion(object resource)
     {
       NullCheck(resource, "resource");
-      Resource Res = (Resource)resource;
+      Resource Res = ResourceCast(resource);
       return Res?.Meta?.VersionId;
+    }
+
+    public void SetSource(Uri uri, object resource)
+    {
+      NullCheck(resource, "resource");
+      NullCheck(uri, "uri");
+      Resource Res = ResourceCast(resource);
+      CreateMeta(Res);
+      Res.Meta.Source = uri.ToString();
     }
 
     public void SetProfile(IEnumerable<string> profileList, object resource)
     {
       NullCheck(resource, "resource");
       NullCheck(profileList, "profileList");
-      Resource Res = (Resource)resource;
+      Resource Res = ResourceCast(resource);
       CreateMeta(Res);
       Res.Meta.Profile = profileList;
     }
@@ -52,7 +60,7 @@ namespace Bug.Stu3Fhir
     {
       NullCheck(resource, "resource");
       NullCheck(codingList, "codingList");
-      Resource Res = (Resource)resource;
+      Resource Res = ResourceCast(resource);
       CreateMeta(Res);
       Res.Meta.Tag = codingList;
     }
@@ -61,7 +69,7 @@ namespace Bug.Stu3Fhir
     {
       NullCheck(resource, "resource");
       NullCheck(codingList, "codingList");
-      Resource Res = (Resource)resource;
+      Resource Res = ResourceCast(resource);
       CreateMeta(Res);
       Res.Meta.Security = codingList;
     }
@@ -77,14 +85,14 @@ namespace Bug.Stu3Fhir
     public string GetFhirId(object resource)
     {
       NullCheck(resource, "resource");
-      Resource Res = (Resource)resource;
+      Resource Res = ResourceCast(resource);
       return Res.Id;
     }
 
     public string SetFhirId(string id, object resource)
     {
       NullCheck(resource, "resource");
-      Resource Res = (Resource)resource;
+      Resource Res = ResourceCast(resource);
       return Res.Id = id;
     }
 
@@ -93,6 +101,17 @@ namespace Bug.Stu3Fhir
       if (instance == null)
         throw new Bug.Common.Exceptions.FhirFatalException(System.Net.HttpStatusCode.InternalServerError, $"{name} parameter can not be null");
 
+    }
+    private Resource ResourceCast(object resource)
+    {
+      if (resource is Resource Res)
+      {
+        return Res;
+      }
+      else
+      {
+        throw new Bug.Common.Exceptions.FhirFatalException(System.Net.HttpStatusCode.InternalServerError, $"Invalid cast to R4 Fhir Resource.");
+      }
     }
   }
 }

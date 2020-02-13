@@ -11,6 +11,9 @@ using System.Net;
 using System.Threading.Tasks;
 using Bug.Common.Enums;
 using Microsoft.Extensions.Logging;
+using Bug.Stu3Fhir.Serialization;
+using Bug.R4Fhir.Serialization;
+using Bug.Logic.Interfaces.CompositionRoot;
 
 namespace Bug.Api.Middleware
 {
@@ -18,10 +21,26 @@ namespace Bug.Api.Middleware
   {
     private readonly ILogger<ErrorHandlingMiddleware> _logger;
     private readonly RequestDelegate next;
-    public ErrorHandlingMiddleware(RequestDelegate next, ILogger<ErrorHandlingMiddleware> logger)
+    private readonly IStu3SerializationToXml IStu3SerializationToXml;
+    private readonly IStu3SerializationToJson IStu3SerializationToJson;
+    private readonly IR4SerializationToXml IR4SerializationToXml;
+    private readonly IR4SerializationToJson IR4SerializationToJson;
+    private readonly IOperationOutComeSupportFactory IOperationOutComeSupportFactory;
+
+    public ErrorHandlingMiddleware(RequestDelegate next, ILogger<ErrorHandlingMiddleware> logger,
+      IStu3SerializationToJson IStu3SerializationToJson,
+      IStu3SerializationToXml IStu3SerializationToXml,      
+      IR4SerializationToXml IR4SerializationToXml,
+      IR4SerializationToJson IR4SerializationToJson,
+      IOperationOutComeSupportFactory IOperationOutComeSupportFactory)
     {
       this.next = next;
       this._logger = logger;
+      this.IStu3SerializationToXml = IStu3SerializationToXml;
+      this.IStu3SerializationToJson = IStu3SerializationToJson;
+      this.IR4SerializationToXml = IR4SerializationToXml;
+      this.IR4SerializationToJson = IR4SerializationToJson;
+      this.IOperationOutComeSupportFactory = IOperationOutComeSupportFactory;
     }
 
     public async Task Invoke(HttpContext context /* other dependencies */)
@@ -53,12 +72,7 @@ namespace Bug.Api.Middleware
           case FhirMajorVersion.R4:
             {
               return R4FhirExceptionProcessing(context, FhirException, AcceptFormatType);
-            }
-          case FhirMajorVersion.Unknown:
-            R4Model.OperationOutcome UnknownOperationOutcomeResult = Bug.R4Fhir.OperationOutComeSupport.GetFatal(new string[] { "Unable to resolve which major version of FHIR is in use." });
-            context.Response.ContentType = Bug.Api.ContentFormatters.FhirMediaType.GetMediaTypeHeaderValue(UnknownOperationOutcomeResult.GetType(), FhirFormatType.xml).Value;
-            context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-            return context.Response.WriteAsync(Bug.R4Fhir.SerializationSupport.SerializeToXml(UnknownOperationOutcomeResult));
+            }          
           default:
             throw new ApplicationException($"Unable to resolve which major version of FHIR is in use. Found enum: {VersionInUse.ToString()}");
 
@@ -73,23 +87,18 @@ namespace Bug.Api.Middleware
         {
           case FhirMajorVersion.Stu3:
             {
-              Stu3Model.OperationOutcome Stu3OperationOutcomeResult = Bug.Stu3Fhir.OperationOutComeSupport.GetFatal(new string[] { UsersErrorMessage } );
+              Stu3Model.OperationOutcome Stu3OperationOutcomeResult = IOperationOutComeSupportFactory.GetStu3().GetFatal(new string[] { UsersErrorMessage } );
               context.Response.ContentType = Bug.Api.ContentFormatters.FhirMediaType.GetMediaTypeHeaderValue(Stu3OperationOutcomeResult.GetType(), FhirFormatType.xml).Value;
               context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-              return context.Response.WriteAsync(Bug.Stu3Fhir.SerializationSupport.SerializeToXml(Stu3OperationOutcomeResult));
+              return context.Response.WriteAsync(IStu3SerializationToXml.SerializeToXml(Stu3OperationOutcomeResult));
             }
           case FhirMajorVersion.R4:
             {
-              R4Model.OperationOutcome R4OperationOutcomeResult = Bug.R4Fhir.OperationOutComeSupport.GetFatal(new string[] { UsersErrorMessage });             
+              R4Model.OperationOutcome R4OperationOutcomeResult = IOperationOutComeSupportFactory.GetR4().GetFatal(new string[] { UsersErrorMessage });             
               context.Response.ContentType = Bug.Api.ContentFormatters.FhirMediaType.GetMediaTypeHeaderValue(R4OperationOutcomeResult.GetType(), FhirFormatType.xml).Value;
               context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-              return context.Response.WriteAsync(Bug.R4Fhir.SerializationSupport.SerializeToXml(R4OperationOutcomeResult));
-            }
-          case FhirMajorVersion.Unknown:
-            Stu3Model.OperationOutcome UnknownOperationOutcomeResult = Bug.Stu3Fhir.OperationOutComeSupport.GetFatal(new string[] { "Unable to resolve which major version of FHIR is in use." });
-            context.Response.ContentType = Bug.Api.ContentFormatters.FhirMediaType.GetMediaTypeHeaderValue(UnknownOperationOutcomeResult.GetType(), FhirFormatType.xml).Value;
-            context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-            return context.Response.WriteAsync(Bug.Stu3Fhir.SerializationSupport.SerializeToXml(UnknownOperationOutcomeResult));
+              return context.Response.WriteAsync(IR4SerializationToXml.SerializeToXml(R4OperationOutcomeResult));
+            }          
           default:
             string msg = $"Unable to resolve which major version of FHIR is in use. Found enum: {VersionInUse.ToString()}";
             _logger.LogError(msg);
@@ -103,34 +112,34 @@ namespace Bug.Api.Middleware
       R4Model.OperationOutcome R4OperationOutcomeResult = null;
       if (FhirException is FhirFatalException FatalExec)
       {
-        R4OperationOutcomeResult = Bug.R4Fhir.OperationOutComeSupport.GetFatal(FatalExec.MessageList);
+        R4OperationOutcomeResult = IOperationOutComeSupportFactory.GetR4().GetFatal(FatalExec.MessageList);
       }
       else if (FhirException is FhirErrorException ErrorExec)
       {
-        R4OperationOutcomeResult = Bug.R4Fhir.OperationOutComeSupport.GetError(ErrorExec.MessageList);
+        R4OperationOutcomeResult = IOperationOutComeSupportFactory.GetR4().GetError(ErrorExec.MessageList);
       }
       else if (FhirException is FhirWarnException WarnExec)
       {
-        R4OperationOutcomeResult = Bug.R4Fhir.OperationOutComeSupport.GetWarning(WarnExec.MessageList);
+        R4OperationOutcomeResult = IOperationOutComeSupportFactory.GetR4().GetWarning(WarnExec.MessageList);
       }
       else if (FhirException is FhirInfoException InfoExec)
       {
-        R4OperationOutcomeResult = Bug.R4Fhir.OperationOutComeSupport.GetInformation(InfoExec.MessageList);
+        R4OperationOutcomeResult = IOperationOutComeSupportFactory.GetR4().GetInformation(InfoExec.MessageList);
       }
       else
       {
-        R4OperationOutcomeResult = Bug.R4Fhir.OperationOutComeSupport.GetFatal(new string[] { $"Unexpected FhirException type encountered of : {FhirException.GetType().FullName}" });
+        R4OperationOutcomeResult = IOperationOutComeSupportFactory.GetR4().GetFatal(new string[] { $"Unexpected FhirException type encountered of : {FhirException.GetType().FullName}" });
       }
 
       context.Response.StatusCode = (int)FhirException.HttpStatusCode;
       context.Response.ContentType = Bug.Api.ContentFormatters.FhirMediaType.GetMediaTypeHeaderValue(R4OperationOutcomeResult.GetType(), AcceptFormatType).Value;
       if (AcceptFormatType == FhirFormatType.xml)
       {
-        return context.Response.WriteAsync(Bug.R4Fhir.SerializationSupport.SerializeToXml(R4OperationOutcomeResult));
+        return context.Response.WriteAsync(IR4SerializationToXml.SerializeToXml(R4OperationOutcomeResult));
       }
       else if (AcceptFormatType == FhirFormatType.json)
       {
-        return context.Response.WriteAsync(Bug.R4Fhir.SerializationSupport.SerializeToJson(R4OperationOutcomeResult));
+        return context.Response.WriteAsync(IR4SerializationToJson.SerializeToJson(R4OperationOutcomeResult));
       }
       else
       {
@@ -145,33 +154,33 @@ namespace Bug.Api.Middleware
       Stu3Model.OperationOutcome Stu3OperationOutcomeResult = null;
       if (FhirException is FhirFatalException FatalExec)
       {
-        Stu3OperationOutcomeResult = Bug.Stu3Fhir.OperationOutComeSupport.GetFatal(FatalExec.MessageList);
+        Stu3OperationOutcomeResult = IOperationOutComeSupportFactory.GetStu3().GetFatal(FatalExec.MessageList);
       }
       else if (FhirException is FhirErrorException ErrorExec)
       {
-        Stu3OperationOutcomeResult = Bug.Stu3Fhir.OperationOutComeSupport.GetError(ErrorExec.MessageList);
+        Stu3OperationOutcomeResult = IOperationOutComeSupportFactory.GetStu3().GetError(ErrorExec.MessageList);
       }
       else if (FhirException is FhirWarnException WarnExec)
       {
-        Stu3OperationOutcomeResult = Bug.Stu3Fhir.OperationOutComeSupport.GetWarning(WarnExec.MessageList);
+        Stu3OperationOutcomeResult = IOperationOutComeSupportFactory.GetStu3().GetWarning(WarnExec.MessageList);
       }
       else if (FhirException is FhirInfoException InfoExec)
       {
-        Stu3OperationOutcomeResult = Bug.Stu3Fhir.OperationOutComeSupport.GetInformation(InfoExec.MessageList);
+        Stu3OperationOutcomeResult = IOperationOutComeSupportFactory.GetStu3().GetInformation(InfoExec.MessageList);
       }
       else
       {
-        Stu3OperationOutcomeResult = Bug.Stu3Fhir.OperationOutComeSupport.GetFatal(new string[] { $"Unexpected FhirException type encountered of : {FhirException.GetType().FullName}" });
+        Stu3OperationOutcomeResult = IOperationOutComeSupportFactory.GetStu3().GetFatal(new string[] { $"Unexpected FhirException type encountered of : {FhirException.GetType().FullName}" });
       }
       context.Response.StatusCode = (int)FhirException.HttpStatusCode;
       context.Response.ContentType = Bug.Api.ContentFormatters.FhirMediaType.GetMediaTypeHeaderValue(Stu3OperationOutcomeResult.GetType(), AcceptFormatType).Value;
       if (AcceptFormatType == FhirFormatType.xml)
       {
-        return context.Response.WriteAsync(Bug.Stu3Fhir.SerializationSupport.SerializeToXml(Stu3OperationOutcomeResult));
+        return context.Response.WriteAsync(IStu3SerializationToXml.SerializeToXml(Stu3OperationOutcomeResult));
       }
       else if (AcceptFormatType == FhirFormatType.json)
       {
-        return context.Response.WriteAsync(Bug.Stu3Fhir.SerializationSupport.SerializeToJson(Stu3OperationOutcomeResult));
+        return context.Response.WriteAsync(IStu3SerializationToJson.SerializeToJson(Stu3OperationOutcomeResult));
       }
       else
       {
@@ -182,7 +191,7 @@ namespace Bug.Api.Middleware
     }
 
     private FhirMajorVersion GetFhirVersionInUse(string RequestPath)
-    {
+    {      
       if (RequestPath.Contains(FhirMajorVersion.Stu3.GetLiteral(), StringComparison.CurrentCultureIgnoreCase))
       {
         return FhirMajorVersion.Stu3;
@@ -193,7 +202,7 @@ namespace Bug.Api.Middleware
       }
       else
       {
-        return FhirMajorVersion.Unknown;
+        throw new ApplicationException($"Unable to resolve the FHIR version to use for this exception message.");
       }      
     }
   }

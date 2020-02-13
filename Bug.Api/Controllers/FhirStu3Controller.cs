@@ -122,7 +122,7 @@ namespace Bug.Api.Controllers
       FhirApiOutcome AcceptedAtActionResult = await CreateCommandHandler.Handle(command);
 
       resource.ResourceBase = new Uri("http://localhost/fhir");
-      return new FhirActionResult(AcceptedAtActionResult.httpStatusCode, AcceptedAtActionResult.resource as Stu3Model.Resource);
+      return new FhirActionResult(AcceptedAtActionResult.HttpStatusCode, AcceptedAtActionResult.Resource as Stu3Model.Resource);
     }
 
     [HttpPost, Route("{resourceName}/_search")]
@@ -155,7 +155,7 @@ namespace Bug.Api.Controllers
       FhirApiOutcome AcceptedAtActionResult = await UpdateCommandHandler.Handle(command);
 
       resource.ResourceBase = new Uri("http://localhost/fhir");
-      return new FhirActionResult(AcceptedAtActionResult.httpStatusCode, AcceptedAtActionResult.resource as Stu3Model.Resource);
+      return new FhirActionResult(AcceptedAtActionResult.HttpStatusCode, AcceptedAtActionResult.Resource as Stu3Model.Resource);
     }
 
     //#####################################################################

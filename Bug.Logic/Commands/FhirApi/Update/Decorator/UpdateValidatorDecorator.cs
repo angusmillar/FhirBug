@@ -37,7 +37,7 @@ namespace Bug.Logic.Command.FhirApi.Update.Decorator
       {
         var FhirResourceIdSupport = IFhirResourceIdSupportFactory.GetStu3();
         command.FhirId = FhirResourceIdSupport.GetFhirId(command.Resource);
-        ResourceStore resourceStore = IResourceStoreRepository.GetByFhirId(command.FhirId);
+        ResourceStore resourceStore = await IResourceStoreRepository.GetByFhirIdAsync(command.FhirId);
 
       }
 

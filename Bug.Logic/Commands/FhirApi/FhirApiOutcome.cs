@@ -8,9 +8,11 @@ namespace Bug.Logic.Command.FhirApi
 {
   public class FhirApiOutcome
   {
-    public HttpStatusCode httpStatusCode { get; set;  }
-    public object resource { get; set; }    
-    public FhirMajorVersion fhirMajorVersion { get; set; }
-
+    public string ResourceId { get; set; }
+    public string ResourceVersionId { get; set; }
+    public HttpStatusCode HttpStatusCode { get; set;  }
+    public object Resource { get; set; }    
+    public FhirMajorVersion FhirMajorVersion { get; set; }
+        
   }
 }

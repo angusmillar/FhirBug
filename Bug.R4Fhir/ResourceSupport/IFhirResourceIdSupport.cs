@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Bug.Stu3Fhir
+namespace Bug.R4Fhir.ResourceSupport
 {
   public interface IFhirResourceIdSupport
   {

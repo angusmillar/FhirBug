@@ -9,8 +9,6 @@ namespace Bug.Common.Enums
     [EnumInfo("Stu3")]
     Stu3,
     [EnumInfo("R4")]
-    R4,
-    [EnumInfo("Unknown")]
-    Unknown
+    R4,    
   };
 }

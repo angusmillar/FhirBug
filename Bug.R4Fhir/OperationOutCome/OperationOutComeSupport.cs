@@ -3,31 +3,31 @@ using System.Collections.Generic;
 using System.Text;
 using Hl7.Fhir.Model;
 
-namespace Bug.R4Fhir
+namespace Bug.R4Fhir.OperationOutCome
 {
-  public static class OperationOutComeSupport
+  public class OperationOutComeSupport : IR4OperationOutComeSupport
   {
-    public static OperationOutcome GetFatal(string[] errorMessageList)
+    public OperationOutcome GetFatal(string[] errorMessageList)
     {
       return GetOpOutCome(errorMessageList, OperationOutcome.IssueSeverity.Fatal);
     }
 
-    public static OperationOutcome GetError(string[] errorMessageList)
+    public OperationOutcome GetError(string[] errorMessageList)
     {
       return GetOpOutCome(errorMessageList, OperationOutcome.IssueSeverity.Error);
     }
 
-    public static OperationOutcome GetWarning(string[] errorMessageList)
+    public OperationOutcome GetWarning(string[] errorMessageList)
     {
       return GetOpOutCome(errorMessageList, OperationOutcome.IssueSeverity.Warning);
     }
 
-    public static OperationOutcome GetInformation(string[] errorMessageList)
+    public OperationOutcome GetInformation(string[] errorMessageList)
     {
       return GetOpOutCome(errorMessageList, OperationOutcome.IssueSeverity.Information);
     }
 
-    private static OperationOutcome GetOpOutCome(string[] errorMessageList, OperationOutcome.IssueSeverity issueSeverity)
+    private OperationOutcome GetOpOutCome(string[] errorMessageList, OperationOutcome.IssueSeverity issueSeverity)
     {
       var Opt = new OperationOutcome();
       Opt.Issue = new List<OperationOutcome.IssueComponent>();
