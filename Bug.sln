@@ -17,7 +17,17 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bug.Logic", "Bug.Logic\Bug.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bug.Data", "Bug.Data\Bug.Data.csproj", "{A5D762F9-7703-4ED8-AC14-20F0E60AE6F0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bug.Test.Logic", "Bug.Test.Logic\Bug.Test.Logic.csproj", "{1B02CF2E-9D00-4CE0-A50F-C3D59020DCF4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bug.Test.Logic", "Bug.Test.Logic\Bug.Test.Logic.csproj", "{1B02CF2E-9D00-4CE0-A50F-C3D59020DCF4}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Help", "Help", "{473ED268-9C3D-41D6-AB14-5744D02EC5A9}"
+	ProjectSection(SolutionItems) = preProject
+		DockerHelp.txt = DockerHelp.txt
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{3D447118-DBB7-40EF-8229-7D3AC0B2E882}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

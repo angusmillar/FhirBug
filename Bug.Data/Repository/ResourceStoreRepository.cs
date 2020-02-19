@@ -18,7 +18,7 @@ namespace Bug.Data.Repository
 
     public async Task<ResourceStore> GetByFhirIdAsync(string fhirId)
     {
-      return await DbSet.FirstOrDefaultAsync(x => x.FhirId == fhirId);
+      return await DbSet.FirstOrDefaultAsync(x => x.ResourceId == fhirId);
     }
     
   }

@@ -1,8 +1,8 @@
 ﻿extern alias Stu3;
 using Bug.Common.Enums;
-using Bug.Logic.Command;
-using Bug.Logic.Command.FhirApi;
-using Bug.Logic.Command.FhirApi.Update;
+using Bug.Logic.Query;
+using Bug.Logic.Query.FhirApi;
+using Bug.Logic.Query.FhirApi.Update;
 using Bug.Logic.Interfaces.CompositionRoot;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -11,25 +11,31 @@ using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using Stu3Model = Stu3.Hl7.Fhir.Model;
+using Bug.Common.Constant;
+using Bug.Api.Extensions;
+using Microsoft.Extensions.Primitives;
 
 namespace Bug.Api.Controllers
 {
-  [Route("stu3/fhir")]
+  //stu3/fhir
+  [Route(EndpointPath.Stu3Fhir)]
   [ApiController]
   public class FhirStu3Controller : ControllerBase
   {
     private readonly ILogger _logger;
-    private readonly IFhirApiCommandHandlerFactory IFhirApiCommandHandlerFactory;
-    //private readonly ICommandHandler<FhirApiCommand, FhirApiOutcome> _FhirApiCommandHandler;
+    private readonly IFhirApiQueryHandlerFactory IFhirApiQueryHandlerFactory;
+    private readonly IFhirUriFactory IFhirUriFactory;
 
     private readonly FhirMajorVersion _FhirMajorVersion = FhirMajorVersion.Stu3;
 
-    public FhirStu3Controller(ILogger logger, IFhirApiCommandHandlerFactory IFhirApiCommandHandlerFactory)
+    public FhirStu3Controller(ILogger logger, IFhirApiQueryHandlerFactory IFhirApiQueryHandlerFactory, IFhirUriFactory IFhirUriFactory)
     {
+      this.IFhirUriFactory = IFhirUriFactory;
+
       _logger = logger;
       //_FhirApiCommandHandler = FhirApiCommandHandler;
-      this.IFhirApiCommandHandlerFactory = IFhirApiCommandHandlerFactory;
-      _logger.LogInformation($"FhirStu3Controller Construtor {DateTimeOffset.Now.Offset.ToString()}");
+      this.IFhirApiQueryHandlerFactory = IFhirApiQueryHandlerFactory;
+      _logger.LogInformation($"FhirStu3Controller Construtor {DateTimeOffset.Now.Offset.ToString()}");      
     }
 
     //#####################################################################
@@ -110,16 +116,20 @@ namespace Bug.Api.Controllers
     {
       if (resource == null)
         return BadRequest();
+      if (string.IsNullOrWhiteSpace(resourceName))
+        return BadRequest();
 
-      var command = new Logic.Command.FhirApi.Create.CreateCommand()
+      var Query = new Logic.Query.FhirApi.Create.CreateQuery()
       {
         FhirMajorVersion = _FhirMajorVersion,
-        RequestUri = new Uri(this.Request.Path),
+        RequestUriString = this.Request.GetUrl(),
+        RequestHeaderDictionary = new Dictionary<string, StringValues>(this.Request.Headers),
+        RequestResourceName = resourceName,
         Resource = resource
       };
 
-      var CreateCommandHandler = this.IFhirApiCommandHandlerFactory.GetCreateCommand();
-      FhirApiOutcome AcceptedAtActionResult = await CreateCommandHandler.Handle(command);
+      var CreateQueryHandler = this.IFhirApiQueryHandlerFactory.GetCreateCommand();
+      FhirApiResult AcceptedAtActionResult = await CreateQueryHandler.Handle(Query);
 
       resource.ResourceBase = new Uri("http://localhost/fhir");
       return new FhirActionResult(AcceptedAtActionResult.HttpStatusCode, AcceptedAtActionResult.Resource as Stu3Model.Resource);
@@ -143,16 +153,23 @@ namespace Bug.Api.Controllers
     {
       if (resource == null)
         return BadRequest();
-      
-      var command = new Logic.Command.FhirApi.Update.UpdateCommand()
+
+      var FhirUri = IFhirUriFactory.Get();
+      if (FhirUri.TryParse(this.Request.GetUrl(), _FhirMajorVersion, out FhirUri))
+      {
+        string x = FhirUri.ResourseName;
+
+      }
+
+      var command = new Logic.Query.FhirApi.Update.UpdateQuery()
       {
         FhirMajorVersion = _FhirMajorVersion,
-        RequestUri = new Uri(this.Request.Path),
+        RequestUriString = this.Request.GetUrl(),
         Resource = resource
       };
 
-      var UpdateCommandHandler = this.IFhirApiCommandHandlerFactory.GetUpdateCommand();
-      FhirApiOutcome AcceptedAtActionResult = await UpdateCommandHandler.Handle(command);
+      var UpdateCommandHandler = this.IFhirApiQueryHandlerFactory.GetUpdateCommand();
+      FhirApiResult AcceptedAtActionResult = await UpdateCommandHandler.Handle(command);
 
       resource.ResourceBase = new Uri("http://localhost/fhir");
       return new FhirActionResult(AcceptedAtActionResult.HttpStatusCode, AcceptedAtActionResult.Resource as Stu3Model.Resource);

@@ -26,15 +26,6 @@ namespace Bug.Data.Migrations
                         .HasColumnType("integer")
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
-                    b.Property<byte[]>("Blob")
-                        .HasColumnName("blob")
-                        .HasColumnType("bytea");
-
-                    b.Property<string>("FhirId")
-                        .IsRequired()
-                        .HasColumnName("fhir_id")
-                        .HasColumnType("text");
-
                     b.Property<bool>("IsCurrent")
                         .HasColumnName("is_current")
                         .HasColumnType("boolean");
@@ -43,7 +34,22 @@ namespace Bug.Data.Migrations
                         .HasColumnName("is_deleted")
                         .HasColumnType("boolean");
 
+                    b.Property<DateTime>("LastUpdated")
+                        .HasColumnName("last_updated")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<byte[]>("ResourceBlob")
+                        .HasColumnName("resource_blob")
+                        .HasColumnType("bytea");
+
+                    b.Property<string>("ResourceId")
+                        .IsRequired()
+                        .HasColumnName("resource_id")
+                        .HasColumnType("text");
+
                     b.Property<string>("VersionId")
+                        .IsRequired()
+                        .HasColumnName("version_id")
                         .HasColumnType("text");
 
                     b.HasKey("Id");

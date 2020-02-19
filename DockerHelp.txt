@@ -1,0 +1,35 @@
+
+## Bash ######################################################
+Use Bash inside a container
+//Syntax
+docker exec -it <Container_Id or Name> /bin/bash
+//Example:
+docker exec -it Bug.Api /bin/bash
+
+// Add Bash ot an Alpine image container
+docker exec -it <Container_Id or Name> apk add --no-cache bash
+
+
+## Redis #####################################################
+Connect to the redis command line (cli) in docker:
+  //Syntax
+  docker exec -it <Container_Id or Name> redis-cli
+  //Example:
+  docker exec -it Redis redis-cli
+  //Get all the infor about the Redis server  
+  docker exec -it Redis redis-cli info
+
+https://redis.io/commandsexit
+Redis Commands:
+  //Set a key
+  set AngusKey "Hello Angus"
+  //Set a Key to expire in 30 secs
+  set AngusKey "Hello Angus" EX 30
+  //Get a Key
+  get AngusKey
+  //Delete a Key
+  del AngusKey
+  //Key Exists
+  exists AngusKey  // Retuns 0 or 1
+  //Delete all Keys (Be careful!)
+  flushall

@@ -14,11 +14,12 @@ namespace Bug.Data
       modelBuilder.Entity<ResourceStore>(entity =>
       {
         entity.HasKey(e => e.Id);
-        entity.Property(e => e.FhirId).IsRequired(true).HasColumnName("fhir_id");
-        //entity.Property(e => e.FhirVersion).IsRequired(true);
-        entity.Property(e => e.IsCurrent).IsRequired(true).HasColumnName("is_current"); ;
-        entity.Property(e => e.IsDeleted).IsRequired(true).HasColumnName("is_deleted"); ;
-        entity.Property(e => e.Blob).IsRequired(false).HasColumnName("blob");
+        entity.Property(e => e.ResourceId).IsRequired(true).HasColumnName("resource_id");
+        entity.Property(e => e.VersionId).IsRequired(true).HasColumnName("version_id"); ;
+        entity.Property(e => e.IsCurrent).IsRequired(true).HasColumnName("is_current");
+        entity.Property(e => e.IsDeleted).IsRequired(true).HasColumnName("is_deleted");
+        entity.Property(e => e.LastUpdated).IsRequired(true).HasColumnName("last_updated");
+        entity.Property(e => e.ResourceBlob).IsRequired(false).HasColumnName("resource_blob");
       });
     }
 

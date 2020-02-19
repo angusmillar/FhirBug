@@ -7,10 +7,11 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Bug.Common.Constant;
 
 namespace Bug.Api.Controllers
 {
-  [Route("r4/fhir")]
+  [Route(EndpointPath.R4Fhir)]
   [ApiController]
   public class FhirR4Controller : ControllerBase
   {

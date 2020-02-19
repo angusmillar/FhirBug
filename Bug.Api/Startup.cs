@@ -15,7 +15,7 @@ using System.Buffers;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Bug.Api.Middleware;
 using SimpleInjector;
-using Bug.Logic.Command;
+using Bug.Logic.Query;
 using Bug.Logic.Interfaces.Repository;
 using Bug.Data;
 using Microsoft.EntityFrameworkCore;
@@ -28,7 +28,7 @@ namespace Bug.Api
     public IConfiguration Configuration { get; }
 
     public Startup(IConfiguration configuration)
-    {
+    {   
       container.Options.ResolveUnregisteredConcreteTypes = false;
       Configuration = configuration;
     }
@@ -36,6 +36,7 @@ namespace Bug.Api
     // This method gets called by the runtime. Use this method to add services to the container.
     public void ConfigureServices(IServiceCollection services)
     {
+
       services.AddDistributedMemoryCache();
       // If using Kestrel:
       services.Configure<KestrelServerOptions>(options =>
@@ -54,7 +55,7 @@ namespace Bug.Api
 
       services.AddMemoryCache();
 
-      //These services are added to the .NetCore DI framework as they are required for a Middleware component
+      //These services are added to the .Net Core DI framework as they are required for a Middleware component
       //they are later auto crosswired to the simpleinjector container
       services.AddSingleton<Bug.Stu3Fhir.Serialization.IStu3SerializationToJson, Bug.Stu3Fhir.Serialization.SerializationSupport>();
       services.AddSingleton<Bug.Stu3Fhir.Serialization.IStu3SerializationToXml, Bug.Stu3Fhir.Serialization.SerializationSupport>();
@@ -99,11 +100,19 @@ namespace Bug.Api
     {
       //############## Singleton ###############################################################################
 
+      //-- AppSettings Conofiguration Loading ---------------
+      Common.ApplicationConfig.FhirServerConfig fhirServerConfig = Configuration.GetSection(typeof(Common.ApplicationConfig.FhirServerConfig).Name).Get<Common.ApplicationConfig.FhirServerConfig>();
+      container.RegisterInstance<Common.ApplicationConfig.IFhirServerConfig>(fhirServerConfig);
+      container.Register<Common.ApplicationConfig.IServiceBaseUrl, Common.ApplicationConfig.ServiceBaseUrl>(Lifestyle.Singleton);
+      
       //-- CompositionRoot Factories ---------------
-      container.Register<Bug.Logic.Interfaces.CompositionRoot.IFhirApiCommandHandlerFactory, Bug.Api.CompositionRoot.FhirApiCommandHandlerFactory>(Lifestyle.Singleton);      
+      container.Register<Bug.Logic.Interfaces.CompositionRoot.IFhirApiQueryHandlerFactory, Bug.Api.CompositionRoot.FhirApiQueryHandlerFactory>(Lifestyle.Singleton);      
       container.Register<Bug.Logic.Interfaces.CompositionRoot.IFhirResourceIdSupportFactory, Bug.Api.CompositionRoot.FhirResourceIdSupportFactory>(Lifestyle.Singleton);
       container.Register<Bug.Logic.Interfaces.CompositionRoot.IFhirResourceVersionSupportFactory, Bug.Api.CompositionRoot.FhirResourceVersionSupportFactory>(Lifestyle.Singleton);      
       container.Register<Bug.Logic.Interfaces.CompositionRoot.IFhirResourceLastUpdatedSupportFactory, Bug.Api.CompositionRoot.FhirResourceLastUpdatedSupportFactory>(Lifestyle.Singleton);
+      container.Register<Bug.Logic.Interfaces.CompositionRoot.IValidateResourceNameFactory, Bug.Api.CompositionRoot.ValidateResourceNameFactory>(Lifestyle.Singleton);
+      container.Register<Bug.Logic.Interfaces.CompositionRoot.IFhirUriFactory, Bug.Api.CompositionRoot.FhirUriFactory>(Lifestyle.Singleton);
+      
 
       //-- Serialization & Compression ---------------      
       container.Register<Bug.Stu3Fhir.Serialization.IStu3SerializationToJsonBytes, Bug.Stu3Fhir.Serialization.SerializationSupport>(Lifestyle.Singleton);      
@@ -112,58 +121,62 @@ namespace Bug.Api
       //-- Thread safe Tools ---------------      
       container.Register<Bug.Common.Compression.IGZipper, Bug.Common.Compression.GZipper>(Lifestyle.Singleton);
       container.Register<Bug.Common.FhirTools.IResourceVersionIdSupport, Bug.Common.FhirTools.ResourceVersionIdSupport>(Lifestyle.Singleton);
-      
+      //container.Register<Bug.R4Fhir.ResourceSupport.IResourceNameSupport, Bug.R4Fhir.ResourceSupport.ResourceNameSupport>(Lifestyle.Singleton);
+      container.Register<Bug.Stu3Fhir.ResourceSupport.IValidateResourceName, Bug.Stu3Fhir.ResourceSupport.ValidateResourceName>(Lifestyle.Singleton);
+      container.Register<Bug.R4Fhir.ResourceSupport.IValidateResourceName, Bug.R4Fhir.ResourceSupport.ValidateResourceName>(Lifestyle.Singleton);
+
+
       //############## Scoped ###############################################################################
 
       //-- Command &  Decorators ---------------
 
       //Register all ICommandHandlers
-      container.Register(typeof(ICommandHandler<,>),
+      container.Register(typeof(IQueryHandler<,>),
         AppDomain.CurrentDomain.GetAssemblies(), Lifestyle.Scoped);
 
       //Wrap all ICommandHandlers with this Decorator
-      container.RegisterDecorator(typeof(ICommandHandler<,>),
-        typeof(Bug.Logic.Command.FhirApi.Decorator.FhirApiCommandDecorator<,>), Lifestyle.Scoped);
+      container.RegisterDecorator(typeof(IQueryHandler<,>),
+        typeof(Bug.Logic.Query.FhirApi.Decorator.FhirApiQueryDecorator<,>), Lifestyle.Scoped);
 
       //Only wrap ICommandHandlers with this Decorator where the TCommand is an CreateCommand
-      container.RegisterDecorator(typeof(ICommandHandler<,>),
-        typeof(Bug.Logic.Command.FhirApi.Create.Decorator.CreateDataCollectionDecorator<,>), Lifestyle.Scoped,
-        c =>
-        {
-          return (c.ServiceType.GenericTypeArguments[0].Name == typeof(Bug.Logic.Command.FhirApi.Create.CreateCommand).Name);
-        }
-      );
+      //container.RegisterDecorator(typeof(IQueryHandler<,>),
+      //  typeof(Bug.Logic.Query.FhirApi.Create.Decorator.CreateDataCollectionDecorator<,>), Lifestyle.Scoped,
+      //  c =>
+      //  {
+      //    return (c.ServiceType.GenericTypeArguments[0].Name == typeof(Bug.Logic.Query.FhirApi.Create.CreateQuery).Name);
+      //  }
+      //);
       
       //Only wrap ICommandHandlers with this Decorator where the TCommand is an CreateCommand
-      container.RegisterDecorator(typeof(ICommandHandler<,>),
-        typeof(Bug.Logic.Command.FhirApi.Create.Decorator.CreateValidatorDecorator<,>), Lifestyle.Scoped,
-        c =>
-        {
-          return (c.ServiceType.GenericTypeArguments[0].Name == typeof(Bug.Logic.Command.FhirApi.Create.CreateCommand).Name);
-        }
-      );
+      //container.RegisterDecorator(typeof(IQueryHandler<,>),
+      //  typeof(Bug.Logic.Query.FhirApi.Create.Decorator.CreateValidatorDecorator<,>), Lifestyle.Scoped,
+      //  c =>
+      //  {
+      //    return (c.ServiceType.GenericTypeArguments[0].Name == typeof(Bug.Logic.Query.FhirApi.Create.CreateQuery).Name);
+      //  }
+      //);
       //Only wrap ICommandHandlers with this Decorator where the TCommand is an UpdateCommand
-      container.RegisterDecorator(typeof(ICommandHandler<,>),
-        typeof(Bug.Logic.Command.FhirApi.Update.Decorator.UpdateDataCollectionDecorator<,>), Lifestyle.Scoped,
+      container.RegisterDecorator(typeof(IQueryHandler<,>),
+        typeof(Bug.Logic.Query.FhirApi.Update.Decorator.UpdateDataCollectionQueryDecorator<,>), Lifestyle.Scoped,
         c =>
         {
-          return (c.ServiceType.GenericTypeArguments[0].Name == typeof(Bug.Logic.Command.FhirApi.Update.UpdateCommand).Name);
+          return (c.ServiceType.GenericTypeArguments[0].Name == typeof(Bug.Logic.Query.FhirApi.Update.UpdateQuery).Name);
         }
       );
 
      
       //Only wrap ICommandHandlers with this Decorator where the TCommand is an UpdateCommand
-      container.RegisterDecorator(typeof(ICommandHandler<,>),
-        typeof(Bug.Logic.Command.FhirApi.Update.Decorator.UpdateValidatorDecorator<,>), Lifestyle.Scoped,
+      container.RegisterDecorator(typeof(IQueryHandler<,>),
+        typeof(Bug.Logic.Query.FhirApi.Update.Decorator.UpdateValidatorQueryDecorator<,>), Lifestyle.Scoped,
         c =>
         {
-          return (c.ServiceType.GenericTypeArguments[0].Name == typeof(Bug.Logic.Command.FhirApi.Update.UpdateCommand).Name);
+          return (c.ServiceType.GenericTypeArguments[0].Name == typeof(Bug.Logic.Query.FhirApi.Update.UpdateQuery).Name);
         }
       );
 
       //Wrap all ICommandHandlers with this Decorator
-      container.RegisterDecorator(typeof(ICommandHandler<,>),
-        typeof(Bug.Logic.Command.FhirApi.Decorator.FhirApiCommandLoggingDecorator<,>), Lifestyle.Scoped);
+      container.RegisterDecorator(typeof(IQueryHandler<,>),
+        typeof(Bug.Logic.Query.FhirApi.Decorator.FhirApiQueryLoggingDecorator<,>), Lifestyle.Scoped);
 
 
       //-- Fhir Version Supports ---------------      
@@ -182,7 +195,13 @@ namespace Bug.Api
       //-- Repositories ---------------
       container.Register<IResourceStoreRepository, Bug.Data.Repository.ResourceStoreRepository>(Lifestyle.Scoped);
 
+      //container.Register<Bug.Stu3Fhir.ResourceSupport.IResourceNameSupport, Bug.Stu3Fhir.ResourceSupport.ResourceNameSupport>(Lifestyle.Scoped);
+      //container.Register<Bug.R4Fhir.ResourceSupport.IResourceNameSupport, Bug.R4Fhir.ResourceSupport.ResourceNameSupport>(Lifestyle.Scoped);
 
+
+      // ## Transient ###################################################################
+      container.Register<Bug.Logic.UriSupport.IFhirUri, Bug.Logic.UriSupport.FhirUri>(Lifestyle.Transient);
+      
 
     }
 

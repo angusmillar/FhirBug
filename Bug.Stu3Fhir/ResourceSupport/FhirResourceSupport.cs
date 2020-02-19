@@ -1,11 +1,12 @@
 ﻿using Hl7.Fhir.Model;
+using Hl7.Fhir.Utility;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace Bug.Stu3Fhir.ResourceSupport
 {
-  public class FhirResourceSupport : IFhirResourceIdSupport, IFhirResourceVersionSupport, IFhirResourceLastUpdatedSupport
+  public class FhirResourceSupport : IFhirResourceIdSupport, IFhirResourceVersionSupport, IFhirResourceLastUpdatedSupport, IFhirResourceNameSupport
   {
     public void SetLastUpdated(DateTimeOffset dateTimeOffset, object resource)
     {
@@ -88,6 +89,13 @@ namespace Bug.Stu3Fhir.ResourceSupport
       return Res.Id = id;
     }
 
+    public string GetName(object resource)
+    {
+      NullCheck(resource, "resource");
+      Resource Res = ResourceCast(resource);
+      return Res.ResourceType.GetLiteral();
+    }
+
     private void NullCheck(object instance, string name)
     {
       if (instance == null)
@@ -106,5 +114,7 @@ namespace Bug.Stu3Fhir.ResourceSupport
         throw new Bug.Common.Exceptions.FhirFatalException(System.Net.HttpStatusCode.InternalServerError, $"Invalid cast to Stu3 Fhir Resource.");
       }
     }
+
+
   }
 }

@@ -1,12 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
-//using Microsoft.Extensions.Configuration.Json;
-//using Microsoft.Extensions.Configuration.FileExtensions;
-//using System;
-//using System.Collections.Generic;
 using System.IO;
-//using System.Text;
 
 namespace Bug.Data
 {
