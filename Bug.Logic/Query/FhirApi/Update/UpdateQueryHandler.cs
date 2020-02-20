@@ -40,10 +40,10 @@ namespace Bug.Logic.Query.FhirApi.Update
       switch (command.FhirMajorVersion)
       {
         case FhirMajorVersion.Stu3:
-          ResourceBytes = IStu3SerializationToJsonBytes.SerializeToJsonBytes(command.Resource);
+          ResourceBytes = IStu3SerializationToJsonBytes.SerializeToJsonBytes(command.FhirResource.Stu3);
           break;
         case FhirMajorVersion.R4:
-          ResourceBytes = IR4SerializationToJsonBytes.SerializeToJsonBytes(command.Resource);
+          ResourceBytes = IR4SerializationToJsonBytes.SerializeToJsonBytes(command.FhirResource.R4);
           break;
         default:
           throw new FhirVersionFatalException(command.FhirMajorVersion);

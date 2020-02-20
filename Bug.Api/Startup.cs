@@ -1,3 +1,7 @@
+extern alias Stu3;
+extern alias R4;
+using Stu3Model = Stu3.Hl7.Fhir.Model;
+using R4Model = R4.Hl7.Fhir.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -104,9 +108,9 @@ namespace Bug.Api
       Common.ApplicationConfig.FhirServerConfig fhirServerConfig = Configuration.GetSection(typeof(Common.ApplicationConfig.FhirServerConfig).Name).Get<Common.ApplicationConfig.FhirServerConfig>();
       container.RegisterInstance<Common.ApplicationConfig.IFhirServerConfig>(fhirServerConfig);
       container.Register<Common.ApplicationConfig.IServiceBaseUrl, Common.ApplicationConfig.ServiceBaseUrl>(Lifestyle.Singleton);
-      
+
       //-- CompositionRoot Factories ---------------
-      container.Register<Bug.Logic.Interfaces.CompositionRoot.IFhirApiQueryHandlerFactory, Bug.Api.CompositionRoot.FhirApiQueryHandlerFactory>(Lifestyle.Singleton);      
+      container.Register<Bug.Logic.Interfaces.CompositionRoot.IFhirApiQueryHandlerFactory, Bug.Api.CompositionRoot.FhirApiQueryHandlerFactory>(Lifestyle.Singleton);            
       container.Register<Bug.Logic.Interfaces.CompositionRoot.IFhirResourceIdSupportFactory, Bug.Api.CompositionRoot.FhirResourceIdSupportFactory>(Lifestyle.Singleton);
       container.Register<Bug.Logic.Interfaces.CompositionRoot.IFhirResourceVersionSupportFactory, Bug.Api.CompositionRoot.FhirResourceVersionSupportFactory>(Lifestyle.Singleton);      
       container.Register<Bug.Logic.Interfaces.CompositionRoot.IFhirResourceLastUpdatedSupportFactory, Bug.Api.CompositionRoot.FhirResourceLastUpdatedSupportFactory>(Lifestyle.Singleton);
@@ -155,6 +159,7 @@ namespace Bug.Api
       //    return (c.ServiceType.GenericTypeArguments[0].Name == typeof(Bug.Logic.Query.FhirApi.Create.CreateQuery).Name);
       //  }
       //);
+
       //Only wrap ICommandHandlers with this Decorator where the TCommand is an UpdateCommand
       container.RegisterDecorator(typeof(IQueryHandler<,>),
         typeof(Bug.Logic.Query.FhirApi.Update.Decorator.UpdateDataCollectionQueryDecorator<,>), Lifestyle.Scoped,
@@ -164,7 +169,25 @@ namespace Bug.Api
         }
       );
 
-     
+      //Only wrap ICommandHandlers with this Decorator where the TCommand is an UpdateCommand
+      container.RegisterDecorator(typeof(IQueryHandler<,>),
+        typeof(Bug.Logic.Query.FhirApi.Update.Decorator.UpdateDataCollectionQueryDecorator<,>), Lifestyle.Scoped,
+        c =>
+        {
+          return (c.ServiceType.GenericTypeArguments[0].Name == typeof(Bug.Logic.Query.FhirApi.Update.UpdateQuery).Name);
+        }
+      );
+
+
+      //Only wrap ICommandHandlers with this Decorator where the TCommand is an UpdateCommand
+      container.RegisterDecorator(typeof(IQueryHandler<,>),
+        typeof(Bug.Logic.Query.FhirApi.Update.Decorator.UpdateValidatorQueryDecorator<,>), Lifestyle.Scoped,
+        c =>
+        {
+          return (c.ServiceType.GenericTypeArguments[0].Name == typeof(Bug.Logic.Query.FhirApi.Update.UpdateQuery).Name);
+        }
+      );
+
       //Only wrap ICommandHandlers with this Decorator where the TCommand is an UpdateCommand
       container.RegisterDecorator(typeof(IQueryHandler<,>),
         typeof(Bug.Logic.Query.FhirApi.Update.Decorator.UpdateValidatorQueryDecorator<,>), Lifestyle.Scoped,

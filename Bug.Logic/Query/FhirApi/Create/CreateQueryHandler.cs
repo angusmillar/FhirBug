@@ -15,7 +15,7 @@ using Bug.Logic.DomainModel;
 
 namespace Bug.Logic.Query.FhirApi.Create
 {
-  public class CreateQueryHandler : IQueryHandler<CreateQuery, FhirApiResult>
+  public class CreateQueryHandler<TResource> : IQueryHandler<CreateQuery, FhirApiResult>
   {        
     private readonly IResourceStoreRepository IResourceStoreRepository;
     private readonly IStu3SerializationToJsonBytes IStu3SerializationToJsonBytes;
@@ -41,10 +41,10 @@ namespace Bug.Logic.Query.FhirApi.Create
       switch (query.FhirMajorVersion)
       {
         case FhirMajorVersion.Stu3:                    
-          ResourceBytes = IStu3SerializationToJsonBytes.SerializeToJsonBytes(query.Resource);
+          ResourceBytes = IStu3SerializationToJsonBytes.SerializeToJsonBytes(query.FhirResource.Stu3);
           break;
         case FhirMajorVersion.R4:          
-          ResourceBytes = IR4SerializationToJsonBytes.SerializeToJsonBytes(query.Resource);
+          ResourceBytes = IR4SerializationToJsonBytes.SerializeToJsonBytes(query.FhirResource.R4);
           break;
         default:
           throw new FhirVersionFatalException(query.FhirMajorVersion);

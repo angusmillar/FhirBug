@@ -1,4 +1,5 @@
 ﻿extern alias Stu3;
+using Stu3Model = Stu3.Hl7.Fhir.Model;
 using Bug.Common.Enums;
 using Bug.Logic.Query;
 using Bug.Logic.Query.FhirApi;
@@ -10,7 +11,6 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
-using Stu3Model = Stu3.Hl7.Fhir.Model;
 using Bug.Common.Constant;
 using Bug.Api.Extensions;
 using Microsoft.Extensions.Primitives;
@@ -125,7 +125,8 @@ namespace Bug.Api.Controllers
         RequestUriString = this.Request.GetUrl(),
         RequestHeaderDictionary = new Dictionary<string, StringValues>(this.Request.Headers),
         RequestResourceName = resourceName,
-        Resource = resource
+        Resource = resource,
+        FhirResource = new Logic.Query.FhirApi.Create.FhirResource() { Stu3 = resource }
       };
 
       var CreateQueryHandler = this.IFhirApiQueryHandlerFactory.GetCreateCommand();
@@ -165,7 +166,8 @@ namespace Bug.Api.Controllers
       {
         FhirMajorVersion = _FhirMajorVersion,
         RequestUriString = this.Request.GetUrl(),
-        Resource = resource
+        Resource = resource,
+        FhirResource = new Logic.Query.FhirApi.Create.FhirResource() { Stu3 = resource }
       };
 
       var UpdateCommandHandler = this.IFhirApiQueryHandlerFactory.GetUpdateCommand();

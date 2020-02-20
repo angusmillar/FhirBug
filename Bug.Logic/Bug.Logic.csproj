@@ -5,6 +5,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Hl7.Fhir.R4" Version="1.5.0" />
+    <PackageReference Include="Hl7.Fhir.STU3" Version="1.5.0" />
     <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="3.1.1" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="3.1.1" />
   </ItemGroup>
@@ -14,5 +16,23 @@
     <ProjectReference Include="..\Bug.R4Fhir\Bug.R4Fhir.csproj" />
     <ProjectReference Include="..\Bug.Stu3Fhir\Bug.Stu3Fhir.csproj" />
   </ItemGroup>
+
+  <Target Name="ChangeAliasesOfStrongNameAssemblies" BeforeTargets="FindReferenceAssembliesForReferences;ResolveReferences">
+    <!--<ItemGroup>
+      <ReferencePath Condition="'%(FileName)' == 'Hl7.Fhir.DSTU2.Core'">
+        <Aliases>dstu2</Aliases>
+      </ReferencePath>
+    </ItemGroup>-->
+    <ItemGroup>
+      <ReferencePath Condition="'%(FileName)' == 'Hl7.Fhir.STU3.Core'">
+        <Aliases>Stu3</Aliases>
+      </ReferencePath>
+    </ItemGroup>
+    <ItemGroup>
+      <ReferencePath Condition="'%(FileName)' == 'Hl7.Fhir.R4.Core'">
+        <Aliases>R4</Aliases>
+      </ReferencePath>
+    </ItemGroup>
+  </Target>
 
 </Project>

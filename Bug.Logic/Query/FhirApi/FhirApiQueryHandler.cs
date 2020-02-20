@@ -10,7 +10,7 @@ using Bug.Logic.Query.FhirApi.Create;
 
 namespace Bug.Logic.Query.FhirApi
 {
-  public class FhirApiQueryHandler : IQueryHandler<FhirApiQuery, FhirApiResult> 
+  public class FhirApiQueryHandler<TResource> : IQueryHandler<FhirApiQuery, FhirApiResult> 
   {
     private readonly ILogger ILogger;
 
@@ -25,11 +25,11 @@ namespace Bug.Logic.Query.FhirApi
       ILogger.LogInformation($"FhirVersion: {command.RequestUriString.ToString()}");
 
       
-      if (command is CreateQuery UpdateCommand)
+      if (command is CreateQuery<TResource> UpdateCommand)
       {
 
       }
-      else if (command is UpdateQuery CreateCommand)
+      else if (command is UpdateQuery<TResource> CreateCommand)
       {
 
       }      
