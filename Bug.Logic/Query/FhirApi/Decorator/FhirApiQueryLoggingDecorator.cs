@@ -25,21 +25,25 @@ namespace Bug.Logic.Query.FhirApi.Decorator
 
     public async Task<TResult> Handle(TQuery query)
     {
-      if (query == null)
-        throw new System.NullReferenceException();
-
+      if (query is null)
+        throw new ArgumentNullException(paramName: nameof(query));
 
       if (query is FhirApiQuery FhirApiQuery)
-      {
-        if (FhirApiQuery.RequestUriString == null)
-          throw new System.NullReferenceException();
+      {        
+        if (FhirApiQuery.RequestUriString is null)
+          throw new ArgumentNullException(paramName: nameof(FhirApiQuery.RequestUriString));
 
-        if (FhirApiQuery.FhirMajorVersion == null)
-          throw new System.NullReferenceException();
+        if (FhirApiQuery.FhirMajorVersion is null)
+          throw new ArgumentNullException(paramName: nameof(FhirApiQuery.FhirMajorVersion));
 
         ILogger.LogInformation($"{new String('-', 80)}");
-        ILogger.LogInformation($"Request Uri: {FhirApiQuery.RequestUriString.ToString()}");
         ILogger.LogInformation($"Major Fhir version: {FhirApiQuery.FhirMajorVersion.GetCode()}");
+        ILogger.LogInformation($"Request Uri: {FhirApiQuery.RequestUriString.OriginalString}");
+        ILogger.LogInformation($"Headers {new String('-', 72)}");
+        foreach (var Header in FhirApiQuery.RequestHeaderDictionary)
+        {
+          ILogger.LogInformation($"  {Header.Key}: {Header.Value}");
+        }
         //if (command is Bug.Logic.Commands.FhirApi.Update.UpdateCommand updateCommand)
         //{
         //  updateCommand.resource;
