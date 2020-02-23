@@ -25,11 +25,21 @@ namespace Bug.Logic.Query.FhirApi.Decorator
 
     public async Task<TResult> Handle(TQuery query)
     {
+      if (query == null)
+        throw new System.NullReferenceException();
+
+
       if (query is FhirApiQuery FhirApiQuery)
       {
+        if (FhirApiQuery.RequestUriString == null)
+          throw new System.NullReferenceException();
+
+        if (FhirApiQuery.FhirMajorVersion == null)
+          throw new System.NullReferenceException();
+
         ILogger.LogInformation($"{new String('-', 80)}");
         ILogger.LogInformation($"Request Uri: {FhirApiQuery.RequestUriString.ToString()}");
-        ILogger.LogInformation($"Major Fhir version: {FhirApiQuery.FhirMajorVersion.GetLiteral()}");
+        ILogger.LogInformation($"Major Fhir version: {FhirApiQuery.FhirMajorVersion.GetCode()}");
         //if (command is Bug.Logic.Commands.FhirApi.Update.UpdateCommand updateCommand)
         //{
         //  updateCommand.resource;

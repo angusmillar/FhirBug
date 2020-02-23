@@ -1,4 +1,5 @@
-﻿using Hl7.Fhir.Model;
+﻿using Bug.Common.FhirTools;
+using Hl7.Fhir.Model;
 using Hl7.Fhir.Utility;
 using System;
 using System.Collections.Generic;
@@ -6,73 +7,81 @@ using System.Text;
 
 namespace Bug.R4Fhir.ResourceSupport
 {
-  public class FhirResourceSupport : IFhirResourceIdSupport, IFhirResourceVersionSupport, IFhirResourceLastUpdatedSupport, IFhirResourceNameSupport
+  public class FhirResourceSupport : IStu3FhirResourceIdSupport, IR4FhirResourceVersionSupport, IStu3FhirResourceLastUpdatedSupport, IR4FhirResourceNameSupport
   {
-    public void SetLastUpdated(DateTimeOffset dateTimeOffset, object resource)
+    public void SetLastUpdated(DateTimeOffset dateTimeOffset, IFhirResourceR4 fhirResource)
     {
-      NullCheck(resource, "resource");
-      Resource Res = ResourceCast(resource);
-      CreateMeta(Res);
-      Res.Meta.LastUpdated = dateTimeOffset;
+      NullCheck(fhirResource.R4, "resource");      
+      CreateMeta(fhirResource.R4);
+      fhirResource.R4.Meta.LastUpdated = dateTimeOffset;
     }
 
-    public DateTimeOffset? GetLastUpdated(object resource)
+    public DateTimeOffset? GetLastUpdated(IFhirResourceR4 fhirResource)
     {
-      NullCheck(resource, "resource");
-      Resource Res = ResourceCast(resource);
-      return Res?.Meta?.LastUpdated;
+      NullCheck(fhirResource.R4, "resource");
+      return fhirResource.R4?.Meta?.LastUpdated;
     }
 
-    public void SetVersion(string versionId, object resource)
+    public void SetVersion(string versionId, IFhirResourceR4 fhirResource)
     {
-      NullCheck(resource, "resource");
-      Resource Res = ResourceCast(resource);
-      CreateMeta(Res);
-      Res.Meta.VersionId = versionId;
+      NullCheck(fhirResource.R4, "resource");      
+      CreateMeta(fhirResource.R4);
+      fhirResource.R4.Meta.VersionId = versionId;
     }
 
-    public string GetVersion(object resource)
+    public string? GetVersion(IFhirResourceR4 fhirResource)
     {
-      NullCheck(resource, "resource");
-      Resource Res = ResourceCast(resource);
-      return Res?.Meta?.VersionId;
+      if (fhirResource is null)
+      {
+        throw new ArgumentNullException(paramName: nameof(fhirResource));
+      }
+      if (fhirResource.R4 is null)
+      {
+        throw new ArgumentNullException(paramName: nameof(fhirResource.R4));
+      }
+
+      if (fhirResource.R4?.Meta is null)
+      {
+        return null;
+      }
+      else
+      {
+        return fhirResource.R4?.Meta?.VersionId;
+      }      
+      
     }
 
-    public void SetSource(Uri uri, object resource)
+    public void SetSource(Uri uri, IFhirResourceR4 fhirResource)
     {
-      NullCheck(resource, "resource");
-      NullCheck(uri, "uri");
-      Resource Res = ResourceCast(resource);
-      CreateMeta(Res);
-      Res.Meta.Source = uri.ToString();
+      NullCheck(fhirResource.R4, "resource");
+      NullCheck(uri, "uri");      
+      CreateMeta(fhirResource.R4);
+      fhirResource.R4.Meta.Source = uri.ToString();
     }
 
-    public void SetProfile(IEnumerable<string> profileList, object resource)
+    public void SetProfile(IEnumerable<string> profileList, IFhirResourceR4 fhirResource)
     {
-      NullCheck(resource, "resource");
-      NullCheck(profileList, "profileList");
-      Resource Res = ResourceCast(resource);
-      CreateMeta(Res);
-      Res.Meta.Profile = profileList;
+      NullCheck(fhirResource.R4, "resource");
+      NullCheck(profileList, "profileList");      
+      CreateMeta(fhirResource.R4);
+      fhirResource.R4.Meta.Profile = profileList;
     }
 
 
-    public void SetTag(List<Coding> codingList, object resource)
+    public void SetTag(List<Coding> codingList, IFhirResourceR4 fhirResource)
     {
-      NullCheck(resource, "resource");
+      NullCheck(fhirResource.R4, "resource");
+      NullCheck(codingList, "codingList");      
+      CreateMeta(fhirResource.R4);
+      fhirResource.R4.Meta.Tag = codingList;
+    }
+
+    public void SetSecurity(List<Coding> codingList, IFhirResourceR4 fhirResource)
+    {
+      NullCheck(fhirResource.R4, "resource");
       NullCheck(codingList, "codingList");
-      Resource Res = ResourceCast(resource);
-      CreateMeta(Res);
-      Res.Meta.Tag = codingList;
-    }
-
-    public void SetSecurity(List<Coding> codingList, object resource)
-    {
-      NullCheck(resource, "resource");
-      NullCheck(codingList, "codingList");
-      Resource Res = ResourceCast(resource);
-      CreateMeta(Res);
-      Res.Meta.Security = codingList;
+      CreateMeta(fhirResource.R4);
+      fhirResource.R4.Meta.Security = codingList;
     }
 
     private void CreateMeta(Resource resource)
@@ -83,24 +92,21 @@ namespace Bug.R4Fhir.ResourceSupport
       }
     }
 
-    public string GetFhirId(object resource)
+    public string GetFhirId(IFhirResourceR4 fhirResource)
     {
-      NullCheck(resource, "resource");
-      Resource Res = ResourceCast(resource);
-      return Res.Id;
+      NullCheck(fhirResource.R4, "resource");      
+      return fhirResource.R4.Id;
     }
 
-    public string SetFhirId(string id, object resource)
+    public string SetFhirId(string id, IFhirResourceR4 fhirResource)
     {
-      NullCheck(resource, "resource");
-      Resource Res = ResourceCast(resource);
-      return Res.Id = id;
+      NullCheck(fhirResource.R4, "resource");      
+      return fhirResource.R4.Id = id;
     }
-    public string GetName(object resource)
+    public string GetName(IFhirResourceR4 fhirResource)
     {
-      NullCheck(resource, "resource");
-      Resource Res = ResourceCast(resource);
-      return Res.ResourceType.GetLiteral();
+      NullCheck(fhirResource.R4, "resource");      
+      return fhirResource.R4.ResourceType.GetLiteral();
     }
 
     private void NullCheck(object instance, string name)
@@ -109,16 +115,6 @@ namespace Bug.R4Fhir.ResourceSupport
         throw new Bug.Common.Exceptions.FhirFatalException(System.Net.HttpStatusCode.InternalServerError, $"{name} parameter can not be null");
 
     }
-    private Resource ResourceCast(object resource)
-    {
-      if (resource is Resource Res)
-      {
-        return Res;
-      }
-      else
-      {
-        throw new Bug.Common.Exceptions.FhirFatalException(System.Net.HttpStatusCode.InternalServerError, $"Invalid cast to R4 Fhir Resource.");
-      }
-    }    
+     
   }
 }

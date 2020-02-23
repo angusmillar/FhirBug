@@ -19,7 +19,18 @@ namespace Bug.Api.ContentFormatters
     /// This is set by the actual formatter (xml or json)
     /// </summary>
     //protected R4Model.Resource entry = null;
-    protected Common.Enums.FhirMajorVersion FhirMajorVersion = Common.Enums.FhirMajorVersion.Stu3;
+    private Common.Enums.FhirMajorVersion _FhirMajorVersion = Common.Enums.FhirMajorVersion.Stu3;
+    protected Common.Enums.FhirMajorVersion FhirMajorVersion
+    {
+      get
+      {
+        return _FhirMajorVersion;
+      }
+      set
+      {
+        _FhirMajorVersion = value;
+      }
+    }
 
     protected override bool CanReadType(Type type)
     {

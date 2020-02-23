@@ -10,13 +10,13 @@ namespace Bug.Api.CompositionRoot
     {
       this._container = container;
     }
-    public Bug.Stu3Fhir.ResourceSupport.IFhirResourceVersionSupport GetStu3()
+    public Bug.Stu3Fhir.ResourceSupport.IStu3FhirResourceVersionSupport GetStu3()
     {
-      return (Bug.Stu3Fhir.ResourceSupport.IFhirResourceVersionSupport)_container.GetInstance(typeof(Bug.Stu3Fhir.ResourceSupport.IFhirResourceVersionSupport));
+      return (Bug.Stu3Fhir.ResourceSupport.IStu3FhirResourceVersionSupport)_container.GetInstance(typeof(Bug.Stu3Fhir.ResourceSupport.IStu3FhirResourceVersionSupport));
     }
-    public Bug.R4Fhir.ResourceSupport.IFhirResourceVersionSupport GetR4()
+    public Bug.R4Fhir.ResourceSupport.IR4FhirResourceVersionSupport GetR4()
     {
-      return (Bug.R4Fhir.ResourceSupport.IFhirResourceVersionSupport)_container.GetInstance(typeof(Bug.R4Fhir.ResourceSupport.IFhirResourceVersionSupport));
+      return (Bug.R4Fhir.ResourceSupport.IR4FhirResourceVersionSupport)_container.GetInstance(typeof(Bug.R4Fhir.ResourceSupport.IR4FhirResourceVersionSupport));
     }
   }
 }

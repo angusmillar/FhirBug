@@ -10,7 +10,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Bug.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20200217035118_First")]
+    [Migration("20200222102353_First")]
     partial class First
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -56,7 +56,7 @@ namespace Bug.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ServerOptionsResource");
+                    b.ToTable("ResourceStore");
                 });
 #pragma warning restore 612, 618
         }

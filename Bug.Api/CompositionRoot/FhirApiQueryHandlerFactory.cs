@@ -1,12 +1,8 @@
-﻿using Bug.Logic.Query;
-using Bug.Logic.Query.FhirApi.Update;
+﻿using Bug.Logic.Interfaces.CompositionRoot;
+using Bug.Logic.Query;
 using Bug.Logic.Query.FhirApi;
+using Bug.Logic.Query.FhirApi.Update;
 using SimpleInjector;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Bug.Logic.Interfaces.CompositionRoot;
 
 namespace Bug.Api.CompositionRoot
 {
@@ -17,9 +13,9 @@ namespace Bug.Api.CompositionRoot
     {
       this._container = container;
     }
-    public IQueryHandler<Logic.Query.FhirApi.Update.UpdateQuery, FhirApiResult> GetUpdateCommand()
+    public IQueryHandler<UpdateQuery, FhirApiResult> GetUpdateCommand()
     {
-      return (IQueryHandler<Logic.Query.FhirApi.Update.UpdateQuery, FhirApiResult>)_container.GetInstance(typeof(IQueryHandler<Logic.Query.FhirApi.Update.UpdateQuery, FhirApiResult>));            
+      return (IQueryHandler<UpdateQuery, FhirApiResult>)_container.GetInstance(typeof(IQueryHandler<UpdateQuery, FhirApiResult>));            
     }
     public IQueryHandler<Logic.Query.FhirApi.Create.CreateQuery, FhirApiResult> GetCreateCommand()
     {

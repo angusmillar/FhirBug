@@ -1,75 +1,48 @@
-﻿using Bug.Common.Enums;
-using Bug.Common.Exceptions;
-using Bug.Common.FhirTools;
-using Bug.Logic.DomainModel;
-using Bug.Logic.Interfaces.CompositionRoot;
+﻿using Bug.Common.FhirTools;
 using Bug.Logic.Interfaces.Repository;
-//using Bug.Logic..FhirApi.Create;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
-using Bug.Common.DateTimeTools;
 
 namespace Bug.Logic.Service
 {
-  public class UpdateResourceService
+  public class UpdateResourceService : IUpdateResourceService
   {
-    private readonly IFhirResourceIdSupportFactory IFhirResourceIdSupportFactory;
-    private readonly IFhirResourceVersionSupportFactory IFhirResourceVersionSupportFactory;
-    private readonly IFhirResourceLastUpdatedSupportFactory IFhirResourceLastUpdatedSupportFactory;
-   
-    private readonly IResourceStoreRepository IResourceStoreRepository;
+    private readonly IFhirResourceIdSupport IFhirResourceIdSupport;
+    private readonly IFhirResourceVersionSupport IFhirResourceVersionSupport;
+    private readonly IFhirResourceLastUpdatedSupport IFhirResourceLastUpdatedSupport;
+    
     public UpdateResourceService(
-      IFhirResourceIdSupportFactory IFhirResourceIdSupportFactory,
-      IFhirResourceVersionSupportFactory IFhirResourceVersionSupportFactory,
-      IFhirResourceLastUpdatedSupportFactory IFhirResourceLastUpdatedSupportFactory,      
-      IResourceStoreRepository IResourceStoreRepository)
+      IFhirResourceIdSupport IFhirResourceIdSupport,
+      IFhirResourceVersionSupport IFhirResourceVersionSupport,
+      IFhirResourceLastUpdatedSupport IFhirResourceLastUpdatedSupport)
     {
-      this.IFhirResourceIdSupportFactory = IFhirResourceIdSupportFactory;
-      this.IFhirResourceVersionSupportFactory = IFhirResourceVersionSupportFactory;
-      this.IFhirResourceLastUpdatedSupportFactory = IFhirResourceLastUpdatedSupportFactory;      
-      this.IResourceStoreRepository = IResourceStoreRepository;
+      this.IFhirResourceIdSupport = IFhirResourceIdSupport;
+      this.IFhirResourceVersionSupport = IFhirResourceVersionSupport;
+      this.IFhirResourceLastUpdatedSupport = IFhirResourceLastUpdatedSupport;
     }
 
-    public async Task<bool> Process(UpdateResource UpdateResource)
+    public FhirResource Process(UpdateResource UpdateResource)
     {
+      if (UpdateResource == null)
+        throw new System.NullReferenceException();
+
+      if (UpdateResource.FhirResource == null)
+        throw new System.NullReferenceException();
+
+      if (!string.IsNullOrWhiteSpace(UpdateResource.ResourceId))
+      {
+        IFhirResourceIdSupport.SetFhirId(UpdateResource.FhirResource, UpdateResource.ResourceId);
+      }
+
+      if (!string.IsNullOrWhiteSpace(UpdateResource.VersionId))
+      {
+        IFhirResourceVersionSupport.SetVersion(UpdateResource.FhirResource, UpdateResource.VersionId);
+      }
       
-      if (UpdateResource.FhirMajorVersion == FhirMajorVersion.Stu3)
+      if (UpdateResource.LastUpdated.HasValue)
       {
-        //LastUpdated
-        UpdateResource.LastUpdated = DateTimeOffset.Now.ToZulu();
-        var FhirResourceLastUpdatedSupport = IFhirResourceLastUpdatedSupportFactory.GetStu3();
-        FhirResourceLastUpdatedSupport.SetLastUpdated(UpdateResource.LastUpdated, UpdateResource.Resource);
-
-        //Resource Id        
-        var FhirResourceIdSupport = IFhirResourceIdSupportFactory.GetStu3();        
-        UpdateResource.ResourceId = FhirResourceIdSupport.GetFhirId(UpdateResource.Resource);
-
-        UpdateResource.VersionId = Bug.Common.FhirTools.FhirGuidSupport.NewFhirGuid();
-        var FhirResourceVersionSupport = IFhirResourceVersionSupportFactory.GetStu3();
-        FhirResourceVersionSupport.SetVersion(UpdateResource.VersionId, UpdateResource.Resource);        
+        IFhirResourceLastUpdatedSupport.SetLastUpdated(UpdateResource.FhirResource, UpdateResource.LastUpdated.Value);
       }
-      else if (UpdateResource.FhirMajorVersion == FhirMajorVersion.R4)
-      {
-        //LastUpdated
-        UpdateResource.LastUpdated = DateTimeOffset.Now.ToZulu();
-        var FhirResourceLastUpdatedSupport = IFhirResourceLastUpdatedSupportFactory.GetR4();
-        FhirResourceLastUpdatedSupport.SetLastUpdated(UpdateResource.LastUpdated, UpdateResource.Resource);
-
-        //Resource Id        
-        var FhirResourceIdSupport = IFhirResourceIdSupportFactory.GetR4();
-        UpdateResource.ResourceId = FhirResourceIdSupport.GetFhirId(UpdateResource.Resource);
-
-        UpdateResource.VersionId = Bug.Common.FhirTools.FhirGuidSupport.NewFhirGuid();
-        var FhirResourceVersionSupport = IFhirResourceVersionSupportFactory.GetR4();
-        FhirResourceVersionSupport.SetVersion(UpdateResource.VersionId, UpdateResource.Resource);
-      }
-      else
-      {
-        throw new FhirVersionFatalException(UpdateResource.FhirMajorVersion);
-      }
-      return true;
+      
+      return UpdateResource.FhirResource;
     }
 
   }

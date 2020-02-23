@@ -26,7 +26,7 @@ namespace Bug.Stu3Fhir.Enums
       }
       else
       {
-        string Message = $"Unable to convert summaryType enum to equivalent FHIR type{summaryType.GetLiteral()}";
+        string Message = $"Unable to convert summaryType enum to equivalent FHIR type{summaryType.GetCode()}";
         throw new Common.Exceptions.FhirFatalException(System.Net.HttpStatusCode.InternalServerError, Message);
       }
     }

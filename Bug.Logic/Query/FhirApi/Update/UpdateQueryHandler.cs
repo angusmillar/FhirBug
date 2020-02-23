@@ -12,48 +12,83 @@ using Bug.Stu3Fhir.Serialization;
 using Bug.R4Fhir.Serialization;
 using Bug.Common.Compression;
 using Bug.Common.Exceptions;
+using Bug.Common.DateTimeTools;
+using Bug.Logic.Service;
+using Bug.Logic.DomainModel.Projection;
+using Bug.Common.FhirTools;
 
 namespace Bug.Logic.Query.FhirApi.Update
 {
   public class UpdateQueryHandler : IQueryHandler<UpdateQuery, FhirApiResult>
   {
     private readonly IResourceStoreRepository IResourceStoreRepository;
-    private readonly IStu3SerializationToJsonBytes IStu3SerializationToJsonBytes;
-    private readonly IR4SerializationToJsonBytes IR4SerializationToJsonBytes;
+    private readonly IFhirResourceIdSupport IFhirResourceIdSupport;
+    private readonly IUpdateResourceService IUpdateResourceService;
+    private readonly IFhirResourceJsonSerializationService IFhirResourceJsonSerializationService;
     private readonly IGZipper IGZipper;
 
     public UpdateQueryHandler(
       IResourceStoreRepository IResourceStoreRepository,
-      IStu3SerializationToJsonBytes IStu3SerializationToJsonBytes,
-      IR4SerializationToJsonBytes IR4SerializationToJsonBytes,
+      IFhirResourceIdSupport IFhirResourceIdSupport,
+      IUpdateResourceService IUpdateResourceService,
+      IFhirResourceJsonSerializationService IFhirResourceJsonSerializationService,
       IGZipper IGZipper)
     {
       this.IResourceStoreRepository = IResourceStoreRepository;
-      this.IStu3SerializationToJsonBytes = IStu3SerializationToJsonBytes;
-      this.IR4SerializationToJsonBytes = IR4SerializationToJsonBytes;
+      this.IFhirResourceIdSupport = IFhirResourceIdSupport;
+      this.IUpdateResourceService = IUpdateResourceService;
+      this.IFhirResourceJsonSerializationService = IFhirResourceJsonSerializationService;      
       this.IGZipper = IGZipper;
     }
 
-    public async Task<FhirApiResult> Handle(UpdateQuery command)
+    public async Task<FhirApiResult> Handle(UpdateQuery query)
     {
-      byte[] ResourceBytes = null;
-      switch (command.FhirMajorVersion)
+      if (query is null)
+        throw new NullReferenceException();
+
+      if (query.FhirResource is null)
+        throw new NullReferenceException();
+
+      string ResourceId = IFhirResourceIdSupport.GetFhirId(query.FhirResource);
+      byte[] ResourceBytes = IFhirResourceJsonSerializationService.SerializeToJsonBytes(query.FhirResource);
+
+      ResourceStore PreviousResourseStore = await IResourceStoreRepository.GetCurrentNoBlobAsync(ResourceId);
+      if (PreviousResourseStore != null)
       {
-        case FhirMajorVersion.Stu3:
-          ResourceBytes = IStu3SerializationToJsonBytes.SerializeToJsonBytes(command.FhirResource.Stu3);
-          break;
-        case FhirMajorVersion.R4:
-          ResourceBytes = IR4SerializationToJsonBytes.SerializeToJsonBytes(command.FhirResource.R4);
-          break;
-        default:
-          throw new FhirVersionFatalException(command.FhirMajorVersion);
+        PreviousResourseStore.IsCurrent = false;
+        IResourceStoreRepository.Update(PreviousResourseStore);
       }
+      string NewVersionId = FhirGuidSupport.NewFhirGuid();
+      DateTime NewLastUpdated = DateTimeOffset.Now.ToZulu();
+      FhirResource UpdatedFhirResource = IUpdateResourceService.Process(new UpdateResource()
+      {
+        FhirResource = query.FhirResource,
+        LastUpdated = NewLastUpdated,
+        VersionId = NewVersionId
+      });
+
+      var ResourceStore = new ResourceStore()
+      {
+        ResourceId = ResourceId,
+        IsCurrent = true,
+        IsDeleted = false,
+        VersionId = NewVersionId,
+        LastUpdated = NewLastUpdated,
+        ResourceBlob = IGZipper.Compress(IFhirResourceJsonSerializationService.SerializeToJsonBytes(UpdatedFhirResource))   
+      };
+
+      
+      IResourceStoreRepository.Add(ResourceStore);      
+      await IResourceStoreRepository.SaveChangesAsync();
+
 
       var OutCome = new FhirApiResult()
       {
         HttpStatusCode = System.Net.HttpStatusCode.OK,
-        FhirMajorVersion = command.FhirMajorVersion,
-        Resource = command.Resource
+        FhirMajorVersion = query.FhirMajorVersion,
+        FhirResource = query.FhirResource,
+        ResourceId = ResourceId,
+        VersionId = NewVersionId
       };
 
       return OutCome;

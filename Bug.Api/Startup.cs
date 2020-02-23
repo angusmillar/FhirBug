@@ -26,7 +26,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Bug.Api
 {
-  public class Startup
+  public class Startup : IDisposable
   {
     private Container container = new SimpleInjector.Container();
     public IConfiguration Configuration { get; }
@@ -126,8 +126,8 @@ namespace Bug.Api
       container.Register<Bug.Common.Compression.IGZipper, Bug.Common.Compression.GZipper>(Lifestyle.Singleton);
       container.Register<Bug.Common.FhirTools.IResourceVersionIdSupport, Bug.Common.FhirTools.ResourceVersionIdSupport>(Lifestyle.Singleton);
       //container.Register<Bug.R4Fhir.ResourceSupport.IResourceNameSupport, Bug.R4Fhir.ResourceSupport.ResourceNameSupport>(Lifestyle.Singleton);
-      container.Register<Bug.Stu3Fhir.ResourceSupport.IValidateResourceName, Bug.Stu3Fhir.ResourceSupport.ValidateResourceName>(Lifestyle.Singleton);
-      container.Register<Bug.R4Fhir.ResourceSupport.IValidateResourceName, Bug.R4Fhir.ResourceSupport.ValidateResourceName>(Lifestyle.Singleton);
+      container.Register<Bug.Stu3Fhir.ResourceSupport.IStu3ValidateResourceName, Bug.Stu3Fhir.ResourceSupport.ValidateResourceName>(Lifestyle.Singleton);
+      container.Register<Bug.R4Fhir.ResourceSupport.IR4ValidateResourceName, Bug.R4Fhir.ResourceSupport.ValidateResourceName>(Lifestyle.Singleton);
 
 
       //############## Scoped ###############################################################################
@@ -203,18 +203,26 @@ namespace Bug.Api
 
 
       //-- Fhir Version Supports ---------------      
-      container.Register<Bug.Stu3Fhir.ResourceSupport.IFhirResourceIdSupport, Bug.Stu3Fhir.ResourceSupport.FhirResourceSupport>(Lifestyle.Scoped);
-      container.Register<Bug.R4Fhir.ResourceSupport.IFhirResourceIdSupport, Bug.R4Fhir.ResourceSupport.FhirResourceSupport>(Lifestyle.Scoped);
+      container.Register<Bug.Stu3Fhir.ResourceSupport.IStu3FhirResourceIdSupport, Bug.Stu3Fhir.ResourceSupport.FhirResourceSupport>(Lifestyle.Scoped);
+      container.Register<Bug.R4Fhir.ResourceSupport.IStu3FhirResourceIdSupport, Bug.R4Fhir.ResourceSupport.FhirResourceSupport>(Lifestyle.Scoped);
 
-      container.Register<Bug.Stu3Fhir.ResourceSupport.IFhirResourceVersionSupport, Bug.Stu3Fhir.ResourceSupport.FhirResourceSupport>(Lifestyle.Scoped);
-      container.Register<Bug.R4Fhir.ResourceSupport.IFhirResourceVersionSupport, Bug.R4Fhir.ResourceSupport.FhirResourceSupport>(Lifestyle.Scoped);
+      container.Register<Bug.Stu3Fhir.ResourceSupport.IStu3FhirResourceVersionSupport, Bug.Stu3Fhir.ResourceSupport.FhirResourceSupport>(Lifestyle.Scoped);
+      container.Register<Bug.R4Fhir.ResourceSupport.IR4FhirResourceVersionSupport, Bug.R4Fhir.ResourceSupport.FhirResourceSupport>(Lifestyle.Scoped);
 
-      container.Register<Bug.Stu3Fhir.ResourceSupport.IFhirResourceLastUpdatedSupport, Bug.Stu3Fhir.ResourceSupport.FhirResourceSupport>(Lifestyle.Scoped);
-      container.Register<Bug.R4Fhir.ResourceSupport.IFhirResourceLastUpdatedSupport, Bug.R4Fhir.ResourceSupport.FhirResourceSupport>(Lifestyle.Scoped);
+      container.Register<Bug.Stu3Fhir.ResourceSupport.IStu3FhirResourceLastUpdatedSupport, Bug.Stu3Fhir.ResourceSupport.FhirResourceSupport>(Lifestyle.Scoped);
+      container.Register<Bug.R4Fhir.ResourceSupport.IStu3FhirResourceLastUpdatedSupport, Bug.R4Fhir.ResourceSupport.FhirResourceSupport>(Lifestyle.Scoped);
 
       container.Register<Bug.Stu3Fhir.OperationOutCome.IStu3OperationOutComeSupport, Bug.Stu3Fhir.OperationOutCome.OperationOutComeSupport>(Lifestyle.Scoped);
       container.Register<Bug.R4Fhir.OperationOutCome.IR4OperationOutComeSupport, Bug.R4Fhir.OperationOutCome.OperationOutComeSupport>(Lifestyle.Scoped);
-     
+
+      //-- Fhir Services ---------------      
+      container.Register<Logic.Service.IUpdateResourceService, Logic.Service.UpdateResourceService>(Lifestyle.Scoped);
+      container.Register<Logic.Service.IFhirResourceIdSupport, Logic.Service.FhirResourceIdSupport>(Lifestyle.Scoped);
+      container.Register<Logic.Service.IFhirResourceJsonSerializationService, Logic.Service.FhirResourceJsonSerializationService>(Lifestyle.Scoped);
+      container.Register<Logic.Service.IFhirResourceLastUpdatedSupport, Logic.Service.FhirResourceLastUpdatedSupport>(Lifestyle.Scoped);
+      container.Register<Logic.Service.IFhirResourceVersionSupport, Logic.Service.FhirResourceVersionSupport>(Lifestyle.Scoped);
+
+
       //-- Repositories ---------------
       container.Register<IResourceStoreRepository, Bug.Data.Repository.ResourceStoreRepository>(Lifestyle.Scoped);
 
@@ -254,7 +262,14 @@ namespace Bug.Api
       container.Verify();
     }
 
-
-    
+    public void Dispose()
+    {
+      Dispose(true);
+      GC.SuppressFinalize(this);
+    }
+    protected virtual void Dispose(bool disposing)
+    {
+      container.Dispose();
+    }
   }
 }

@@ -9,7 +9,7 @@ using System.Net;
 
 namespace Bug.Stu3Fhir.ResourceSupport
 {
-  public class ValidateResourceName : IValidateResourceName
+  public class ValidateResourceName : IStu3ValidateResourceName
   {
     public bool IsKnownResource(string ResourceName)
     {

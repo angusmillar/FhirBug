@@ -54,7 +54,7 @@ namespace Bug.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ServerOptionsResource");
+                    b.ToTable("ResourceStore");
                 });
 #pragma warning restore 612, 618
         }

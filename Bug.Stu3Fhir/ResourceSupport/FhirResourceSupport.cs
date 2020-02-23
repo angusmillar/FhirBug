@@ -1,4 +1,5 @@
-﻿using Hl7.Fhir.Model;
+﻿using Bug.Common.FhirTools;
+using Hl7.Fhir.Model;
 using Hl7.Fhir.Utility;
 using System;
 using System.Collections.Generic;
@@ -6,37 +7,39 @@ using System.Text;
 
 namespace Bug.Stu3Fhir.ResourceSupport
 {
-  public class FhirResourceSupport : IFhirResourceIdSupport, IFhirResourceVersionSupport, IFhirResourceLastUpdatedSupport, IFhirResourceNameSupport
+  public class FhirResourceSupport : IStu3FhirResourceIdSupport, IStu3FhirResourceVersionSupport, IStu3FhirResourceLastUpdatedSupport, IStu3FhirResourceNameSupport
   {
-    public void SetLastUpdated(DateTimeOffset dateTimeOffset, object resource)
+    public void SetLastUpdated(DateTimeOffset dateTimeOffset, IFhirResourceStu3 fhirResource)
     {
-      NullCheck(resource, "resource");
-
-      Resource Res = ResourceCast(resource);
-      CreateMeta(Res);
-      Res.Meta.LastUpdated = dateTimeOffset;
+      NullCheck(fhirResource.Stu3, "resource");
+      CreateMeta(fhirResource.Stu3);
+      fhirResource.Stu3.Meta.LastUpdated = dateTimeOffset;
     }
 
-    public DateTimeOffset? GetLastUpdated(object resource)
+    public DateTimeOffset? GetLastUpdated(IFhirResourceStu3 fhirResource)
     {
-      NullCheck(resource, "resource");
-      Resource Res = ResourceCast(resource);
-      return Res?.Meta?.LastUpdated;
+      NullCheck(fhirResource.Stu3, "resource");      
+      return fhirResource.Stu3?.Meta?.LastUpdated;
     }
 
-    public void SetVersion(string versionId, object resource)
+    public void SetVersion(string versionId, IFhirResourceStu3 fhirResource)
     {
-      NullCheck(resource, "resource");
-      Resource Res = ResourceCast(resource);
-      CreateMeta(Res);
-      Res.Meta.VersionId = versionId;
+      NullCheck(fhirResource.Stu3, "resource");      
+      CreateMeta(fhirResource.Stu3);
+      fhirResource.Stu3.Meta.VersionId = versionId;
     }
 
-    public string GetVersion(object resource)
+    public string? GetVersion(IFhirResourceStu3 fhirResource)
     {
-      NullCheck(resource, "resource");
-      Resource Res = ResourceCast(resource);
-      return Res?.Meta?.VersionId;
+      if (fhirResource is null)
+      {
+        throw new ArgumentNullException(paramName: nameof(fhirResource));
+      }
+      if (fhirResource.Stu3 is null)
+      {
+        throw new ArgumentNullException(paramName: nameof(fhirResource.Stu3));
+      }
+      return fhirResource.Stu3?.Meta?.VersionId;
     }
 
     public void SetProfile(IEnumerable<string> profileList, object resource)
@@ -75,18 +78,16 @@ namespace Bug.Stu3Fhir.ResourceSupport
       }
     }
 
-    public string GetFhirId(object resource)
+    public string GetFhirId(IFhirResourceStu3 fhirResource)
     {
-      NullCheck(resource, "resource");
-      Resource Res = ResourceCast(resource);
-      return Res.Id;
+      NullCheck(fhirResource.Stu3, "resource");      
+      return fhirResource.Stu3.Id;
     }
 
-    public string SetFhirId(string id, object resource)
+    public void SetFhirId(string id, IFhirResourceStu3 fhirResource)
     {
-      NullCheck(resource, "resource");
-      Resource Res = ResourceCast(resource);
-      return Res.Id = id;
+      NullCheck(fhirResource.Stu3, "resource");
+      fhirResource.Stu3.Id = id;
     }
 
     public string GetName(object resource)

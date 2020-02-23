@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System;
 using System.Net;
 
 namespace Bug.Common.Exceptions

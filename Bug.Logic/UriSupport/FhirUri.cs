@@ -6,6 +6,7 @@ using Bug.Logic.Interfaces.CompositionRoot;
 using System;
 using System.Linq;
 
+#nullable disable
 namespace Bug.Logic.UriSupport
 {
   public enum UrnType { uuid, oid };

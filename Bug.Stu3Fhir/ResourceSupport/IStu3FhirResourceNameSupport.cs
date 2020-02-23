@@ -1,6 +1,6 @@
 ﻿namespace Bug.Stu3Fhir.ResourceSupport
 {
-  public interface IFhirResourceNameSupport
+  public interface IStu3FhirResourceNameSupport
   {
     string GetName(object resource);    
   }

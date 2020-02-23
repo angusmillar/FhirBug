@@ -7,7 +7,8 @@ namespace Bug.Common.ApplicationConfig
 {
   public class FhirServerConfig : IFhirServerConfig
   {
-    public FhirFormatType DefaultFhirFormat { get; set; }
-    public Uri ServiceBaseUrl { get; set; }
+    public FhirFormatType DefaultFhirFormat { get; set; } = FhirFormatType.json;
+    public Uri ServiceBaseUrl { get; set; } = default!;
+
   }
 }

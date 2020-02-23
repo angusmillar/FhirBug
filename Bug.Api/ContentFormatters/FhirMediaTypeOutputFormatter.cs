@@ -37,15 +37,18 @@ namespace Bug.Api.ContentFormatters
 
     public override void WriteResponseHeaders(OutputFormatterWriteContext context)
     {
+      if (context is null)
+        throw new ArgumentNullException(nameof(context));
+
       base.WriteResponseHeaders(context);
       if (context.Object is R4Model.Resource resourceR4)
       {
         // output the Last-Modified header using the RFC1123 format
         // https://docs.microsoft.com/en-us/dotnet/standard/base-types/standard-date-and-time-format-strings?view=netframework-4.7
         if (resourceR4.Meta != null && resourceR4.Meta.LastUpdated.HasValue)
-          context.HttpContext.Response.Headers.Add(HeaderNames.LastModified, resourceR4.Meta.LastUpdated.Value.UtcDateTime.ToString("r"));
+          context.HttpContext.Response.Headers.Add(HeaderNames.LastModified, resourceR4.Meta.LastUpdated.Value.UtcDateTime.ToString("r", System.Globalization.CultureInfo.CurrentCulture));
         else
-          context.HttpContext.Response.Headers.Add(HeaderNames.LastModified, DateTimeOffset.UtcNow.ToString("r"));
+          context.HttpContext.Response.Headers.Add(HeaderNames.LastModified, DateTimeOffset.UtcNow.ToString("r", System.Globalization.CultureInfo.CurrentCulture));
         if (resourceR4.Meta != null && !String.IsNullOrEmpty(resourceR4.Meta.VersionId))
           context.HttpContext.Response.Headers.Add(HeaderNames.ETag, $"W/\"{resourceR4.Meta.VersionId}\"");
         if (!string.IsNullOrEmpty(resourceR4.Id) && resourceR4.ResourceIdentity(resourceR4.ResourceBase) != null)
@@ -62,9 +65,9 @@ namespace Bug.Api.ContentFormatters
         // output the Last-Modified header using the RFC1123 format
         // https://docs.microsoft.com/en-us/dotnet/standard/base-types/standard-date-and-time-format-strings?view=netframework-4.7
         if (resourceStu3.Meta != null && resourceStu3.Meta.LastUpdated.HasValue)
-          context.HttpContext.Response.Headers.Add(HeaderNames.LastModified, resourceStu3.Meta.LastUpdated.Value.UtcDateTime.ToString("r"));
+          context.HttpContext.Response.Headers.Add(HeaderNames.LastModified, resourceStu3.Meta.LastUpdated.Value.UtcDateTime.ToString("r", System.Globalization.CultureInfo.CurrentCulture));
         else
-          context.HttpContext.Response.Headers.Add(HeaderNames.LastModified, DateTimeOffset.UtcNow.ToString("r"));
+          context.HttpContext.Response.Headers.Add(HeaderNames.LastModified, DateTimeOffset.UtcNow.ToString("r", System.Globalization.CultureInfo.CurrentCulture));
         if (resourceStu3.Meta != null && !string.IsNullOrEmpty(resourceStu3.Meta.VersionId))
           context.HttpContext.Response.Headers.Add(HeaderNames.ETag, $"W/\"{resourceStu3.Meta.VersionId}\"");
         if (!string.IsNullOrEmpty(resourceStu3.Id) && resourceStu3.ResourceIdentity(resourceStu3.ResourceBase) != null)

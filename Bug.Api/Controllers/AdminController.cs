@@ -12,13 +12,7 @@ namespace Bug.Api.Controllers
   public class AdminController : ControllerBase
   {
    
-    // POST: api/Admin
-    [HttpPost("globalConfig")]
-    public void Post([FromBody] GlobalConfiguration globalConfiguration)
-    {
-
-
-    }
+    
 
   }
 }

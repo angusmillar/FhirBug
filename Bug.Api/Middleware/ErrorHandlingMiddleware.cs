@@ -49,7 +49,9 @@ namespace Bug.Api.Middleware
       {
         await next(context);
       }
-      catch (Exception ex)
+#pragma warning disable CA1031 // Do not catch general exception types
+      catch (Exception ex) //disable warning here as we do want to catch all Exceptions, this is the catch all for the whole app!
+#pragma warning restore CA1031 // Do not catch general exception types
       {
         await HandleExceptionAsync(context, ex, _logger);
       }
@@ -109,7 +111,7 @@ namespace Bug.Api.Middleware
 
     private Task R4FhirExceptionProcessing(HttpContext context, FhirException FhirException, FhirFormatType AcceptFormatType)
     {
-      R4Model.OperationOutcome R4OperationOutcomeResult = null;
+      R4Model.OperationOutcome? R4OperationOutcomeResult;
       if (FhirException is FhirFatalException FatalExec)
       {
         R4OperationOutcomeResult = IOperationOutComeSupportFactory.GetR4().GetFatal(FatalExec.MessageList);
@@ -151,7 +153,7 @@ namespace Bug.Api.Middleware
 
     private Task Stu3FhirExceptionProcessing(HttpContext context, FhirException FhirException, FhirFormatType AcceptFormatType)
     {
-      Stu3Model.OperationOutcome Stu3OperationOutcomeResult = null;
+      Stu3Model.OperationOutcome? Stu3OperationOutcomeResult;
       if (FhirException is FhirFatalException FatalExec)
       {
         Stu3OperationOutcomeResult = IOperationOutComeSupportFactory.GetStu3().GetFatal(FatalExec.MessageList);
@@ -190,20 +192,21 @@ namespace Bug.Api.Middleware
       }
     }
 
-    private FhirMajorVersion GetFhirVersionInUse(string RequestPath)
-    {      
-      if (RequestPath.Contains(FhirMajorVersion.Stu3.GetLiteral(), StringComparison.CurrentCultureIgnoreCase))
+    private static FhirMajorVersion GetFhirVersionInUse(string RequestPath)
+    {
+      if (RequestPath.Contains(FhirMajorVersion.Stu3.GetCode(), StringComparison.CurrentCultureIgnoreCase))
       {
         return FhirMajorVersion.Stu3;
       }
-      else if (RequestPath.Contains(FhirMajorVersion.R4.GetLiteral(), StringComparison.CurrentCultureIgnoreCase))
+      else if (RequestPath.Contains(FhirMajorVersion.R4.GetCode(), StringComparison.CurrentCultureIgnoreCase))
       {
         return FhirMajorVersion.R4;
       }
       else
       {
         throw new ApplicationException($"Unable to resolve the FHIR version to use for this exception message.");
-      }      
+      }
     }
+
   }
 }

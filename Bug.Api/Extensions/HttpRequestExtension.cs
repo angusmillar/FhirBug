@@ -8,12 +8,12 @@ namespace Bug.Api.Extensions
 {
   public static class HttpRequestExtension
   {
-    public static string GetUrl(this HttpRequest request)
+    public static Uri? GetUrl(this HttpRequest request)
     {
       if (request != null)
-        return $"{request.Scheme}://{request.Host}{request.Path}{request.QueryString}";
+        return new Uri($"{request.Scheme}://{request.Host}{request.Path}{request.QueryString}");
       else
-        return string.Empty;
+        return null;
 
     }
   }

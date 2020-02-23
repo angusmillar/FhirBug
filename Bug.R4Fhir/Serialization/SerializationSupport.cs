@@ -1,4 +1,5 @@
 ﻿using System;
+using Bug.Common.FhirTools;
 using Bug.R4.Enums;
 using Hl7.Fhir.Model;
 using Hl7.Fhir.Serialization;
@@ -37,24 +38,17 @@ namespace Bug.R4Fhir.Serialization
       }
     }
 
-    public byte[] SerializeToJsonBytes(object resource, Bug.Common.Enums.SummaryType summaryType = Bug.Common.Enums.SummaryType.False)
+    public byte[] SerializeToJsonBytes(IFhirResourceR4 fhirResource, Bug.Common.Enums.SummaryType summaryType = Bug.Common.Enums.SummaryType.False)
     {
-      if (resource is Resource Res)
+      SummaryTypeMap Map = new SummaryTypeMap();
+      try
       {
-        SummaryTypeMap Map = new SummaryTypeMap();
-        try
-        {
-          FhirJsonSerializer FhirJsonSerializer = new FhirJsonSerializer(new SerializerSettings() { Pretty = false, AppendNewLine = false });
-          return FhirJsonSerializer.SerializeToBytes(Res, Map.Get(summaryType));
-        }
-        catch (Exception oExec)
-        {
-          throw new Bug.Common.Exceptions.FhirFatalException(System.Net.HttpStatusCode.InternalServerError, oExec.Message);
-        }
+        FhirJsonSerializer FhirJsonSerializer = new FhirJsonSerializer(new SerializerSettings() { Pretty = false, AppendNewLine = false });
+        return FhirJsonSerializer.SerializeToBytes(fhirResource.R4, Map.Get(summaryType));
       }
-      else
+      catch (Exception oExec)
       {
-        throw new Bug.Common.Exceptions.FhirFatalException(System.Net.HttpStatusCode.InternalServerError, "Casting error, unable to cast object to R4 Resource in method SerializeToJsonBytes.");
+        throw new Bug.Common.Exceptions.FhirFatalException(System.Net.HttpStatusCode.InternalServerError, oExec.Message);
       }
     }
 

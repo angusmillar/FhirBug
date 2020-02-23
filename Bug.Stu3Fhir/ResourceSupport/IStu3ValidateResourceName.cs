@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Bug.Stu3Fhir.ResourceSupport
 {
-  public interface IValidateResourceName
+  public interface IStu3ValidateResourceName
   {
     bool IsKnownResource(string ResourceName); 
   }

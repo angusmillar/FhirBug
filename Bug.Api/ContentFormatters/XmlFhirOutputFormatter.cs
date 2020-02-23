@@ -26,6 +26,9 @@ namespace Bug.Api.ContentFormatters
 
     public override void WriteResponseHeaders(OutputFormatterWriteContext context)
     {
+      if (context is null)
+        throw new ArgumentNullException(nameof(context));
+
       context.ContentType = FhirMediaType.GetMediaTypeHeaderValue(context.ObjectType, Bug.Common.Enums.FhirFormatType.xml);
       // note that the base is called last, as this may overwrite the ContentType where the resource is of type Binary
       base.WriteResponseHeaders(context);
@@ -77,7 +80,7 @@ namespace Bug.Api.ContentFormatters
         {          
           if (context.Object != null)
           {
-            R4Model.Resource r = context.Object as R4Model.Resource;
+            R4Model.Resource r = (R4Model.Resource)context.Object;
             if (r.HasAnnotation<R4Rest.SummaryType>())
               R4SummaryType = r.Annotation<R4Rest.SummaryType>();
 
@@ -88,7 +91,7 @@ namespace Bug.Api.ContentFormatters
         {
           if (context.Object != null)
           {
-            Stu3Model.Resource r = context.Object as Stu3Model.Resource;
+            Stu3Model.Resource r = (Stu3Model.Resource)context.Object;
             if (r.HasAnnotation<Stu3Rest.SummaryType>())
               Stu3SummaryType = r.Annotation<Stu3Rest.SummaryType>();
             new Stu3Serialization.FhirXmlSerializer().Serialize(r, writer, Stu3SummaryType);

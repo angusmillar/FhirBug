@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using Bug.Common.FhirTools;
 using Bug.Stu3Fhir.Enums;
 using Hl7.Fhir.Model;
 using Hl7.Fhir.Serialization;
@@ -40,13 +41,13 @@ namespace Bug.Stu3Fhir.Serialization
       }
     }
 
-    public byte[] SerializeToJsonBytes(Resource resource, Bug.Common.Enums.SummaryType summaryType = Bug.Common.Enums.SummaryType.False)
+    public byte[] SerializeToJsonBytes(IFhirResourceStu3 fhirResource, Bug.Common.Enums.SummaryType summaryType = Bug.Common.Enums.SummaryType.False)
     {
       SummaryTypeMap Map = new SummaryTypeMap();
       try
       {
         FhirJsonSerializer FhirJsonSerializer = new FhirJsonSerializer(new SerializerSettings() { Pretty = false, AppendNewLine = false });
-        return FhirJsonSerializer.SerializeToBytes(resource, Map.Get(summaryType));
+        return FhirJsonSerializer.SerializeToBytes(fhirResource.Stu3, Map.Get(summaryType));
       }
       catch (Exception oExec)
       {

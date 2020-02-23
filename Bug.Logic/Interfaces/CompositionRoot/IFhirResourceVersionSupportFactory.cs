@@ -3,7 +3,7 @@ namespace Bug.Logic.Interfaces.CompositionRoot
 {
   public interface IFhirResourceVersionSupportFactory
   {
-    R4Fhir.ResourceSupport.IFhirResourceVersionSupport GetR4();
-    Stu3Fhir.ResourceSupport.IFhirResourceVersionSupport GetStu3();
+    R4Fhir.ResourceSupport.IR4FhirResourceVersionSupport GetR4();
+    Stu3Fhir.ResourceSupport.IStu3FhirResourceVersionSupport GetStu3();
   }
 }

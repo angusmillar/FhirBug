@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
@@ -9,6 +10,8 @@
     <Compile Remove="Migrations\20200210080458_First.Designer.cs" />
     <Compile Remove="Migrations\20200210141803_First.cs" />
     <Compile Remove="Migrations\20200210141803_First.Designer.cs" />
+    <Compile Remove="Migrations\20200217035118_First.cs" />
+    <Compile Remove="Migrations\20200217035118_First.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>

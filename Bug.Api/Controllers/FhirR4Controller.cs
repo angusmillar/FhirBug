@@ -55,34 +55,33 @@ namespace Bug.Api.Controllers
       return new string[] { "value1", "value2" };
     }
 
-    // GET: api/Fhir/5
-    [HttpGet("{id}")]
-    public string Get(int id)
-    {
-      return "value";
-    }
+    //// GET: api/Fhir/5
+    //[HttpGet("{id}")]
+    //public string Get(int id)
+    //{
+    //  return "value";
+    //}
 
     // POST: r4/fhir
-    [HttpPost("{resourceName}")]
-    public async Task<ActionResult<R4Model.Resource>> Post(string resourceName, [FromBody]R4Model.Resource resource)
-    {
-      string resname = resourceName;
-      if (resource != null)
-        resource.ResourceBase = new Uri("http://localhost/fhir");
-      throw new Common.Exceptions.FhirInfoException(System.Net.HttpStatusCode.BadRequest, new string[] { "error1" });
-      return Ok(resource);
-    }
+    //[HttpPost("{resourceName}")]
+    //public async Task<ActionResult<R4Model.Resource>> Post(string resourceName, [FromBody]R4Model.Resource resource)
+    //{
+    //  string resname = resourceName;
+    //  if (resource != null)
+    //    resource.ResourceBase = new Uri("http://localhost/fhir");      
+    //  return Ok(resource);
+    //}
 
     // PUT: api/Fhir/5
-    [HttpPut("{id}")]
-    public void Put(int id, [FromBody] R4Model.Resource value)
-    {
-    }
+    //[HttpPut("{id}")]
+    //public void Put(int id, [FromBody] R4Model.Resource value)
+    //{
+    //}
 
     // DELETE: api/ApiWithActions/5
-    [HttpDelete("{id}")]
-    public void Delete(int id)
-    {
-    }
+    //[HttpDelete("{id}")]
+    //public void Delete(int id)
+    //{
+    //}
   }
 }

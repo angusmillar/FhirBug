@@ -11,43 +11,43 @@ namespace Bug.Common.Enums
     public static string GetDescription(this Enum value)
     {
       Type type = value.GetType();
-      string name = Enum.GetName(type, value);
-      if (name != null)
+      string? name = Enum.GetName(type, value);
+      if (name is object)
       {
-        FieldInfo field = type.GetField(name);
-        if (field != null)
+        FieldInfo? field = type.GetField(name);
+        if (field is object)
         {
-          EnumInfoAttribute attr =
+          EnumInfoAttribute? attr =
                  Attribute.GetCustomAttribute(field,
                    typeof(EnumInfoAttribute)) as EnumInfoAttribute;
-          if (attr != null)
+          if (attr is object)
           {
             return attr.Description;
           }
         }
       }
-      return null;
+      return string.Empty;
     }
 
-    public static string GetLiteral(this Enum value)
+    public static string GetCode(this Enum value)
     {
       Type type = value.GetType();
-      string name = Enum.GetName(type, value);
-      if (name != null)
+      string? name = Enum.GetName(type, value);
+      if (name is object)
       {
-        FieldInfo field = type.GetField(name);
-        if (field != null)
+        FieldInfo? field = type.GetField(name);
+        if (field is object)
         {
-          EnumInfoAttribute attr =
+          EnumInfoAttribute? attr =
                  Attribute.GetCustomAttribute(field,
                    typeof(EnumInfoAttribute)) as EnumInfoAttribute;
-          if (attr != null)
+          if (attr is object)
           {
             return attr.Literal;
           }
         }
       }
-      return null;
+      return string.Empty;
     }
   }
 }

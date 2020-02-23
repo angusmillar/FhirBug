@@ -23,7 +23,7 @@ namespace Bug.Data
       });
     }
 
-    public virtual DbSet<ResourceStore> ServerOptionsResource { get; set; }
+    public virtual DbSet<ResourceStore>? ResourceStore { get; set; }
 
   }
 }

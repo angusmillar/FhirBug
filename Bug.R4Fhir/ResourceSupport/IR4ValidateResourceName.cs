@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Bug.R4Fhir.ResourceSupport
 {
-  public interface IValidateResourceName
+  public interface IR4ValidateResourceName
   {
     bool IsKnownResource(string ResourceName);    
   }

@@ -11,9 +11,5 @@ namespace Bug.Common.DateTimeTools
       return dateTimeOffset.UtcDateTime;
     }
 
-    public static DateTime NowZulu(this DateTimeOffset dateTimeOffset)
-    {
-      return DateTimeOffset.Now.UtcDateTime;
-    }
   }
 }

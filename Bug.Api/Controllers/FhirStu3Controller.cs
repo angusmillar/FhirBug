@@ -26,7 +26,7 @@ namespace Bug.Api.Controllers
     private readonly IFhirApiQueryHandlerFactory IFhirApiQueryHandlerFactory;
     private readonly IFhirUriFactory IFhirUriFactory;
 
-    private readonly FhirMajorVersion _FhirMajorVersion = FhirMajorVersion.Stu3;
+    private readonly FhirMajorVersion _ControllerFhirMajorVersion = FhirMajorVersion.Stu3;
 
     public FhirStu3Controller(ILogger logger, IFhirApiQueryHandlerFactory IFhirApiQueryHandlerFactory, IFhirUriFactory IFhirUriFactory)
     {
@@ -63,57 +63,58 @@ namespace Bug.Api.Controllers
         Cap.ResourceBase = new Uri("http://localhost/fhir");
 
       }).ConfigureAwait(false);
-      _logger.LogError($"Hello Metadata {DateTime.Now.ToString()}");
+      _logger.LogError($"Hello Metadata {DateTime.Now.ToString("r", System.Globalization.CultureInfo.CurrentCulture)}");
       return new FhirActionResult(HttpStatusCode.OK, Cap);
     }
 
 
     // GET: stu3/fhir/Patient/100
-    [HttpGet, Route("{resourceName}/{fhirId}")]
-    public async Task<ActionResult<Stu3Model.Resource>> Get(string resourceName, string fhirId)
-    {
-      string test1 = resourceName;
-      string test2 = fhirId;
-      return StatusCode((int)HttpStatusCode.OK, GetTestPateint());
-    }
+    //[HttpGet, Route("{resourceName}/{fhirId}")]
+    //public async Task<ActionResult<Stu3Model.Resource>> Get(string resourceName, string fhirId)
+    //{
+    //  string test1 = resourceName;
+    //  string test2 = fhirId;
+    //  return StatusCode((int)HttpStatusCode.OK, GetTestPateint());
+    //}
 
     // GET: stu3/fhir/Patient/100/_history/2
-    [HttpGet, Route("{resourceName}/{fhirId}/_history/{fhirVersionid?}")]
-    public async Task<ActionResult<Stu3Model.Resource>> Get(string resourceName, string fhirId, string fhirVersionId)
-    {
-      string test1 = resourceName;
-      string test2 = fhirId;
-      string test3 = fhirVersionId;
-      return StatusCode((int)HttpStatusCode.OK, GetTestPateint());
-    }
+    //[HttpGet, Route("{resourceName}/{fhirId}/_history/{fhirVersionid?}")]
+    //public async Task<ActionResult<Stu3Model.Resource>> Get(string resourceName, string fhirId, string fhirVersionId)
+    //{
+    //  string test1 = resourceName;
+    //  string test2 = fhirId;
+    //  string test3 = fhirVersionId;
+    //  return StatusCode((int)HttpStatusCode.OK, GetTestPateint());
+    //}
 
     // GET: stu3/fhir/Patient
-    [HttpGet, Route("{resourceName}")]
-    public async Task<ActionResult<Stu3Model.Resource>> GetSearch(string resourceName)
-    {
-      string test1 = resourceName;
-      return StatusCode((int)HttpStatusCode.OK, GetTestPateint());
-    }
+    //[HttpGet, Route("{resourceName}")]
+    //public async Task<ActionResult<Stu3Model.Resource>> GetSearch(string resourceName)
+    //{
+    //  string test1 = resourceName;
+    //  return StatusCode((int)HttpStatusCode.OK, GetTestPateint());
+    //}
 
     // GET: stu3/fhir/Patient
-    [HttpGet, Route("{compartment}/{fhirId}/{resourceName}")]
-    public async Task<ActionResult<Stu3Model.Resource>> GetCompartmentSearch(string compartment, string fhirId, string resourceName)
-    {
-      string test1 = compartment;
-      string test2 = fhirId;
-      string test3 = resourceName;
+    //[HttpGet, Route("{compartment}/{fhirId}/{resourceName}")]
+    //public async Task<ActionResult<Stu3Model.Resource>> GetCompartmentSearch(string compartment, string fhirId, string resourceName)
+    //{
+    //  string test1 = compartment;
+    //  string test2 = fhirId;
+    //  string test3 = resourceName;
 
-      return StatusCode((int)HttpStatusCode.OK, GetTestPateint());
-    }
+    //  return StatusCode((int)HttpStatusCode.OK, GetTestPateint());
+    //}
 
     //#####################################################################
-    //##|POST|#############################################################
+    //## |POST - CREATE| ##################################################
     //#####################################################################
 
     // POST: stu3/fhir/Patient
     [HttpPost("{resourceName}")]
     public async Task<ActionResult<Stu3Model.Resource>> Post(string resourceName, [FromBody]Stu3Model.Resource resource)
     {
+
       if (resource == null)
         return BadRequest();
       if (string.IsNullOrWhiteSpace(resourceName))
@@ -121,30 +122,36 @@ namespace Bug.Api.Controllers
 
       var Query = new Logic.Query.FhirApi.Create.CreateQuery()
       {
-        FhirMajorVersion = _FhirMajorVersion,
+        FhirMajorVersion = _ControllerFhirMajorVersion,
         RequestUriString = this.Request.GetUrl(),
         RequestHeaderDictionary = new Dictionary<string, StringValues>(this.Request.Headers),
-        RequestResourceName = resourceName,
-        Resource = resource,
-        FhirResource = new Logic.Query.FhirApi.Create.FhirResource() { Stu3 = resource }
+        RequestResourceName = resourceName,        
+        FhirResource = new Bug.Common.FhirTools.FhirResource(_ControllerFhirMajorVersion) { Stu3 = resource }
       };
 
       var CreateQueryHandler = this.IFhirApiQueryHandlerFactory.GetCreateCommand();
       FhirApiResult AcceptedAtActionResult = await CreateQueryHandler.Handle(Query);
 
+      if (AcceptedAtActionResult.HttpStatusCode is null)
+        throw new ArgumentNullException(nameof(AcceptedAtActionResult.HttpStatusCode));
+
+      if (AcceptedAtActionResult.FhirResource is null)
+        throw new ArgumentNullException(nameof(AcceptedAtActionResult.FhirResource));
+
       resource.ResourceBase = new Uri("http://localhost/fhir");
-      return new FhirActionResult(AcceptedAtActionResult.HttpStatusCode, AcceptedAtActionResult.Resource as Stu3Model.Resource);
+      return new FhirActionResult(AcceptedAtActionResult.HttpStatusCode.Value, AcceptedAtActionResult.FhirResource.Stu3);
     }
 
-    [HttpPost, Route("{resourceName}/_search")]
-    public async Task<ActionResult<Stu3Model.Resource>> PostFormSearch(string resourceName, [FromBody] System.Net.Http.Formatting.FormDataCollection FormDataCollection)
-    {
-      string resname = resourceName;
-      return StatusCode((int)HttpStatusCode.OK, GetTestPateint());
-    }
+
+    //[HttpPost, Route("{resourceName}/_search")]
+    //public async Task<ActionResult<Stu3Model.Resource>> PostFormSearch(string resourceName, [FromBody] System.Net.Http.Formatting.FormDataCollection FormDataCollection)
+    //{
+    //  string resname = resourceName;
+    //  return StatusCode((int)HttpStatusCode.OK, GetTestPateint());
+    //}
 
     //#####################################################################
-    //##|PUT|#############################################################
+    //## |PUT - UPDATE| ###################################################
     //#####################################################################
 
 
@@ -156,25 +163,32 @@ namespace Bug.Api.Controllers
         return BadRequest();
 
       var FhirUri = IFhirUriFactory.Get();
-      if (FhirUri.TryParse(this.Request.GetUrl(), _FhirMajorVersion, out FhirUri))
+      if (FhirUri.TryParse(Request.GetUrl()!.OriginalString, _ControllerFhirMajorVersion, out FhirUri))
       {
         string x = FhirUri.ResourseName;
 
       }
 
-      var command = new Logic.Query.FhirApi.Update.UpdateQuery()
+      var command = new UpdateQuery()
       {
-        FhirMajorVersion = _FhirMajorVersion,
+        FhirMajorVersion = _ControllerFhirMajorVersion,
         RequestUriString = this.Request.GetUrl(),
-        Resource = resource,
-        FhirResource = new Logic.Query.FhirApi.Create.FhirResource() { Stu3 = resource }
+        RequestHeaderDictionary = new Dictionary<string, StringValues>(this.Request.Headers),
+        RequestResourceName = resourceName,
+        FhirResource = new Bug.Common.FhirTools.FhirResource(_ControllerFhirMajorVersion) { Stu3 = resource }
+
       };
 
       var UpdateCommandHandler = this.IFhirApiQueryHandlerFactory.GetUpdateCommand();
       FhirApiResult AcceptedAtActionResult = await UpdateCommandHandler.Handle(command);
 
-      resource.ResourceBase = new Uri("http://localhost/fhir");
-      return new FhirActionResult(AcceptedAtActionResult.HttpStatusCode, AcceptedAtActionResult.Resource as Stu3Model.Resource);
+      if (AcceptedAtActionResult.HttpStatusCode is null)
+        throw new ArgumentNullException(nameof(AcceptedAtActionResult.HttpStatusCode));
+
+      if (AcceptedAtActionResult.FhirResource is null)
+        throw new ArgumentNullException(nameof(AcceptedAtActionResult.FhirResource));
+      
+      return new FhirActionResult(AcceptedAtActionResult.HttpStatusCode.Value, AcceptedAtActionResult.FhirResource.Stu3);
     }
 
     //#####################################################################
@@ -183,25 +197,12 @@ namespace Bug.Api.Controllers
 
 
     // DELETE: stu3/fhir/Patient/100    
-    [HttpDelete("{resourceName}/{fhirId}")]
-    public IActionResult Delete(string resourceName, string fhirId)
-    {
-      return NoContent();
-    }
+    //[HttpDelete("{resourceName}/{fhirId}")]
+    //public IActionResult Delete(string resourceName, string fhirId)
+    //{
+    //  return NoContent();
+    //}
 
-    private Stu3Model.Patient GetTestPateint()
-    {
-      return new Stu3Model.Patient()
-      {
-        Name = new List<Stu3Model.HumanName>()
-         {
-            new Stu3Model.HumanName()
-            {
-                Given = new string[] {"Angus"},
-                Family = "Millar"
-            }
-         }
-      };
-    }
+    
   }
 }

@@ -12,43 +12,41 @@ using Bug.R4Fhir.Serialization;
 using Bug.Common.Compression;
 using Bug.Common.Exceptions;
 using Bug.Logic.DomainModel;
+using Bug.Logic.Service;
+using Bug.Common.DateTimeTools;
+using Bug.Common.FhirTools;
 
 namespace Bug.Logic.Query.FhirApi.Create
 {
-  public class CreateQueryHandler<TResource> : IQueryHandler<CreateQuery, FhirApiResult>
+  public class CreateQueryHandler : IQueryHandler<CreateQuery, FhirApiResult>
   {        
     private readonly IResourceStoreRepository IResourceStoreRepository;
-    private readonly IStu3SerializationToJsonBytes IStu3SerializationToJsonBytes;
-    private readonly IR4SerializationToJsonBytes IR4SerializationToJsonBytes;    
+    private readonly IFhirResourceJsonSerializationService IFhirResourceJsonSerializationService;
+    private readonly IUpdateResourceService IUpdateResourceService;
     private readonly IGZipper IGZipper;
 
     public CreateQueryHandler( 
       IResourceStoreRepository IResourceStoreRepository,
-      IStu3SerializationToJsonBytes IStu3SerializationToJsonBytes,
-      IR4SerializationToJsonBytes IR4SerializationToJsonBytes,
+      IFhirResourceJsonSerializationService IFhirResourceJsonSerializationService,     
+      IUpdateResourceService IUpdateResourceService,
       IGZipper IGZipper)
     {            
       this.IResourceStoreRepository = IResourceStoreRepository;
-      this.IStu3SerializationToJsonBytes = IStu3SerializationToJsonBytes;
-      this.IR4SerializationToJsonBytes = IR4SerializationToJsonBytes;
+      this.IFhirResourceJsonSerializationService = IFhirResourceJsonSerializationService;      
+      this.IUpdateResourceService = IUpdateResourceService;
       this.IGZipper = IGZipper;      
     }
 
     public async Task<FhirApiResult> Handle(CreateQuery query)
     {
+      var UpdateResource = new UpdateResource();
+      UpdateResource.ResourceId = FhirGuidSupport.NewFhirGuid();
+      UpdateResource.VersionId = FhirGuidSupport.NewFhirGuid();
+      UpdateResource.LastUpdated = DateTimeOffset.Now.ToZulu();
+      UpdateResource.FhirResource = query.FhirResource;
 
-      byte[] ResourceBytes = null;
-      switch (query.FhirMajorVersion)
-      {
-        case FhirMajorVersion.Stu3:                    
-          ResourceBytes = IStu3SerializationToJsonBytes.SerializeToJsonBytes(query.FhirResource.Stu3);
-          break;
-        case FhirMajorVersion.R4:          
-          ResourceBytes = IR4SerializationToJsonBytes.SerializeToJsonBytes(query.FhirResource.R4);
-          break;
-        default:
-          throw new FhirVersionFatalException(query.FhirMajorVersion);
-      }
+      FhirResource UpdatedFhirResource = IUpdateResourceService.Process(UpdateResource);
+      byte[] ResourceBytes = IFhirResourceJsonSerializationService.SerializeToJsonBytes(UpdatedFhirResource);      
 
       //var FhirUri = IFhirUriFactory.Get();
       //if (FhirUri.TryParse(this.Request.GetUrl(), _FhirMajorVersion, out FhirUri))
@@ -57,12 +55,13 @@ namespace Bug.Logic.Query.FhirApi.Create
       //}
 
 
-      var ResourceStore = new DomainModel.ResourceStore()
+      var ResourceStore = new ResourceStore()
       {
-        ResourceId = query.FhirId,
+        ResourceId = UpdateResource.ResourceId,
         IsCurrent = true,
         IsDeleted = false,
-        VersionId = query.VersionId,
+        VersionId = UpdateResource.VersionId,
+        LastUpdated = UpdateResource.LastUpdated.Value,
         ResourceBlob = IGZipper.Compress(ResourceBytes)
       };
 
@@ -71,11 +70,11 @@ namespace Bug.Logic.Query.FhirApi.Create
 
       var OutCome = new FhirApiResult()
       {
-        ResourceId = ResourceStore.ResourceId,
+        ResourceId = UpdateResource.ResourceId,
         HttpStatusCode = System.Net.HttpStatusCode.Created,
-        FhirMajorVersion = query.FhirMajorVersion,
-        Resource = query.Resource,
-        ResourceVersionId = ResourceStore.VersionId
+        FhirMajorVersion = UpdatedFhirResource.FhirMajorVersion,
+        FhirResource = UpdatedFhirResource,
+        VersionId = UpdateResource.VersionId
       };
 
       return OutCome;

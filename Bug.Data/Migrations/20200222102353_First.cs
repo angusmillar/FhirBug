@@ -9,7 +9,7 @@ namespace Bug.Data.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "ServerOptionsResource",
+                name: "ResourceStore",
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
@@ -23,14 +23,14 @@ namespace Bug.Data.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ServerOptionsResource", x => x.Id);
+                    table.PrimaryKey("PK_ResourceStore", x => x.Id);
                 });
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "ServerOptionsResource");
+                name: "ResourceStore");
         }
     }
 }
