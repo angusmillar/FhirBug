@@ -14,6 +14,7 @@ using Microsoft.Extensions.Logging;
 using Bug.Stu3Fhir.Serialization;
 using Bug.R4Fhir.Serialization;
 using Bug.Logic.Interfaces.CompositionRoot;
+using System.Diagnostics;
 
 namespace Bug.Api.Middleware
 {
@@ -29,7 +30,7 @@ namespace Bug.Api.Middleware
 
     public ErrorHandlingMiddleware(RequestDelegate next, ILogger<ErrorHandlingMiddleware> logger,
       IStu3SerializationToJson IStu3SerializationToJson,
-      IStu3SerializationToXml IStu3SerializationToXml,      
+      IStu3SerializationToXml IStu3SerializationToXml,
       IR4SerializationToXml IR4SerializationToXml,
       IR4SerializationToJson IR4SerializationToJson,
       IOperationOutComeSupportFactory IOperationOutComeSupportFactory)
@@ -59,12 +60,13 @@ namespace Bug.Api.Middleware
 
     private Task HandleExceptionAsync(HttpContext context, Exception exec, ILogger<ErrorHandlingMiddleware> _logger)
     {
+
       _logger.LogError(exec, exec.Message);
       FhirMajorVersion VersionInUse = GetFhirVersionInUse(context.Request.Path.Value);
       if (exec is FhirException FhirException)
       {
         _logger.LogError(FhirException, "FhirException has been throwen");
-        FhirFormatType AcceptFormatType = Bug.Api.ContentFormatters.FhirMediaType.GetFhirFormatTypeFromAcceptHeader(context.Request.Headers.SingleOrDefault(x => x.Key.ToLower(System.Globalization.CultureInfo.CurrentCulture) == "accept").Value);        
+        FhirFormatType AcceptFormatType = Bug.Api.ContentFormatters.FhirMediaType.GetFhirFormatTypeFromAcceptHeader(context.Request.Headers.SingleOrDefault(x => x.Key.ToLower(System.Globalization.CultureInfo.CurrentCulture) == "accept").Value);
         switch (VersionInUse)
         {
           case FhirMajorVersion.Stu3:
@@ -74,39 +76,47 @@ namespace Bug.Api.Middleware
           case FhirMajorVersion.R4:
             {
               return R4FhirExceptionProcessing(context, FhirException, AcceptFormatType);
-            }          
+            }
           default:
             throw new ApplicationException($"Unable to resolve which major version of FHIR is in use. Found enum: {VersionInUse.ToString()}");
-
-        }        
+        }
       }
       else
       {
         string ErrorGuid = Common.FhirTools.FhirGuidSupport.NewFhirGuid();
-        string UsersErrorMessage = $"An unhandled exception has been throwen. To protect data privacy the exception information has been writen to the application log with the error log identifier: {ErrorGuid}";
+        string UsersErrorMessage = string.Empty;
+        if (Debugger.IsAttached)
+        {          
+          UsersErrorMessage = $"{exec.ToString()} ->  Server Error log identifier: {ErrorGuid}";
+        }
+        else
+        {
+          UsersErrorMessage = $"An unhandled exception has been throwen. To protect data privacy the exception information has been writen to the application log with the error log identifier: {ErrorGuid}";
+        }
         _logger.LogError(exec, $"Error log identifier: {ErrorGuid}");
         switch (VersionInUse)
         {
           case FhirMajorVersion.Stu3:
             {
-              Stu3Model.OperationOutcome Stu3OperationOutcomeResult = IOperationOutComeSupportFactory.GetStu3().GetFatal(new string[] { UsersErrorMessage } );
+
+              Stu3Model.OperationOutcome Stu3OperationOutcomeResult = IOperationOutComeSupportFactory.GetStu3().GetFatal(new string[] { UsersErrorMessage });
               context.Response.ContentType = Bug.Api.ContentFormatters.FhirMediaType.GetMediaTypeHeaderValue(Stu3OperationOutcomeResult.GetType(), FhirFormatType.xml).Value;
               context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
               return context.Response.WriteAsync(IStu3SerializationToXml.SerializeToXml(Stu3OperationOutcomeResult));
             }
           case FhirMajorVersion.R4:
             {
-              R4Model.OperationOutcome R4OperationOutcomeResult = IOperationOutComeSupportFactory.GetR4().GetFatal(new string[] { UsersErrorMessage });             
+              R4Model.OperationOutcome R4OperationOutcomeResult = IOperationOutComeSupportFactory.GetR4().GetFatal(new string[] { UsersErrorMessage });
               context.Response.ContentType = Bug.Api.ContentFormatters.FhirMediaType.GetMediaTypeHeaderValue(R4OperationOutcomeResult.GetType(), FhirFormatType.xml).Value;
               context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
               return context.Response.WriteAsync(IR4SerializationToXml.SerializeToXml(R4OperationOutcomeResult));
-            }          
+            }
           default:
             string msg = $"Unable to resolve which major version of FHIR is in use. Found enum: {VersionInUse.ToString()}";
             _logger.LogError(msg);
-            throw new ApplicationException(msg);            
+            throw new ApplicationException(msg);
         }
-      }     
+      }
     }
 
     private Task R4FhirExceptionProcessing(HttpContext context, FhirException FhirException, FhirFormatType AcceptFormatType)
@@ -188,7 +198,7 @@ namespace Bug.Api.Middleware
       {
         string msg = $"Unexpected FhirFormatType type encountered of : {AcceptFormatType.GetType().FullName}";
         _logger.LogError(msg);
-        throw new ApplicationException(msg);        
+        throw new ApplicationException(msg);
       }
     }
 
