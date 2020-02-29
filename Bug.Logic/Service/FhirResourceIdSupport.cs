@@ -15,7 +15,7 @@ namespace Bug.Logic.Service
       this.IFhirResourceIdSupportFactory = IFhirResourceIdSupportFactory;
     }
 
-    public string GetFhirId(FhirResource fhirResource)
+    public string GetResourceId(FhirResource fhirResource)
     {
       switch (fhirResource.FhirMajorVersion)
       {
@@ -30,7 +30,7 @@ namespace Bug.Logic.Service
       }
     }
 
-    public void SetFhirId(FhirResource fhirResource, string id)
+    public void SetResourceId(FhirResource fhirResource, string id)
     {
       switch (fhirResource.FhirMajorVersion)
       {

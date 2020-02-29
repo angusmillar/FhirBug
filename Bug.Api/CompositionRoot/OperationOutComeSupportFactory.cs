@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Bug.Api.CompositionRoot
 {
-  public class OperationOutComeSupportFactory: Bug.Logic.Interfaces.CompositionRoot.IOperationOutComeSupportFactory
+  public class OperationOutComeSupportFactory: Bug.Logic.Interfaces.CompositionRoot.IOperationOutcomeSupportFactory
   {
     private readonly Container _container;
     public OperationOutComeSupportFactory(Container container)

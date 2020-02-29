@@ -11,6 +11,7 @@ services:
     environment:    
       - FhirServerConfig__ServiceBaseUrl=https://localhost:8443
       - FhirServerConfig__DefaultFhirFormat=json
+      - FhirServerConfig__CahceSlidingExpirationMinites=10
     ports:
         - "8080:80"
         - "8443:443"
@@ -21,9 +22,9 @@ services:
     container_name: postgresSQL
     image: postgres
     environment:
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: w8etheb
-      POSTGRES_DB: PyroDB
+      POSTGRES_USER: angusbmillar
+      POSTGRES_PASSWORD: 3agepufa
+      POSTGRES_DB: BugDb
       PGDATA: /data/postgres
     volumes:
         - postgres:/data/postgres

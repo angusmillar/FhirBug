@@ -10,13 +10,16 @@ namespace Bug.Logic.Query.FhirApi
 {
   public abstract class FhirApiQuery: IQuery<FhirApiResult>, IQuery<ResourceStore>
   {
-    public FhirApiQuery()
+    public FhirApiQuery(HttpVerb HttpVerb, FhirMajorVersion FhirMajorVersion, Uri RequestUri, Dictionary<string, StringValues> HeaderDictionary)
     {
-      this.RequestHeaderDictionary = new Dictionary<string, StringValues>();
+      this.HttpVerb = HttpVerb;
+      this.FhirMajorVersion = FhirMajorVersion;
+      this.RequestUri = RequestUri;
+      this.RequestHeaderDictionary = HeaderDictionary;
     }
-    public FhirMajorVersion? FhirMajorVersion { get; set; }
-    public Uri? RequestUriString { get; set; }        
+    public HttpVerb HttpVerb { get; set; }
+    public FhirMajorVersion FhirMajorVersion { get; set; }
+    public Uri RequestUri { get; set; }        
     public Dictionary<string, StringValues> RequestHeaderDictionary { get; set; }
-
   }
 }

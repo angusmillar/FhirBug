@@ -255,7 +255,13 @@ namespace Bug.Logic.UriSupport
         {
           //This is a Resource referance where Patient/123456          
           this.ResourseName = Segment;
-          //this.ResourceType = IResourceNameResolutionSupport.GetResourceType(this.ResourseName);
+          if (!IsResourceTypeString(this.ResourseName))
+          {
+            ParseErrorMessage = GenerateIncorrectResourceNameMessage(this.ResourseName);
+            ErrorInParseing = true;
+            Remainder = RequestRelativePath.Substring(this.ResourseName.Count(), RequestRelativePath.Count() - this.ResourseName.Count());
+            return RemoveStartsWithSlash(Remainder);            
+          }
           Remainder = RequestRelativePath.Substring(this.ResourseName.Count(), RequestRelativePath.Count() - this.ResourseName.Count());
           return RemoveStartsWithSlash(Remainder);
         }
@@ -264,7 +270,7 @@ namespace Bug.Logic.UriSupport
           return Segment;
         }
       }
-      ParseErrorMessage = $"The URI has no Resource or metadata or $Operation or #Contained segment. Found invalid segment: {RequestRelativePath} in URL {this.OriginalString}";
+      ParseErrorMessage = $"The URI has no resource or metadata or $Operation or #Contained segment. Found invalid segment: {RequestRelativePath} in URL {this.OriginalString}";
       ErrorInParseing = true;
       return string.Empty;
     }
@@ -386,10 +392,42 @@ namespace Bug.Logic.UriSupport
       }
       else
       {
-        FhirUri = null;
+        FhirUri = this;
         return false;
       }      
     }
+
+    private string GenerateIncorrectResourceNameMessage(string ResourceName)
+    {
+      string ErrorMessage = string.Empty;
+      if (ResourceName.ToLower() == "_history")
+      {
+        return $"This server has not implemented the whole system Interaction of history. Instance level history is implemented, for example '[base]/Patient/1/_history'";
+      }
+      else if (ResourceName.ToLower() == "conformance")
+      {
+        return $"The resource name given '{ResourceName}' is not a resource supported by the .net FHIR API Version: {this.FhirMajorVersion.GetCode()}. Perhaps you wish to find the server's conformance statement resource named 'CapabilityStatement' which can be obtained from the endpoint '[base]/metadata' ";
+      }
+      else
+      {
+        if (char.IsLower(ResourceName.ToCharArray()[0]))
+        {          
+          if (IsResourceTypeString(StringSupport.UppercaseFirst(ResourceName)))
+          {
+            return $"The resource name or Compartment name given '{ResourceName}' must begin with a capital letter, e.g ({StringSupport.UppercaseFirst(ResourceName)})";
+          }
+          else
+          {
+            return $"The resource name or Compartment name given '{ResourceName}' is not a Resource supported by the .net FHIR API Version: {this.FhirMajorVersion.GetCode()}.";
+          }
+        }
+        else
+        {
+          return $"The resource name or compartment is not supported for this FHIR version. The resource name found in the URI was {this.ResourseName} and the version of FHIR used was {this.FhirMajorVersion.GetCode()}. Remember that FHIR resource names are case sensitive."; ;
+        }        
+      }            
+    }
+
   }
 }
 

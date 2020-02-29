@@ -15,64 +15,93 @@ using Bug.Logic.DomainModel;
 using Bug.Logic.Service;
 using Bug.Common.DateTimeTools;
 using Bug.Common.FhirTools;
+using Microsoft.Extensions.Caching.Distributed;
+using Bug.Logic.CacheService;
+using Bug.Logic.Service.TableService;
 
 namespace Bug.Logic.Query.FhirApi.Create
 {
   public class CreateQueryHandler : IQueryHandler<CreateQuery, FhirApiResult>
-  {        
+  {
+    
+    private readonly IValidateQueryService IValidateQueryService;
     private readonly IResourceStoreRepository IResourceStoreRepository;
+    private readonly IResourceNameTableService IResourceNameTableService;
+    private readonly IMethodTableService IMethodTableService;
+    private readonly IFhirVersionTableService IFhirVersionTableService;
     private readonly IFhirResourceJsonSerializationService IFhirResourceJsonSerializationService;
     private readonly IUpdateResourceService IUpdateResourceService;
-    private readonly IGZipper IGZipper;
+    private readonly IGZipper IGZipper;        
 
-    public CreateQueryHandler( 
+    public CreateQueryHandler(
+      IValidateQueryService IValidateQueryService,
       IResourceStoreRepository IResourceStoreRepository,
+      IResourceNameTableService IResourceNameTableService,
+      IFhirVersionTableService IFhirVersionTableService,
+      IMethodTableService IMethodTableService,      
       IFhirResourceJsonSerializationService IFhirResourceJsonSerializationService,     
       IUpdateResourceService IUpdateResourceService,
       IGZipper IGZipper)
-    {            
+    {
+      this.IValidateQueryService = IValidateQueryService;
       this.IResourceStoreRepository = IResourceStoreRepository;
+      this.IResourceNameTableService = IResourceNameTableService;
+      this.IFhirVersionTableService = IFhirVersionTableService;
+      this.IMethodTableService = IMethodTableService;
       this.IFhirResourceJsonSerializationService = IFhirResourceJsonSerializationService;      
       this.IUpdateResourceService = IUpdateResourceService;
-      this.IGZipper = IGZipper;      
+      this.IGZipper = IGZipper;            
     }
 
     public async Task<FhirApiResult> Handle(CreateQuery query)
     {
-      var UpdateResource = new UpdateResource();
-      UpdateResource.ResourceId = FhirGuidSupport.NewFhirGuid();
-      UpdateResource.VersionId = FhirGuidSupport.NewFhirGuid();
-      UpdateResource.LastUpdated = DateTimeOffset.Now.ToZulu();
-      UpdateResource.FhirResource = query.FhirResource;
+      if (query.ResourceName is null)
+        throw new ArgumentNullException(paramName: nameof(query.ResourceName));
+      
+      if (!IValidateQueryService.IsValid(query, out FhirResource? IsNotValidOperationOutCome))
+      {
+        return new FhirApiResult(System.Net.HttpStatusCode.BadRequest, IsNotValidOperationOutCome!.FhirMajorVersion)
+        {
+          ResourceId = null,
+          FhirResource = IsNotValidOperationOutCome,
+          VersionId = null
+        };
+      }
+
+      var UpdateResource = new UpdateResource(query.FhirResource)
+      {
+        ResourceId = FhirGuidSupport.NewFhirGuid(),
+        VersionId = 1,
+        LastUpdated = DateTimeOffset.Now.ToZulu()
+      };
 
       FhirResource UpdatedFhirResource = IUpdateResourceService.Process(UpdateResource);
-      byte[] ResourceBytes = IFhirResourceJsonSerializationService.SerializeToJsonBytes(UpdatedFhirResource);      
+      byte[] ResourceBytes = IFhirResourceJsonSerializationService.SerializeToJsonBytes(UpdatedFhirResource);
 
-      //var FhirUri = IFhirUriFactory.Get();
-      //if (FhirUri.TryParse(this.Request.GetUrl(), _FhirMajorVersion, out FhirUri))
-      //{
-      //  string x = FhirUri.ResourseName; 
-      //}
-
+      ResourceName ResourceName = await IResourceNameTableService.GetSetResourceName(query.ResourceName);
+      FhirVersion FhirVersion = await IFhirVersionTableService.GetSetFhirVersion(UpdatedFhirResource.FhirMajorVersion);
+      Method Method = await IMethodTableService.GetSetMethod(query.HttpVerb);
 
       var ResourceStore = new ResourceStore()
       {
         ResourceId = UpdateResource.ResourceId,
         IsCurrent = true,
         IsDeleted = false,
-        VersionId = UpdateResource.VersionId,
+        VersionId = UpdateResource.VersionId.Value,
         LastUpdated = UpdateResource.LastUpdated.Value,
-        ResourceBlob = IGZipper.Compress(ResourceBytes)
-      };
+        ResourceBlob = IGZipper.Compress(ResourceBytes),        
+        FkResourceNameId = ResourceName.Id,
+        FkFhirVersionId = FhirVersion.Id,
+        FkMethodId = Method.Id
+      };     
+      
 
       IResourceStoreRepository.Add(ResourceStore);
       await IResourceStoreRepository.SaveChangesAsync();
 
-      var OutCome = new FhirApiResult()
+      var OutCome = new FhirApiResult(System.Net.HttpStatusCode.Created, query.FhirMajorVersion)
       {
         ResourceId = UpdateResource.ResourceId,
-        HttpStatusCode = System.Net.HttpStatusCode.Created,
-        FhirMajorVersion = UpdatedFhirResource.FhirMajorVersion,
         FhirResource = UpdatedFhirResource,
         VersionId = UpdateResource.VersionId
       };

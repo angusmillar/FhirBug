@@ -8,6 +8,7 @@ using Bug.Logic.DomainModel;
 using Bug.Logic.Interfaces.Repository;
 using System.Threading.Tasks;
 using Bug.Logic.DomainModel.Projection;
+using Bug.Common.Enums;
 //using System.Data.Entity;
 
 namespace Bug.Data.Repository
@@ -17,27 +18,38 @@ namespace Bug.Data.Repository
     public ResourceStoreRepository(AppDbContext context)
       : base(context) { }
      
-    public async Task<ResourceStore> GetCurrentAsync(string fhirId)
+    public async Task<ResourceStore?> GetCurrentAsync(FhirMajorVersion fhirMajorVersion, string resourceName, string resourceId)
     {
-      return await DbSet.SingleOrDefaultAsync(x => x.ResourceId == fhirId & x.IsCurrent == true);
+      return await DbSet.SingleOrDefaultAsync(x => 
+        x.FhirVersion.FhirMajorVersion == fhirMajorVersion & 
+        x.ResourceName.Name == resourceName & 
+        x.ResourceId == resourceId & 
+        x.IsCurrent == true);
     }
 
-    public async Task<ResourceStore> GetCurrentNoBlobAsync(string fhirId)
+    public void UpdateIsCurrent(ResourceStore resourceStore)
     {
-      return await DbSet.Select(x => new ResourceStore
+      DbSet.Attach(resourceStore);
+      _context.Entry(resourceStore).Property("IsCurrent").IsModified = true;
+    }
+
+    public async Task<ResourceStore?> GetCurrentMetaAsync(FhirMajorVersion fhirMajorVersion, string ResourceName, string resourceId)
+    {
+      return await DbSet.Select(x => new ResourceStore()
       {
         Id = x.Id,
         ResourceId = x.ResourceId,
         IsCurrent = x.IsCurrent,
         IsDeleted = x.IsDeleted,
         LastUpdated = x.LastUpdated,
-        VersionId = x.VersionId
-      }).SingleOrDefaultAsync(y => y.ResourceId == fhirId & y.IsCurrent == true);
-
-
-
-
-
+        VersionId = x.VersionId,
+        FhirVersion = x.FhirVersion,
+        ResourceName = x.ResourceName
+      }).SingleOrDefaultAsync(y => 
+        y.FhirVersion.FhirMajorVersion == fhirMajorVersion &
+        y.ResourceName.Name == ResourceName & 
+        y.ResourceId == resourceId &
+        y.IsCurrent == true);
     }
 
   }

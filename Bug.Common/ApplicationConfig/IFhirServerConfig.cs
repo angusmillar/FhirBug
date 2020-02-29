@@ -7,5 +7,6 @@ namespace Bug.Common.ApplicationConfig
   {
     FhirFormatType DefaultFhirFormat { get; set; }
     Uri ServiceBaseUrl { get; set; }
+    int CahceSlidingExpirationMinites { get; set; }
   }
 }

@@ -8,9 +8,14 @@ namespace Bug.Logic.Service
 {
   public class UpdateResource
   {
-    public FhirResource? FhirResource { get; set; }
+    public UpdateResource(FhirResource FhirResource)
+    {
+      this.FhirResource = FhirResource;
+    }
+
+    public FhirResource FhirResource { get; set; }
     public string? ResourceId { get; set; } 
-    public string? VersionId { get; set; }
+    public int? VersionId { get; set; }
     public DateTime? LastUpdated { get; set; }
 
   }

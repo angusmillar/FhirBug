@@ -4,7 +4,7 @@ namespace Bug.Logic.Service
 {
   public interface IFhirResourceIdSupport
   {
-    string GetFhirId(FhirResource fhirResource);
-    void SetFhirId(FhirResource fhirResource, string id);
+    string GetResourceId(FhirResource fhirResource);
+    void SetResourceId(FhirResource fhirResource, string id);
   }
 }

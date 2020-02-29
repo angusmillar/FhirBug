@@ -39,11 +39,11 @@ namespace Bug.Stu3Fhir.OperationOutCome
       {
         if (errorMessageList.Length == 1)
         {
-          sb.Append($"  <p>{ErrorMsg}</p>\n");
+          sb.Append($"  <p>{System.Web.HttpUtility.HtmlEncode(ErrorMsg)}</p>\n");
         }
         else
         {
-          sb.Append($"  <p> {Counter.ToString()}. {ErrorMsg}</p>\n");
+          sb.Append($"  <p> {Counter.ToString()}. {System.Web.HttpUtility.HtmlEncode(ErrorMsg)}</p>\n");
         }
 
         var Issue = new OperationOutcome.IssueComponent();
@@ -60,5 +60,7 @@ namespace Bug.Stu3Fhir.OperationOutCome
       Opt.Text.Div = sb.ToString();
       return Opt;
     }
+
+
   }
 }

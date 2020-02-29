@@ -26,14 +26,14 @@ namespace Bug.Api.Middleware
     private readonly IStu3SerializationToJson IStu3SerializationToJson;
     private readonly IR4SerializationToXml IR4SerializationToXml;
     private readonly IR4SerializationToJson IR4SerializationToJson;
-    private readonly IOperationOutComeSupportFactory IOperationOutComeSupportFactory;
+    private readonly IOperationOutcomeSupportFactory IOperationOutComeSupportFactory;
 
     public ErrorHandlingMiddleware(RequestDelegate next, ILogger<ErrorHandlingMiddleware> logger,
       IStu3SerializationToJson IStu3SerializationToJson,
       IStu3SerializationToXml IStu3SerializationToXml,
       IR4SerializationToXml IR4SerializationToXml,
       IR4SerializationToJson IR4SerializationToJson,
-      IOperationOutComeSupportFactory IOperationOutComeSupportFactory)
+      IOperationOutcomeSupportFactory IOperationOutComeSupportFactory)
     {
       this.next = next;
       this._logger = logger;

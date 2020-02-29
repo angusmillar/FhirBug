@@ -7,14 +7,14 @@ using System.Threading.Tasks;
 namespace Bug.Api.Extensions
 {
   public static class HttpRequestExtension
-  {
-    public static Uri? GetUrl(this HttpRequest request)
+  {    
+    public static Uri GetUrl(this HttpRequest request)
     {
-      if (request != null)
-        return new Uri($"{request.Scheme}://{request.Host}{request.Path}{request.QueryString}");
-      else
-        return null;
+      if (request is null)
+        throw new ArgumentNullException(paramName: nameof(request));
 
+      return new Uri($"{request.Scheme}://{request.Host}{request.Path}{request.QueryString}");
+      
     }
   }
 }

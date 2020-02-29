@@ -30,15 +30,12 @@ namespace Bug.Logic.Query.FhirApi.Decorator
 
       if (query is FhirApiQuery FhirApiQuery)
       {        
-        if (FhirApiQuery.RequestUriString is null)
-          throw new ArgumentNullException(paramName: nameof(FhirApiQuery.RequestUriString));
-
-        if (FhirApiQuery.FhirMajorVersion is null)
-          throw new ArgumentNullException(paramName: nameof(FhirApiQuery.FhirMajorVersion));
+        if (FhirApiQuery.RequestUri is null)
+          throw new ArgumentNullException(paramName: nameof(FhirApiQuery.RequestUri));
 
         ILogger.LogInformation($"{new String('-', 80)}");
         ILogger.LogInformation($"Major Fhir version: {FhirApiQuery.FhirMajorVersion.GetCode()}");
-        ILogger.LogInformation($"Request Uri: {FhirApiQuery.RequestUriString.OriginalString}");
+        ILogger.LogInformation($"Request Uri: {FhirApiQuery.RequestUri.OriginalString}");
         ILogger.LogInformation($"Headers {new String('-', 72)}");
         foreach (var Header in FhirApiQuery.RequestHeaderDictionary)
         {

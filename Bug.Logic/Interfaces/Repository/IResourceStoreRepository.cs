@@ -1,4 +1,5 @@
-﻿using Bug.Logic.DomainModel;
+﻿using Bug.Common.Enums;
+using Bug.Logic.DomainModel;
 using Bug.Logic.DomainModel.Projection;
 using System;
 using System.Collections.Generic;
@@ -9,7 +10,8 @@ namespace Bug.Logic.Interfaces.Repository
 {
   public interface IResourceStoreRepository : IRepository<ResourceStore>
   {
-    Task<ResourceStore> GetCurrentAsync(string fhirId);
-    Task<ResourceStore> GetCurrentNoBlobAsync(string fhirId);
+    Task<ResourceStore?> GetCurrentAsync(FhirMajorVersion fhirMajorVersion, string resourceName, string resourceId);
+    Task<ResourceStore?> GetCurrentMetaAsync(FhirMajorVersion fhirMajorVersion, string ResourceName, string resourceId);
+    void UpdateIsCurrent(ResourceStore resourceStore);
   }
 }

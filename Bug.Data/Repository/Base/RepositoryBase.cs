@@ -53,8 +53,11 @@ namespace Bug.Data.Repository.Base
 
     public void Update(TEntity entity)
     {
-      _context.Entry(entity).State = EntityState.Modified;
-      DbSet.Attach(entity);
+
+      DbSet.Update(entity);
+
+      //_context.Entry(entity).State = EntityState.Modified;      
+      //DbSet.Attach(entity);      
     }
 
     public void Dispose()

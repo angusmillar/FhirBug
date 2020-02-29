@@ -29,12 +29,12 @@ namespace Bug.Logic.Service
 
       if (!string.IsNullOrWhiteSpace(UpdateResource.ResourceId))
       {
-        IFhirResourceIdSupport.SetFhirId(UpdateResource.FhirResource, UpdateResource.ResourceId);
+        IFhirResourceIdSupport.SetResourceId(UpdateResource.FhirResource, UpdateResource.ResourceId);
       }
 
-      if (!string.IsNullOrWhiteSpace(UpdateResource.VersionId))
+      if (UpdateResource.VersionId.HasValue)
       {
-        IFhirResourceVersionSupport.SetVersion(UpdateResource.FhirResource, UpdateResource.VersionId);
+        IFhirResourceVersionSupport.SetVersion(UpdateResource.FhirResource, UpdateResource.VersionId.Value);
       }
       
       if (UpdateResource.LastUpdated.HasValue)

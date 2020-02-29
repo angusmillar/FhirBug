@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
@@ -147,6 +148,7 @@ namespace Bug.Common.StringTools
     {
       return ((MemberExpression)propertyId.Body).Member.Name;
     }
+
     
   }
 }

@@ -30,17 +30,17 @@ namespace Bug.Logic.Service
       }
     }
 
-    public void SetVersion(FhirResource fhirResource, string versionId)
+    public void SetVersion(FhirResource fhirResource, int versionId)
     {
       switch (fhirResource.FhirMajorVersion)
       {
         case Common.Enums.FhirMajorVersion.Stu3:
           var Stu3Tool = IFhirResourceVersionSupportFactory.GetStu3();
-          Stu3Tool.SetVersion(versionId, fhirResource);
+          Stu3Tool.SetVersion(versionId.ToString(), fhirResource);
           break;
         case Common.Enums.FhirMajorVersion.R4:
           var R4Tool = IFhirResourceVersionSupportFactory.GetR4();
-          R4Tool.SetVersion(versionId, fhirResource);
+          R4Tool.SetVersion(versionId.ToString(), fhirResource);
           break;
         default:
           throw new FhirVersionFatalException(fhirResource.FhirMajorVersion);

@@ -5,6 +5,6 @@ namespace Bug.Logic.Service
   public interface IFhirResourceVersionSupport
   {
     string? GetVersion(FhirResource fhirResource);
-    void SetVersion(FhirResource fhirResource, string versionId);
+    void SetVersion(FhirResource fhirResource, int versionId);
   }
 }

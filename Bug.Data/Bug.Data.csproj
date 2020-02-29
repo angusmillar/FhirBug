@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
@@ -6,12 +6,16 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Migrations\20200210080458_First.cs" />
-    <Compile Remove="Migrations\20200210080458_First.Designer.cs" />
-    <Compile Remove="Migrations\20200210141803_First.cs" />
-    <Compile Remove="Migrations\20200210141803_First.Designer.cs" />
-    <Compile Remove="Migrations\20200217035118_First.cs" />
-    <Compile Remove="Migrations\20200217035118_First.Designer.cs" />
+    <Compile Remove="Migrations\20200226051505_First.cs" />
+    <Compile Remove="Migrations\20200226051505_First.Designer.cs" />
+    <Compile Remove="Migrations\20200226060622_First.cs" />
+    <Compile Remove="Migrations\20200226060622_First.Designer.cs" />
+    <Compile Remove="Migrations\20200228031638_First.cs" />
+    <Compile Remove="Migrations\20200228031638_First.Designer.cs" />
+    <Compile Remove="Migrations\20200228072359_First.cs" />
+    <Compile Remove="Migrations\20200228072359_First.Designer.cs" />
+    <Compile Remove="Migrations\20200228075048_First.cs" />
+    <Compile Remove="Migrations\20200228075048_First.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -27,6 +31,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Bug.Common\Bug.Common.csproj" />
     <ProjectReference Include="..\Bug.Logic\Bug.Logic.csproj" />
   </ItemGroup>
 
