@@ -13,6 +13,12 @@ namespace Bug.Logic.Service
       this.IOperationOutcomeSupportFactory = IOperationOutcomeSupportFactory;
     }
 
+    /// <summary>
+    /// Get at OperationOutcome with a issue status of Error : The issue is sufficiently important  to cause the action to fail.
+    /// </summary>
+    /// <param name="fhirMajorVersion"></param>
+    /// <param name="errorMessages"></param>
+    /// <returns></returns>
     public FhirResource GetError(FhirMajorVersion fhirMajorVersion, string[] errorMessages)
     {
       switch (fhirMajorVersion)
@@ -32,6 +38,12 @@ namespace Bug.Logic.Service
       }
     }
 
+    /// <summary>
+    /// Get at OperationOutcome with a issue status of Fatal : The issue caused the action to fail and no further checking could be perfomed.
+    /// </summary>
+    /// <param name="fhirMajorVersion"></param>
+    /// <param name="errorMessages"></param>
+    /// <returns></returns>
     public FhirResource GetFatal(FhirMajorVersion fhirMajorVersion, string[] errorMessages)
     {
       switch (fhirMajorVersion)
@@ -51,6 +63,12 @@ namespace Bug.Logic.Service
       }
     }
 
+    /// <summary>
+    /// Get at OperationOutcome with a issue status of Information: The issue has no relation to the degree of success of the action.
+    /// </summary>
+    /// <param name="fhirMajorVersion"></param>
+    /// <param name="errorMessages"></param>
+    /// <returns></returns>
     public FhirResource GetInformation(FhirMajorVersion fhirMajorVersion, string[] errorMessages)
     {
       switch (fhirMajorVersion)
@@ -70,6 +88,12 @@ namespace Bug.Logic.Service
       }
     }
 
+    /// <summary>
+    /// Get at OperationOutcome with a issue status of Warning: The issue is not important enough to cause the acton to fail but may cause it to be performed suboptimally or in a way that is not as desired.
+    /// </summary>
+    /// <param name="fhirMajorVersion"></param>
+    /// <param name="errorMessages"></param>
+    /// <returns></returns>
     public FhirResource GetWarning(FhirMajorVersion fhirMajorVersion, string[] errorMessages)
     {
       switch (fhirMajorVersion)

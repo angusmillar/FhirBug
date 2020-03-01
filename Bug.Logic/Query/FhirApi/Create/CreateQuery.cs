@@ -10,7 +10,12 @@ namespace Bug.Logic.Query.FhirApi.Create
   
   public class CreateQuery : FhirApiResourceQuery   
   {
-    public CreateQuery(HttpVerb HttpVerb, FhirMajorVersion FhirMajorVersion, Uri RequestUri, FhirResource FhirResource, string ResourceName, Dictionary<string, StringValues> HeaderDictionary)
-      : base(HttpVerb, FhirMajorVersion, RequestUri, FhirResource, ResourceName, HeaderDictionary) { }
+    public CreateQuery(HttpVerb HttpVerb, FhirMajorVersion FhirMajorVersion, Uri RequestUri, Dictionary<string, StringValues> HeaderDictionary, string ResourceName, FhirResource FhirResource)
+      : base(HttpVerb, FhirMajorVersion, RequestUri, HeaderDictionary, ResourceName)
+    {
+      this.FhirResource = FhirResource;
+    }
+
+    public FhirResource FhirResource { get; set; }
   }
 }

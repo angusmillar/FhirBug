@@ -7,15 +7,13 @@ using System.Text;
 
 namespace Bug.Logic.Query.FhirApi
 {
-  public abstract class FhirApiResourceQuery : FhirApiQuery
+  public abstract class FhirApiResourceQuery : FhirBaseApiQuery
   {
-    public FhirApiResourceQuery(HttpVerb HttpVerb, FhirMajorVersion FhirMajorVersion, Uri RequestUri, FhirResource FhirResource, string ResourceName, Dictionary<string, StringValues> HeaderDictionary)
+    public FhirApiResourceQuery(HttpVerb HttpVerb, FhirMajorVersion FhirMajorVersion, Uri RequestUri, Dictionary<string, StringValues> HeaderDictionary, string ResourceName)
       : base(HttpVerb, FhirMajorVersion, RequestUri, HeaderDictionary)
-    {
-      this.FhirResource = FhirResource;
+    {      
       this.ResourceName = ResourceName;
-    }
-    public FhirResource FhirResource { get; set; }
+    }    
     public string ResourceName { get; set; }    
   }
 }

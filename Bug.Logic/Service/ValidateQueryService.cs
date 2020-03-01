@@ -2,6 +2,9 @@
 using Bug.Common.FhirTools;
 using Bug.Logic.Interfaces.CompositionRoot;
 using Bug.Logic.Query.FhirApi;
+using Bug.Logic.Query.FhirApi.Create;
+using Bug.Logic.Query.FhirApi.Read;
+using Bug.Logic.Query.FhirApi.Update;
 using Bug.Logic.UriSupport;
 using System;
 using System.Collections.Generic;
@@ -16,7 +19,7 @@ namespace Bug.Logic.Service
     private readonly IFhirResourceIdSupport IFhirResourceIdSupport;
     private readonly IFhirUriValidator IFhirUriValidator;
 
-    public ValidateQueryService(IOperationOutcomeSupport IOperationOutcomeSupport, 
+    public ValidateQueryService(IOperationOutcomeSupport IOperationOutcomeSupport,
       IFhirResourceNameSupport IFhirResourceNameSupport,
       IFhirResourceIdSupport IFhirResourceIdSupport,
       IFhirUriValidator IFhirUriValidator)
@@ -26,74 +29,137 @@ namespace Bug.Logic.Service
       this.IFhirResourceIdSupport = IFhirResourceIdSupport;
       this.IFhirUriValidator = IFhirUriValidator;
     }
-    public bool IsValid(FhirApiResourceQuery fhirApiResourceQuery, out FhirResource? OperationOutCome)
+    public bool IsValid(FhirBaseApiQuery fhirApiQuery, out FhirResource? OperationOutCome)
     {
-      if (fhirApiResourceQuery.FhirResource is null)
-        throw new ArgumentNullException(paramName: nameof(fhirApiResourceQuery.FhirResource));
+      //if (fhirApiQuery.RequestUri is null)
+      //  throw new ArgumentNullException(paramName: nameof(fhirApiQuery.RequestUri));
 
-      if (fhirApiResourceQuery.RequestUri is null)
-        throw new ArgumentNullException(paramName: nameof(fhirApiResourceQuery.RequestUri));
+      //OperationOutCome = null;
 
-      OperationOutCome = null;
-      
       //Parse the FHUR URI for errors
       IFhirUri? FhirUri;
-      if (!IFhirUriValidator.IsValid(fhirApiResourceQuery.RequestUri.OriginalString, fhirApiResourceQuery.FhirMajorVersion, out FhirUri, out OperationOutCome))
+      if (!IFhirUriValidator.IsValid(fhirApiQuery.RequestUri.OriginalString, fhirApiQuery.FhirMajorVersion, out FhirUri, out OperationOutCome))
       {
         return false;
       }
 
-      if (fhirApiResourceQuery.HttpVerb == HttpVerb.PUT || fhirApiResourceQuery.HttpVerb == HttpVerb.POST)
+      if (fhirApiQuery is FhirApiResourceQuery fhirApiResourceQuery)
       {
-        //Check we have a FHIR Resource
-        if (fhirApiResourceQuery.FhirResource is null)
+        if (string.IsNullOrWhiteSpace(fhirApiResourceQuery.ResourceName))
         {
-          string message = $"A {HttpVerb.PUT.GetCode()} or {HttpVerb.POST.GetCode()} request must have a FHIR resource provided in the body of the request.";
-          OperationOutCome = IOperationOutcomeSupport.GetFatal(fhirApiResourceQuery.FhirMajorVersion, new string[] { message });
+          string message = $"An empty resource name found in the request URL for a {nameof(fhirApiResourceQuery)} request. " +
+            $"All {nameof(fhirApiResourceQuery)} requests must have a resource name. The full URL was: {FhirUri.OriginalString}";
+          throw new Bug.Common.Exceptions.FhirFatalException(System.Net.HttpStatusCode.InternalServerError, message);
+        }
+      }
+
+      if (fhirApiQuery is FhirApiResourceInstanceQuery fhirApiResourceInstanceQuery)
+      {
+        if (string.IsNullOrWhiteSpace(FhirUri!.ResourceId))
+        {
+          string message = $"An empty resource id found in the request URL for a {nameof(fhirApiResourceInstanceQuery)} request. " +
+            $"All {nameof(fhirApiResourceInstanceQuery)} requests must have a resource id. The full URL was: {FhirUri.OriginalString}";
+          throw new Bug.Common.Exceptions.FhirFatalException(System.Net.HttpStatusCode.InternalServerError, message);
+        }
+      }
+
+      if (fhirApiQuery is CreateQuery createQuery)
+      {
+        //Check the Method is set correctly
+        if (createQuery.Method != HttpVerb.POST)
+        {
+          string message = $"The {nameof(createQuery)} did not have a Method of: {HttpVerb.POST.GetCode()}. The Method found was: {createQuery.Method.GetCode()}. All CreateQueries must be of Method: {HttpVerb.POST.GetCode()}";
+          throw new Bug.Common.Exceptions.FhirFatalException(System.Net.HttpStatusCode.InternalServerError, message);
+        }
+
+        //Check we have a FHIR Resource
+        if (createQuery.FhirResource is null)
+        {
+          string message = $"A {HttpVerb.POST.GetCode()} request must have a FHIR resource provided in the body of the request.";
+          OperationOutCome = IOperationOutcomeSupport.GetError(fhirApiQuery.FhirMajorVersion, new string[] { message });
           return false;
         }
 
         //Check the FHIR Resource's name equals the FHIR URL endpoint
-        string ResourceName = IFhirResourceNameSupport.GetName(fhirApiResourceQuery.FhirResource);
+        string ResourceName = IFhirResourceNameSupport.GetName(createQuery.FhirResource);
         if (!ResourceName.Equals(FhirUri.ResourseName, StringComparison.CurrentCulture))
         {
           string message = $"The resource provided in the body of the request does not match the resource type stated in the URL. The resource in the body was of type '{ResourceName}' and the URL stated the type '{FhirUri.ResourseName}'. The full URL was: {FhirUri.OriginalString}";
-          OperationOutCome = IOperationOutcomeSupport.GetFatal(fhirApiResourceQuery.FhirResource.FhirMajorVersion, new string[] { message });
+          OperationOutCome = IOperationOutcomeSupport.GetError(createQuery.FhirResource.FhirMajorVersion, new string[] { message });
           return false;
         }
 
         //Check the FHIR Resource's name equals the query proptery ResourceName (should never fail but worth checking)
-        if (!ResourceName.Equals(fhirApiResourceQuery.ResourceName, StringComparison.CurrentCulture))
+        if (!ResourceName.Equals(createQuery.ResourceName, StringComparison.CurrentCulture))
         {
-          string message = $"The resource provided in the body of the request does not match the resource type stated in the URL. The resource in the body was of type '{ResourceName}' and the URL stated the type '{FhirUri.ResourseName}'. The full URL was: {FhirUri.OriginalString}";
-          OperationOutCome = IOperationOutcomeSupport.GetFatal(fhirApiResourceQuery.FhirResource.FhirMajorVersion, new string[] { message });
-          return false;
+          string message = $"The resource provided in the body of the request does not match the resource type found on the {nameof(createQuery)}. The resource in the body was of type: {ResourceName} and the {nameof(createQuery)} stated the type: {createQuery.ResourceName}. The full URL was: {FhirUri.OriginalString}";
+          throw new Bug.Common.Exceptions.FhirFatalException(System.Net.HttpStatusCode.InternalServerError, message);
         }
+
+
       }
-      
-      if (fhirApiResourceQuery.HttpVerb == HttpVerb.PUT)
+
+      if (fhirApiQuery is UpdateQuery updateQuery)
       {
-        //Check the URL has a resource id
-        if (string.IsNullOrWhiteSpace(FhirUri!.ResourseName))
+        //Check the Method is set correctly
+        if (updateQuery.Method != HttpVerb.PUT)
         {
-          string message = $"The was not resource id found in the request URL for this {HttpVerb.PUT.GetCode()} request. " +
-            $"All {HttpVerb.PUT.GetCode()} requests must have a resource id. The full URL was: {FhirUri.OriginalString}";
-          OperationOutCome = IOperationOutcomeSupport.GetFatal(fhirApiResourceQuery.FhirResource.FhirMajorVersion, new string[] { message });
+          string message = $"The {nameof(updateQuery)} did not have a Method of: {HttpVerb.PUT.GetCode()}. The Method found was: {updateQuery.Method.GetCode()}. All CreateQueries must be of Method: {HttpVerb.PUT.GetCode()}";
+          throw new Bug.Common.Exceptions.FhirFatalException(System.Net.HttpStatusCode.InternalServerError, message);
+        }
+
+        //Check we have a FHIR Resource
+        if (updateQuery.FhirResource is null)
+        {
+          string message = $"A {HttpVerb.PUT.GetCode()} request must have a FHIR resource provided in the body of the request.";
+          OperationOutCome = IOperationOutcomeSupport.GetError(fhirApiQuery.FhirMajorVersion, new string[] { message });
           return false;
         }
 
-        //Check the URL has a resource id equals the resource's id
-        string ResourceId = IFhirResourceIdSupport.GetResourceId(fhirApiResourceQuery.FhirResource);
-        if (!ResourceId.Equals(FhirUri!.ResourceId, StringComparison.CurrentCulture))
+        //Check the FHIR Resource's name equals the FHIR URL endpoint
+        string ResourceName = IFhirResourceNameSupport.GetName(updateQuery.FhirResource);
+        if (!ResourceName.Equals(FhirUri.ResourseName, StringComparison.CurrentCulture))
+        {
+          string message = $"The resource provided in the body of the request does not match the resource type stated in the URL. The resource in the body was of type '{ResourceName}' and the URL stated the type '{FhirUri.ResourseName}'. The full URL was: {FhirUri.OriginalString}";
+          OperationOutCome = IOperationOutcomeSupport.GetError(updateQuery.FhirResource.FhirMajorVersion, new string[] { message });
+          return false;
+        }
+
+        //Check the FHIR Resource's name equals the query proptery ResourceName (should never fail but worth checking)
+        if (!ResourceName.Equals(updateQuery.ResourceName, StringComparison.CurrentCulture))
+        {
+          string message = $"The resource provided in the body of the request does not match the resource type found on the {nameof(updateQuery)}. The resource in the body was of type: {ResourceName} and the {nameof(updateQuery)} stated the type: {updateQuery.ResourceName}. The full URL was: {FhirUri.OriginalString}";
+          throw new Bug.Common.Exceptions.FhirFatalException(System.Net.HttpStatusCode.InternalServerError, message);
+        }
+
+        //Check the URL has a resource id equals the resource's id              
+        string ResourceResourceId = IFhirResourceIdSupport.GetResourceId(updateQuery.FhirResource);
+        if (!ResourceResourceId.Equals(FhirUri!.ResourceId, StringComparison.CurrentCulture))
         {
           string message = $"The resource id found in the body of the request does not match the resource id stated in the request URL. " +
-            $"The resource id in the body was: '{ResourceId}' and in the URL it was: '{FhirUri.ResourceId}'. The full URL was: {FhirUri.OriginalString}";
-          OperationOutCome = IOperationOutcomeSupport.GetFatal(fhirApiResourceQuery.FhirResource.FhirMajorVersion, new string[] { message });
+            $"The resource id in the body was: '{ResourceResourceId}' and in the URL it was: '{FhirUri.ResourceId}'. The full URL was: {FhirUri.OriginalString}";
+          OperationOutCome = IOperationOutcomeSupport.GetError(updateQuery.FhirResource.FhirMajorVersion, new string[] { message });
+          return false;
+        }
+
+        //Check the UpdateQuery ResourceId property matches the URL and Resource (this should never fail)
+        if (updateQuery.ResourceId.Equals(FhirUri!.ResourceId, StringComparison.CurrentCulture) &&
+          updateQuery.ResourceId.Equals(ResourceResourceId, StringComparison.CurrentCulture))
+        {
+          string message = $"The resource id found in the body of the request does not match the resource id stated in the request URL. " +
+            $"The resource id in the body was: '{ResourceResourceId}' and in the URL it was: '{FhirUri.ResourceId}'. The full URL was: {FhirUri.OriginalString}";
+          OperationOutCome = IOperationOutcomeSupport.GetError(updateQuery.FhirResource.FhirMajorVersion, new string[] { message });
           return false;
         }
       }
-      
+
+      if (fhirApiQuery is ReadQuery readQuery)
+      {
+
+      }
+
       return true;
     }
+
   }
 }

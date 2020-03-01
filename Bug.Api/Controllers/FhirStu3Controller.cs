@@ -24,14 +24,12 @@ namespace Bug.Api.Controllers
   {
     private readonly ILogger _logger;
     private readonly IFhirApiQueryHandlerFactory IFhirApiQueryHandlerFactory;
-    private readonly IFhirUriFactory IFhirUriFactory;
+    
 
     private readonly FhirMajorVersion _ControllerFhirMajorVersion = FhirMajorVersion.Stu3;
 
-    public FhirStu3Controller(ILogger logger, IFhirApiQueryHandlerFactory IFhirApiQueryHandlerFactory, IFhirUriFactory IFhirUriFactory)
+    public FhirStu3Controller(ILogger logger, IFhirApiQueryHandlerFactory IFhirApiQueryHandlerFactory)
     {
-      this.IFhirUriFactory = IFhirUriFactory;
-
       _logger = logger;
       //_FhirApiCommandHandler = FhirApiCommandHandler;
       this.IFhirApiQueryHandlerFactory = IFhirApiQueryHandlerFactory;
@@ -69,13 +67,30 @@ namespace Bug.Api.Controllers
 
 
     // GET: stu3/fhir/Patient/100
-    //[HttpGet, Route("{resourceName}/{fhirId}")]
-    //public async Task<ActionResult<Stu3Model.Resource>> Get(string resourceName, string fhirId)
-    //{
-    //  string test1 = resourceName;
-    //  string test2 = fhirId;
-    //  return StatusCode((int)HttpStatusCode.OK, GetTestPateint());
-    //}
+    [HttpGet, Route("{resourceName}/{resourceId}")]
+    public async Task<ActionResult<Stu3Model.Resource>> Get(string resourceName, string resourceId)
+    {
+
+      var Query = new Logic.Query.FhirApi.Read.ReadQuery(
+        HttpVerb.PUT,
+        _ControllerFhirMajorVersion,
+        this.Request.GetUrl(),
+        new Dictionary<string, StringValues>(this.Request.Headers),
+        resourceName,
+        resourceId
+        );
+
+
+      var ReadQueryHandler = this.IFhirApiQueryHandlerFactory.GetReadCommand();
+      FhirApiResult Result = await ReadQueryHandler.Handle(Query);
+
+      if (Result.FhirResource is null)
+        throw new ArgumentNullException(nameof(Result.FhirResource));
+
+      Result.FhirResource.Stu3.ResourceBase = new Uri("http://localhost/fhir");
+      return new FhirActionResult(Result.HttpStatusCode, Result.FhirResource.Stu3);
+
+    }
 
     // GET: stu3/fhir/Patient/100/_history/2
     //[HttpGet, Route("{resourceName}/{fhirId}/_history/{fhirVersionid?}")]
@@ -124,19 +139,19 @@ namespace Bug.Api.Controllers
         HttpVerb.PUT,
         _ControllerFhirMajorVersion,
         this.Request.GetUrl(),
-        new FhirResource(_ControllerFhirMajorVersion) { Stu3 = resource },
+        new Dictionary<string, StringValues>(this.Request.Headers),
         resourceName,
-        new Dictionary<string, StringValues>(this.Request.Headers)
+        new FhirResource(_ControllerFhirMajorVersion) { Stu3 = resource }
         );
 
       var CreateQueryHandler = this.IFhirApiQueryHandlerFactory.GetCreateCommand();
-      FhirApiResult AcceptedAtActionResult = await CreateQueryHandler.Handle(Query);
+      FhirApiResult Result = await CreateQueryHandler.Handle(Query);
 
-      if (AcceptedAtActionResult.FhirResource is null)
-        throw new ArgumentNullException(nameof(AcceptedAtActionResult.FhirResource));
+      if (Result.FhirResource is null)
+        throw new ArgumentNullException(nameof(Result.FhirResource));
 
-      resource.ResourceBase = new Uri("http://localhost/fhir");
-      return new FhirActionResult(AcceptedAtActionResult.HttpStatusCode, AcceptedAtActionResult.FhirResource.Stu3);
+      Result.FhirResource.Stu3.ResourceBase = new Uri("http://localhost/fhir");
+      return new FhirActionResult(Result.HttpStatusCode, Result.FhirResource.Stu3);
     }
 
 
@@ -163,19 +178,19 @@ namespace Bug.Api.Controllers
         HttpVerb.PUT,
         _ControllerFhirMajorVersion,
         this.Request.GetUrl(),
-        new FhirResource(_ControllerFhirMajorVersion) { Stu3 = resource },
+        new Dictionary<string, StringValues>(this.Request.Headers),
         resourceName,
         resourceId,
-        new Dictionary<string, StringValues>(this.Request.Headers)
+        new FhirResource(_ControllerFhirMajorVersion) { Stu3 = resource }
         );
 
       var UpdateCommandHandler = this.IFhirApiQueryHandlerFactory.GetUpdateCommand();
-      FhirApiResult AcceptedAtActionResult = await UpdateCommandHandler.Handle(command);
+      FhirApiResult Result = await UpdateCommandHandler.Handle(command);
 
-      if (AcceptedAtActionResult.FhirResource is null)
-        throw new ArgumentNullException(nameof(AcceptedAtActionResult.FhirResource));
-      AcceptedAtActionResult.FhirResource.Stu3.ResourceBase = new Uri("http://localhost/fhir");
-      return new FhirActionResult(AcceptedAtActionResult.HttpStatusCode, AcceptedAtActionResult.FhirResource.Stu3);
+      if (Result.FhirResource is null)
+        throw new ArgumentNullException(nameof(Result.FhirResource));
+      Result.FhirResource.Stu3.ResourceBase = new Uri("http://localhost/fhir");
+      return new FhirActionResult(Result.HttpStatusCode, Result.FhirResource.Stu3);
     }
 
     //#####################################################################

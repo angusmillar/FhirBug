@@ -72,12 +72,14 @@ namespace Bug.Logic.Query.FhirApi.Update
       string ResourceId = IFhirResourceIdSupport.GetResourceId(query.FhirResource);
       ResourceName ResourceName = await IResourceNameTableService.GetSetResourceName(query.ResourceName);
       FhirVersion FhirVersion = await IFhirVersionTableService.GetSetFhirVersion(query.FhirResource.FhirMajorVersion);
-      Method Method = await IMethodTableService.GetSetMethod(query.HttpVerb);
+      Method Method = await IMethodTableService.GetSetMethod(query.Method);
 
       int NewVersionId = 1;
+      System.Net.HttpStatusCode FinalyHttpStatusCode = System.Net.HttpStatusCode.Created;
       ResourceStore? PreviousResourseStore = await IResourceStoreRepository.GetCurrentMetaAsync(query.FhirResource.FhirMajorVersion, query.ResourceName, ResourceId);
-      if (PreviousResourseStore != null)
+      if (PreviousResourseStore is object)
       {
+        FinalyHttpStatusCode = System.Net.HttpStatusCode.OK;
         PreviousResourseStore.IsCurrent = false;
         NewVersionId = PreviousResourseStore.VersionId + 1;
         IResourceStoreRepository.UpdateIsCurrent(PreviousResourseStore);
@@ -86,9 +88,9 @@ namespace Bug.Logic.Query.FhirApi.Update
       DateTime NewLastUpdated = DateTimeOffset.Now.ToZulu();
       FhirResource UpdatedFhirResource = IUpdateResourceService.Process(
         new UpdateResource(query.FhirResource)
-        {
-          LastUpdated = NewLastUpdated,
-          VersionId = NewVersionId
+        {          
+          VersionId = NewVersionId,
+          LastUpdated = NewLastUpdated
         });
 
       var ResourceStore = new ResourceStore()
@@ -107,7 +109,8 @@ namespace Bug.Logic.Query.FhirApi.Update
       IResourceStoreRepository.Add(ResourceStore);
       await IResourceStoreRepository.SaveChangesAsync();
 
-      var OutCome = new FhirApiResult(System.Net.HttpStatusCode.OK, query.FhirMajorVersion)
+      
+      var OutCome = new FhirApiResult(FinalyHttpStatusCode, query.FhirMajorVersion)
       {
         FhirResource = query.FhirResource,
         ResourceId = ResourceId,

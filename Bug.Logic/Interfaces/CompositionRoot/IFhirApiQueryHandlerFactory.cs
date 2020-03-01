@@ -8,5 +8,6 @@ namespace Bug.Logic.Interfaces.CompositionRoot
   {
     IQueryHandler<Query.FhirApi.Update.UpdateQuery, FhirApiResult> GetUpdateCommand();
     IQueryHandler<Query.FhirApi.Create.CreateQuery, FhirApiResult> GetCreateCommand();
+    IQueryHandler<Logic.Query.FhirApi.Read.ReadQuery, FhirApiResult> GetReadCommand();
   }
 }

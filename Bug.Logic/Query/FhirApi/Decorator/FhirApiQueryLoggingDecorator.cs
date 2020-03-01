@@ -28,7 +28,7 @@ namespace Bug.Logic.Query.FhirApi.Decorator
       if (query is null)
         throw new ArgumentNullException(paramName: nameof(query));
 
-      if (query is FhirApiQuery FhirApiQuery)
+      if (query is FhirBaseApiQuery FhirApiQuery)
       {        
         if (FhirApiQuery.RequestUri is null)
           throw new ArgumentNullException(paramName: nameof(FhirApiQuery.RequestUri));

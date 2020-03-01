@@ -8,6 +8,6 @@ namespace Bug.Logic.Service
 {
   public interface IValidateQueryService
   {
-    bool IsValid(FhirApiResourceQuery fhirApiResourceQuery, out FhirResource? OperationOutCome);
+    bool IsValid(FhirBaseApiQuery fhirApiQuery, out FhirResource? OperationOutCome);
   }
 }

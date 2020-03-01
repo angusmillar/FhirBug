@@ -21,5 +21,10 @@ namespace Bug.Api.CompositionRoot
     {
       return (IQueryHandler<Logic.Query.FhirApi.Create.CreateQuery, FhirApiResult>)_container.GetInstance(typeof(IQueryHandler<Logic.Query.FhirApi.Create.CreateQuery, FhirApiResult>));
     }
+
+    public IQueryHandler<Logic.Query.FhirApi.Read.ReadQuery, FhirApiResult> GetReadCommand()
+    {
+      return (IQueryHandler<Logic.Query.FhirApi.Read.ReadQuery, FhirApiResult>)_container.GetInstance(typeof(IQueryHandler<Logic.Query.FhirApi.Read.ReadQuery, FhirApiResult>));
+    }
   }
 }

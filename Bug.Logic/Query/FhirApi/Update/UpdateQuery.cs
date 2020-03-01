@@ -8,14 +8,14 @@ using System.Text;
 namespace Bug.Logic.Query.FhirApi.Update
 {
 
-  public class UpdateQuery : FhirApiResourceQuery
+  public class UpdateQuery : FhirApiResourceInstanceQuery
   {
-    public UpdateQuery(HttpVerb HttpVerb, FhirMajorVersion FhirMajorVersion, Uri RequestUri, FhirResource FhirResource, string ResourceName, string ResourceId, Dictionary<string, StringValues> HeaderDictionary)
-      : base(HttpVerb, FhirMajorVersion, RequestUri, FhirResource, ResourceName, HeaderDictionary)
+    public UpdateQuery(HttpVerb HttpVerb, FhirMajorVersion FhirMajorVersion, Uri RequestUri, Dictionary<string, StringValues> HeaderDictionary, string ResourceName, string ResourceId, FhirResource FhirResource)
+      : base(HttpVerb, FhirMajorVersion, RequestUri, HeaderDictionary, ResourceName, ResourceId)
     {
-      this.ResourceId = ResourceId;
+      this.FhirResource = FhirResource;
     }
 
-    public string ResourceId { get; set; }
+    public FhirResource FhirResource { get; set; }
   }
 }

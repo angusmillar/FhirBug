@@ -8,16 +8,16 @@ using Microsoft.Extensions.Primitives;
 
 namespace Bug.Logic.Query.FhirApi
 {
-  public abstract class FhirApiQuery: IQuery<FhirApiResult>, IQuery<ResourceStore>
+  public abstract class FhirBaseApiQuery: IQuery<FhirApiResult>, IQuery<ResourceStore>
   {
-    public FhirApiQuery(HttpVerb HttpVerb, FhirMajorVersion FhirMajorVersion, Uri RequestUri, Dictionary<string, StringValues> HeaderDictionary)
+    public FhirBaseApiQuery(HttpVerb HttpVerb, FhirMajorVersion FhirMajorVersion, Uri RequestUri, Dictionary<string, StringValues> HeaderDictionary)
     {
-      this.HttpVerb = HttpVerb;
+      this.Method = HttpVerb;
       this.FhirMajorVersion = FhirMajorVersion;
       this.RequestUri = RequestUri;
       this.RequestHeaderDictionary = HeaderDictionary;
     }
-    public HttpVerb HttpVerb { get; set; }
+    public HttpVerb Method { get; set; }
     public FhirMajorVersion FhirMajorVersion { get; set; }
     public Uri RequestUri { get; set; }        
     public Dictionary<string, StringValues> RequestHeaderDictionary { get; set; }

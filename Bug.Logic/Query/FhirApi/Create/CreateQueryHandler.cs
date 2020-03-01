@@ -80,7 +80,7 @@ namespace Bug.Logic.Query.FhirApi.Create
 
       ResourceName ResourceName = await IResourceNameTableService.GetSetResourceName(query.ResourceName);
       FhirVersion FhirVersion = await IFhirVersionTableService.GetSetFhirVersion(UpdatedFhirResource.FhirMajorVersion);
-      Method Method = await IMethodTableService.GetSetMethod(query.HttpVerb);
+      Method Method = await IMethodTableService.GetSetMethod(query.Method);
 
       var ResourceStore = new ResourceStore()
       {
