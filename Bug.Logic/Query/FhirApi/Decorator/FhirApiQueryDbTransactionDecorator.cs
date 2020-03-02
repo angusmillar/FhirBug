@@ -29,19 +29,17 @@ namespace Bug.Logic.Query.FhirApi.Decorator
       if (query is null)
         throw new ArgumentNullException(paramName: nameof(query));
 
-      using (IBugDbContextTransaction Transaction = await IUnitOfWork.BeginTransactionAsync())
+      using IBugDbContextTransaction Transaction = await IUnitOfWork.BeginTransactionAsync();
+      try
       {
-        try
-        {
-          TResult Result = await this.decorated.Handle(query);
-          await Transaction.CommitAsync();
-          return Result;
-        }
-        catch (Exception Exec)
-        {
-          Transaction.Rollback();
-          throw Exec;
-        }
+        TResult Result = await this.decorated.Handle(query);
+        await Transaction.CommitAsync();
+        return Result;
+      }
+      catch (Exception Exec)
+      {
+        Transaction.Rollback();
+        throw Exec;
       }
     }
   }

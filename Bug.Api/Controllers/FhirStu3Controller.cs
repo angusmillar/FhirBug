@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 using Bug.Common.Constant;
 using Bug.Api.Extensions;
 using Microsoft.Extensions.Primitives;
+using Bug.Api.ActionResults;
 
 namespace Bug.Api.Controllers
 {
@@ -21,19 +22,17 @@ namespace Bug.Api.Controllers
   [Route(EndpointPath.Stu3Fhir)]
   [ApiController]
   public class FhirStu3Controller : ControllerBase
-  {
-    private readonly ILogger _logger;
+  {    
     private readonly IFhirApiQueryHandlerFactory IFhirApiQueryHandlerFactory;
-    
+    private readonly IActionResultFactory IActionResultFactory;
+
 
     private readonly FhirMajorVersion _ControllerFhirMajorVersion = FhirMajorVersion.Stu3;
 
-    public FhirStu3Controller(ILogger logger, IFhirApiQueryHandlerFactory IFhirApiQueryHandlerFactory)
-    {
-      _logger = logger;
-      //_FhirApiCommandHandler = FhirApiCommandHandler;
+    public FhirStu3Controller(IFhirApiQueryHandlerFactory IFhirApiQueryHandlerFactory, IActionResultFactory IActionResultFactory)
+    {      
       this.IFhirApiQueryHandlerFactory = IFhirApiQueryHandlerFactory;
-      _logger.LogInformation($"FhirStu3Controller Construtor {DateTimeOffset.Now.Offset.ToString()}");
+      this.IActionResultFactory = IActionResultFactory;      
     }
 
     //#####################################################################
@@ -53,16 +52,17 @@ namespace Bug.Api.Controllers
         Cap.Status = Stu3Model.PublicationStatus.Active;
         Cap.DateElement = new Stu3Model.FhirDateTime(DateTimeOffset.Now);
         //Cap.Kind = Stu3Model.CapabilityStatementKind.Capability;
-        Cap.Software = new Stu3Model.CapabilityStatement.SoftwareComponent();
-        Cap.Software.Name = "FhirBug";
+        Cap.Software = new Stu3Model.CapabilityStatement.SoftwareComponent
+        {
+          Name = "FhirBug"
+        };
         //Cap.FhirVersion = Stu3Model.FHIRVersion.N4_0_0;
         Cap.Format = new List<string>() { "xml", "json" };
 
         Cap.ResourceBase = new Uri("http://localhost/fhir");
 
-      }).ConfigureAwait(false);
-      _logger.LogError($"Hello Metadata {DateTime.Now.ToString("r", System.Globalization.CultureInfo.CurrentCulture)}");
-      return new FhirActionResult(HttpStatusCode.OK, Cap);
+      }).ConfigureAwait(false);     
+      return new FhirStu3ResourceActionResult(HttpStatusCode.OK, Cap);
     }
 
 
@@ -70,7 +70,6 @@ namespace Bug.Api.Controllers
     [HttpGet, Route("{resourceName}/{resourceId}")]
     public async Task<ActionResult<Stu3Model.Resource>> Get(string resourceName, string resourceId)
     {
-
       var Query = new Logic.Query.FhirApi.Read.ReadQuery(
         HttpVerb.PUT,
         _ControllerFhirMajorVersion,
@@ -80,27 +79,31 @@ namespace Bug.Api.Controllers
         resourceId
         );
 
-
       var ReadQueryHandler = this.IFhirApiQueryHandlerFactory.GetReadCommand();
       FhirApiResult Result = await ReadQueryHandler.Handle(Query);
 
-      if (Result.FhirResource is null)
-        throw new ArgumentNullException(nameof(Result.FhirResource));
-
-      Result.FhirResource.Stu3.ResourceBase = new Uri("http://localhost/fhir");
-      return new FhirActionResult(Result.HttpStatusCode, Result.FhirResource.Stu3);
-
+      return IActionResultFactory.Get(Result);
     }
 
     // GET: stu3/fhir/Patient/100/_history/2
-    //[HttpGet, Route("{resourceName}/{fhirId}/_history/{fhirVersionid?}")]
-    //public async Task<ActionResult<Stu3Model.Resource>> Get(string resourceName, string fhirId, string fhirVersionId)
-    //{
-    //  string test1 = resourceName;
-    //  string test2 = fhirId;
-    //  string test3 = fhirVersionId;
-    //  return StatusCode((int)HttpStatusCode.OK, GetTestPateint());
-    //}
+    [HttpGet, Route("{resourceName}/{resourceId}/_history/{versionId?}")]
+    public async Task<ActionResult<Stu3Model.Resource>> Get(string resourceName, string resourceId, int versionId)
+    {
+      var Query = new Logic.Query.FhirApi.VRead.VReadQuery(
+       HttpVerb.PUT,
+       _ControllerFhirMajorVersion,
+       this.Request.GetUrl(),
+       new Dictionary<string, StringValues>(this.Request.Headers),
+       resourceName,
+       resourceId,
+       versionId
+       );
+
+      var ReadQueryHandler = this.IFhirApiQueryHandlerFactory.GetVReadCommand();
+      FhirApiResult Result = await ReadQueryHandler.Handle(Query);
+
+      return IActionResultFactory.Get(Result);
+    }
 
     // GET: stu3/fhir/Patient
     //[HttpGet, Route("{resourceName}")]
@@ -136,7 +139,7 @@ namespace Bug.Api.Controllers
         return BadRequest();
 
       var Query = new Logic.Query.FhirApi.Create.CreateQuery(
-        HttpVerb.PUT,
+        HttpVerb.POST,
         _ControllerFhirMajorVersion,
         this.Request.GetUrl(),
         new Dictionary<string, StringValues>(this.Request.Headers),
@@ -146,12 +149,7 @@ namespace Bug.Api.Controllers
 
       var CreateQueryHandler = this.IFhirApiQueryHandlerFactory.GetCreateCommand();
       FhirApiResult Result = await CreateQueryHandler.Handle(Query);
-
-      if (Result.FhirResource is null)
-        throw new ArgumentNullException(nameof(Result.FhirResource));
-
-      Result.FhirResource.Stu3.ResourceBase = new Uri("http://localhost/fhir");
-      return new FhirActionResult(Result.HttpStatusCode, Result.FhirResource.Stu3);
+      return IActionResultFactory.Get(Result);
     }
 
 
@@ -185,12 +183,8 @@ namespace Bug.Api.Controllers
         );
 
       var UpdateCommandHandler = this.IFhirApiQueryHandlerFactory.GetUpdateCommand();
-      FhirApiResult Result = await UpdateCommandHandler.Handle(command);
-
-      if (Result.FhirResource is null)
-        throw new ArgumentNullException(nameof(Result.FhirResource));
-      Result.FhirResource.Stu3.ResourceBase = new Uri("http://localhost/fhir");
-      return new FhirActionResult(Result.HttpStatusCode, Result.FhirResource.Stu3);
+      FhirApiResult Result = await UpdateCommandHandler.Handle(command);      
+      return IActionResultFactory.Get(Result);
     }
 
     //#####################################################################

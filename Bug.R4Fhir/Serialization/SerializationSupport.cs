@@ -6,7 +6,7 @@ using Hl7.Fhir.Serialization;
 
 namespace Bug.R4Fhir.Serialization
 {
-  public class SerializationSupport : IR4SerializationToJson, IR4SerializationToXml, IR4SerializationToJsonBytes
+  public class SerializationSupport : IR4SerializationToJson, IR4SerializationToXml, IR4SerializationToJsonBytes, IR4ParseJson
   {
     public string SerializeToXml(Resource resource, Bug.Common.Enums.SummaryType summaryType = Bug.Common.Enums.SummaryType.False)
     {
@@ -22,6 +22,19 @@ namespace Bug.R4Fhir.Serialization
       }
     }
 
+    public Resource ParseJson(string jsonResource)
+    {
+      SummaryTypeMap Map = new SummaryTypeMap();
+      try
+      {
+        FhirJsonParser FhirJsonParser = new FhirJsonParser();
+        return FhirJsonParser.Parse<Resource>(jsonResource);
+      }
+      catch (Exception oExec)
+      {
+        throw new Bug.Common.Exceptions.FhirFatalException(System.Net.HttpStatusCode.InternalServerError, oExec.Message);
+      }
+    }
     public string SerializeToJson(Resource resource, Bug.Common.Enums.SummaryType summaryType = Bug.Common.Enums.SummaryType.False)
     {
       SummaryTypeMap Map = new SummaryTypeMap();

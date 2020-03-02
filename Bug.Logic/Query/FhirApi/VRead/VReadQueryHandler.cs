@@ -8,9 +8,9 @@ using Bug.Logic.Service.TableService;
 using Bug.Logic.Service.ValidatorService;
 using System.Threading.Tasks;
 
-namespace Bug.Logic.Query.FhirApi.Read
+namespace Bug.Logic.Query.FhirApi.VRead
 {
-  public class ReadQueryHandler : IQueryHandler<ReadQuery, FhirApiResult>
+  public class VReadQueryHandler : IQueryHandler<VReadQuery, FhirApiResult>
   {
     private readonly IValidateQueryService IValidateQueryService;
     private readonly IResourceStoreRepository IResourceStoreRepository;
@@ -20,7 +20,7 @@ namespace Bug.Logic.Query.FhirApi.Read
     private readonly IGZipper IGZipper;
 
 
-    public ReadQueryHandler(
+    public VReadQueryHandler(
       IValidateQueryService IValidateQueryService,
       IResourceStoreRepository IResourceStoreRepository,
       IResourceNameTableService IResourceNameTableService,
@@ -37,7 +37,7 @@ namespace Bug.Logic.Query.FhirApi.Read
       this.IGZipper = IGZipper;
     }
 
-    public async Task<FhirApiResult> Handle(ReadQuery query)
+    public async Task<FhirApiResult> Handle(VReadQuery query)
     {
 
       if (!IValidateQueryService.IsValid(query, out FhirResource? IsNotValidOperationOutCome))
@@ -52,7 +52,7 @@ namespace Bug.Logic.Query.FhirApi.Read
 
       Method Method = await IMethodTableService.GetSetMethod(query.Method);
 
-      ResourceStore? ResourceStore = await IResourceStoreRepository.GetCurrentAsync(query.FhirMajorVersion, query.ResourceName, query.ResourceId);
+      ResourceStore? ResourceStore = await IResourceStoreRepository.GetVersionAsync(query.FhirMajorVersion, query.ResourceName, query.ResourceId, query.VersionId);
 
       if (ResourceStore is object)
       {

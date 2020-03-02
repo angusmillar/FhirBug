@@ -1,12 +1,8 @@
 ﻿using Bug.Common.Enums;
 using Bug.Common.FhirTools;
-using Bug.Logic.Interfaces.CompositionRoot;
 using Bug.Logic.UriSupport;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace Bug.Logic.Service
+namespace Bug.Logic.Service.ValidatorService
 {
   public interface IFhirUriValidator
   {

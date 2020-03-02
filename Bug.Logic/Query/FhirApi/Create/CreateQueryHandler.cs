@@ -1,23 +1,13 @@
-﻿using Bug.Logic.Query;
-using Bug.Common.Enums;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
-using Bug.Logic.Interfaces.CompositionRoot;
-using Bug.Logic.Interfaces.Repository;
-using Bug.Stu3Fhir.Serialization;
-using Bug.R4Fhir.Serialization;
-using Bug.Common.Compression;
-using Bug.Common.Exceptions;
-using Bug.Logic.DomainModel;
-using Bug.Logic.Service;
+﻿using Bug.Common.Compression;
 using Bug.Common.DateTimeTools;
 using Bug.Common.FhirTools;
-using Microsoft.Extensions.Caching.Distributed;
-using Bug.Logic.CacheService;
+using Bug.Logic.DomainModel;
+using Bug.Logic.Interfaces.Repository;
+using Bug.Logic.Service;
 using Bug.Logic.Service.TableService;
+using Bug.Logic.Service.ValidatorService;
+using System;
+using System.Threading.Tasks;
 
 namespace Bug.Logic.Query.FhirApi.Create
 {

@@ -1,16 +1,14 @@
 ﻿using Bug.Common.Enums;
 using Bug.Common.FhirTools;
-using Bug.Logic.Interfaces.CompositionRoot;
 using Bug.Logic.Query.FhirApi;
 using Bug.Logic.Query.FhirApi.Create;
 using Bug.Logic.Query.FhirApi.Read;
 using Bug.Logic.Query.FhirApi.Update;
+using Bug.Logic.Query.FhirApi.VRead;
 using Bug.Logic.UriSupport;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace Bug.Logic.Service
+namespace Bug.Logic.Service.ValidatorService
 {
   public class ValidateQueryService : IValidateQueryService
   {
@@ -37,11 +35,13 @@ namespace Bug.Logic.Service
       //OperationOutCome = null;
 
       //Parse the FHUR URI for errors
-      IFhirUri? FhirUri;
-      if (!IFhirUriValidator.IsValid(fhirApiQuery.RequestUri.OriginalString, fhirApiQuery.FhirMajorVersion, out FhirUri, out OperationOutCome))
+      //IFhirUri? FhirUri;
+      if (!IFhirUriValidator.IsValid(fhirApiQuery.RequestUri.OriginalString, fhirApiQuery.FhirMajorVersion, out IFhirUri? FhirUri, out OperationOutCome))
       {
         return false;
       }
+
+     // string test = FhirUri!.OriginalString;
 
       if (fhirApiQuery is FhirApiResourceQuery fhirApiResourceQuery)
       {
@@ -55,10 +55,35 @@ namespace Bug.Logic.Service
 
       if (fhirApiQuery is FhirApiResourceInstanceQuery fhirApiResourceInstanceQuery)
       {
-        if (string.IsNullOrWhiteSpace(FhirUri!.ResourceId))
+        if (string.IsNullOrWhiteSpace(fhirApiResourceInstanceQuery.ResourceId))
+        {
+          string message = $"An empty {nameof(fhirApiResourceInstanceQuery.ResourceId)} found in the {nameof(fhirApiResourceInstanceQuery)} object instance for the request. " +
+            $"All {nameof(fhirApiResourceInstanceQuery)} requests must have a populated {nameof(fhirApiResourceInstanceQuery.ResourceId)}.";
+          throw new Bug.Common.Exceptions.FhirFatalException(System.Net.HttpStatusCode.InternalServerError, message);
+        }
+
+        if (string.IsNullOrWhiteSpace(FhirUri.ResourceId))
         {
           string message = $"An empty resource id found in the request URL for a {nameof(fhirApiResourceInstanceQuery)} request. " +
             $"All {nameof(fhirApiResourceInstanceQuery)} requests must have a resource id. The full URL was: {FhirUri.OriginalString}";
+          throw new Bug.Common.Exceptions.FhirFatalException(System.Net.HttpStatusCode.InternalServerError, message);
+        }
+      }
+
+      if (fhirApiQuery is FhirApiResourceInstanceHistoryInstanceQuery fhirApiResourceInstanceHistoryInstanceQuery)
+      {
+        if (fhirApiResourceInstanceHistoryInstanceQuery.VersionId == 0)
+        {
+          string message = $"A {nameof(fhirApiResourceInstanceHistoryInstanceQuery.VersionId)} must begin at one for this server. The request had a {nameof(fhirApiResourceInstanceHistoryInstanceQuery.VersionId)} equal to {fhirApiResourceInstanceHistoryInstanceQuery.VersionId.ToString()}. " +
+            $"All {nameof(fhirApiResourceInstanceHistoryInstanceQuery.VersionId)} requests must be numeric and begin from one within this server.";          
+          OperationOutCome = IOperationOutcomeSupport.GetError(fhirApiResourceInstanceHistoryInstanceQuery.FhirMajorVersion, new string[] { message });
+          return false;
+        }
+
+        if (string.IsNullOrWhiteSpace(FhirUri.VersionId))
+        {
+          string message = $"An empty {nameof(FhirUri.VersionId)} found in the request URL for a {nameof(fhirApiResourceInstanceHistoryInstanceQuery)} request. " +
+            $"All {nameof(fhirApiResourceInstanceHistoryInstanceQuery)} requests must have a {nameof(FhirUri.VersionId)}. The full URL was: {FhirUri.OriginalString}";
           throw new Bug.Common.Exceptions.FhirFatalException(System.Net.HttpStatusCode.InternalServerError, message);
         }
       }
@@ -134,7 +159,7 @@ namespace Bug.Logic.Service
 
         //Check the URL has a resource id equals the resource's id              
         string ResourceResourceId = IFhirResourceIdSupport.GetResourceId(updateQuery.FhirResource);
-        if (!ResourceResourceId.Equals(FhirUri!.ResourceId, StringComparison.CurrentCulture))
+        if (!ResourceResourceId.Equals(FhirUri.ResourceId, StringComparison.CurrentCulture))
         {
           string message = $"The resource id found in the body of the request does not match the resource id stated in the request URL. " +
             $"The resource id in the body was: '{ResourceResourceId}' and in the URL it was: '{FhirUri.ResourceId}'. The full URL was: {FhirUri.OriginalString}";
@@ -143,8 +168,8 @@ namespace Bug.Logic.Service
         }
 
         //Check the UpdateQuery ResourceId property matches the URL and Resource (this should never fail)
-        if (updateQuery.ResourceId.Equals(FhirUri!.ResourceId, StringComparison.CurrentCulture) &&
-          updateQuery.ResourceId.Equals(ResourceResourceId, StringComparison.CurrentCulture))
+        if (!updateQuery.ResourceId.Equals(FhirUri.ResourceId, StringComparison.CurrentCulture) &&
+          !updateQuery.ResourceId.Equals(ResourceResourceId, StringComparison.CurrentCulture))
         {
           string message = $"The resource id found in the body of the request does not match the resource id stated in the request URL. " +
             $"The resource id in the body was: '{ResourceResourceId}' and in the URL it was: '{FhirUri.ResourceId}'. The full URL was: {FhirUri.OriginalString}";
@@ -154,6 +179,11 @@ namespace Bug.Logic.Service
       }
 
       if (fhirApiQuery is ReadQuery readQuery)
+      {
+
+      }
+
+      if (fhirApiQuery is VReadQuery vReadQuery)
       {
 
       }

@@ -27,6 +27,15 @@ namespace Bug.Data.Repository
         x.IsCurrent == true);
     }
 
+    public async Task<ResourceStore?> GetVersionAsync(FhirMajorVersion fhirMajorVersion, string resourceName, string resourceId, int versionId)
+    {
+      return await DbSet.SingleOrDefaultAsync(x =>
+        x.FhirVersion.FhirMajorVersion == fhirMajorVersion &
+        x.ResourceName.Name == resourceName &
+        x.ResourceId == resourceId &
+        x.VersionId == versionId);
+    }
+
     public void UpdateIsCurrent(ResourceStore resourceStore)
     {
       DbSet.Attach(resourceStore);

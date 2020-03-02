@@ -73,7 +73,7 @@ namespace Bug.Api
 
       services.AddControllers();
       services.AddMvcCore(config =>
-      {
+      {        
         //config.InputFormatters.Clear();
         config.InputFormatters.Add(new XmlFhirInputFormatter());
         config.InputFormatters.Add(new JsonFhirInputFormatter());
@@ -112,6 +112,8 @@ namespace Bug.Api
       Common.ApplicationConfig.FhirServerConfig fhirServerConfig = Configuration.GetSection(typeof(Common.ApplicationConfig.FhirServerConfig).Name).Get<Common.ApplicationConfig.FhirServerConfig>();
       container.RegisterInstance<Common.ApplicationConfig.IFhirServerConfig>(fhirServerConfig);
       container.Register<Common.ApplicationConfig.IServiceBaseUrl, Common.ApplicationConfig.ServiceBaseUrl>(Lifestyle.Singleton);
+      container.Register<Bug.Api.ActionResults.IActionResultFactory, Bug.Api.ActionResults.ActionResultFactory>(Lifestyle.Singleton);
+      
 
       //-- CompositionRoot Factories ---------------
       container.Register<Bug.Logic.Interfaces.CompositionRoot.IFhirApiQueryHandlerFactory, Bug.Api.CompositionRoot.FhirApiQueryHandlerFactory>(Lifestyle.Singleton);            
@@ -126,6 +128,9 @@ namespace Bug.Api
       //-- Serialization & Compression ---------------      
       container.Register<Bug.Stu3Fhir.Serialization.IStu3SerializationToJsonBytes, Bug.Stu3Fhir.Serialization.SerializationSupport>(Lifestyle.Singleton);      
       container.Register<Bug.R4Fhir.Serialization.IR4SerializationToJsonBytes, Bug.R4Fhir.Serialization.SerializationSupport>(Lifestyle.Singleton);
+      container.Register<Bug.Stu3Fhir.Serialization.IStu3ParseJson, Bug.Stu3Fhir.Serialization.SerializationSupport>(Lifestyle.Singleton);
+      container.Register<Bug.R4Fhir.Serialization.IR4ParseJson, Bug.R4Fhir.Serialization.SerializationSupport>(Lifestyle.Singleton);
+      
 
       //-- Thread safe Tools ---------------      
       container.Register<Bug.Common.Compression.IGZipper, Bug.Common.Compression.GZipper>(Lifestyle.Singleton);
@@ -200,14 +205,15 @@ namespace Bug.Api
 
       //-- Fhir Services ---------------      
       container.Register<Logic.Service.IUpdateResourceService, Logic.Service.UpdateResourceService>(Lifestyle.Scoped);
-      container.Register<Logic.Service.IValidateQueryService, Logic.Service.ValidateQueryService>(Lifestyle.Scoped);      
+      container.Register<Logic.Service.ValidatorService.IValidateQueryService, Logic.Service.ValidatorService.ValidateQueryService>(Lifestyle.Scoped);      
       container.Register<Logic.Service.IFhirResourceIdSupport, Logic.Service.FhirResourceIdSupport>(Lifestyle.Scoped);
       container.Register<Logic.Service.IFhirResourceJsonSerializationService, Logic.Service.FhirResourceJsonSerializationService>(Lifestyle.Scoped);
+      container.Register<Logic.Service.IFhirResourceParseJsonService, Logic.Service.FhirResourceParseJsonService>(Lifestyle.Scoped);
       container.Register<Logic.Service.IFhirResourceLastUpdatedSupport, Logic.Service.FhirResourceLastUpdatedSupport>(Lifestyle.Scoped);
       container.Register<Logic.Service.IFhirResourceVersionSupport, Logic.Service.FhirResourceVersionSupport>(Lifestyle.Scoped);
       container.Register<Logic.Service.IFhirResourceNameSupport, Logic.Service.FhirResourceNameSupport>(Lifestyle.Scoped);
       container.Register<Logic.Service.IOperationOutcomeSupport, Logic.Service.OperationOutcomeSupport>(Lifestyle.Scoped);
-      container.Register<Logic.Service.IFhirUriValidator, Logic.Service.FhirUriValidator>(Lifestyle.Scoped);
+      container.Register<Logic.Service.ValidatorService.IFhirUriValidator, Logic.Service.ValidatorService.FhirUriValidator>(Lifestyle.Scoped);
 
       //-- Cache Services ---------------      
       container.Register<Logic.CacheService.IResourceNameCache, Logic.CacheService.ResourceNameCache>(Lifestyle.Scoped);

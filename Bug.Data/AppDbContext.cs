@@ -72,9 +72,15 @@ namespace Bug.Data
     }
 
     public async Task<IBugDbContextTransaction> BeginTransactionAsync()
-    {
-      IDbContextTransaction DbContextTransaction = await this.Database.BeginTransactionAsync();
-      return new BugDbContextTransaction(DbContextTransaction);
+    {      
+      if (this.Database.CurrentTransaction is object)
+      {
+        return new BugDbContextTransaction(this.Database.CurrentTransaction);
+      }
+      else
+      {
+        return new BugDbContextTransaction(await this.Database.BeginTransactionAsync());
+      }            
     }
     public virtual DbSet<ResourceStore> ResourceStore { get; set; } = null!;
     public virtual DbSet<ResourceName> ResourceName { get; set; } = null!;

@@ -9,7 +9,7 @@ using Newtonsoft.Json;
 
 namespace Bug.Stu3Fhir.Serialization
 {
-  public class SerializationSupport : IStu3SerializationToJsonBytes, IStu3SerializationToJson, IStu3SerializationToXml
+  public class SerializationSupport : IStu3SerializationToJsonBytes, IStu3SerializationToJson, IStu3SerializationToXml, IStu3ParseJson
   {
     public string SerializeToXml(Resource resource, Bug.Common.Enums.SummaryType summaryType = Bug.Common.Enums.SummaryType.False)
     {
@@ -18,6 +18,20 @@ namespace Bug.Stu3Fhir.Serialization
       {
         FhirXmlSerializer FhirXmlSerializer = new FhirXmlSerializer();
         return FhirXmlSerializer.SerializeToString(resource, Map.Get(summaryType));
+      }
+      catch (Exception oExec)
+      {
+        throw new Bug.Common.Exceptions.FhirFatalException(System.Net.HttpStatusCode.InternalServerError, oExec.Message);
+      }
+    }
+
+    public Resource ParseJson(string jsonResource)
+    {
+      SummaryTypeMap Map = new SummaryTypeMap();
+      try
+      {
+        FhirJsonParser FhirJsonParser = new FhirJsonParser();
+        return FhirJsonParser.Parse<Resource>(jsonResource);
       }
       catch (Exception oExec)
       {
