@@ -28,7 +28,7 @@ namespace Bug.Api
 {
   public class Startup : IDisposable
   {
-    private Container container = new SimpleInjector.Container();
+    private readonly Container container = new SimpleInjector.Container();
     public IConfiguration Configuration { get; }
 
     public Startup(IConfiguration configuration)
@@ -122,7 +122,7 @@ namespace Bug.Api
       container.Register<Bug.Logic.Interfaces.CompositionRoot.IFhirResourceLastUpdatedSupportFactory, Bug.Api.CompositionRoot.FhirResourceLastUpdatedSupportFactory>(Lifestyle.Singleton);
       container.Register<Bug.Logic.Interfaces.CompositionRoot.IFhirResourceNameSupportFactory, Bug.Api.CompositionRoot.FhirResourceNameSupportFactory>(Lifestyle.Singleton);
       container.Register<Bug.Logic.Interfaces.CompositionRoot.IValidateResourceNameFactory, Bug.Api.CompositionRoot.ValidateResourceNameFactory>(Lifestyle.Singleton);
-      container.Register<Bug.Logic.Interfaces.CompositionRoot.IFhirUriFactory, Bug.Api.CompositionRoot.FhirUriFactory>(Lifestyle.Singleton);
+      container.Register<Bug.Logic.UriSupport.IFhirUriFactory, Bug.Logic.UriSupport.FhirUriFactory>(Lifestyle.Singleton);
       
 
       //-- Serialization & Compression ---------------      
@@ -213,8 +213,7 @@ namespace Bug.Api
       container.Register<Logic.Service.IFhirResourceVersionSupport, Logic.Service.FhirResourceVersionSupport>(Lifestyle.Scoped);
       container.Register<Logic.Service.IFhirResourceNameSupport, Logic.Service.FhirResourceNameSupport>(Lifestyle.Scoped);
       container.Register<Logic.Service.IOperationOutcomeSupport, Logic.Service.OperationOutcomeSupport>(Lifestyle.Scoped);
-      container.Register<Logic.Service.ValidatorService.IFhirUriValidator, Logic.Service.ValidatorService.FhirUriValidator>(Lifestyle.Scoped);
-
+      
       //-- Cache Services ---------------      
       container.Register<Logic.CacheService.IResourceNameCache, Logic.CacheService.ResourceNameCache>(Lifestyle.Scoped);
       container.Register<Logic.CacheService.IFhirVersionCache, Logic.CacheService.FhirVersionCache>(Lifestyle.Scoped);

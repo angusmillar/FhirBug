@@ -5,6 +5,6 @@ namespace Bug.Api.ActionResults
 {
   public interface IActionResultFactory
   {
-    ActionResult Get(FhirApiResult FhirApiResult);
+    ActionResult GetActionResult(FhirApiResult FhirApiResult);
   }
 }

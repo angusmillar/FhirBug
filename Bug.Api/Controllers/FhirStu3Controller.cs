@@ -82,7 +82,7 @@ namespace Bug.Api.Controllers
       var ReadQueryHandler = this.IFhirApiQueryHandlerFactory.GetReadCommand();
       FhirApiResult Result = await ReadQueryHandler.Handle(Query);
 
-      return IActionResultFactory.Get(Result);
+      return IActionResultFactory.GetActionResult(Result);
     }
 
     // GET: stu3/fhir/Patient/100/_history/2
@@ -102,7 +102,7 @@ namespace Bug.Api.Controllers
       var ReadQueryHandler = this.IFhirApiQueryHandlerFactory.GetVReadCommand();
       FhirApiResult Result = await ReadQueryHandler.Handle(Query);
 
-      return IActionResultFactory.Get(Result);
+      return IActionResultFactory.GetActionResult(Result);
     }
 
     // GET: stu3/fhir/Patient
@@ -149,7 +149,7 @@ namespace Bug.Api.Controllers
 
       var CreateQueryHandler = this.IFhirApiQueryHandlerFactory.GetCreateCommand();
       FhirApiResult Result = await CreateQueryHandler.Handle(Query);
-      return IActionResultFactory.Get(Result);
+      return IActionResultFactory.GetActionResult(Result);
     }
 
 
@@ -184,7 +184,7 @@ namespace Bug.Api.Controllers
 
       var UpdateCommandHandler = this.IFhirApiQueryHandlerFactory.GetUpdateCommand();
       FhirApiResult Result = await UpdateCommandHandler.Handle(command);      
-      return IActionResultFactory.Get(Result);
+      return IActionResultFactory.GetActionResult(Result);
     }
 
     //#####################################################################

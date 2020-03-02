@@ -14,3 +14,9 @@ dotnet_diagnostic.IDE0055.severity = silent
 
 # CA1303: Do not pass literals as localized parameters
 dotnet_diagnostic.CA1303.severity = silent
+
+# IDE0057: Use range operator
+csharp_style_prefer_range_operator = silent
+
+# IDE0057: Use range operator
+csharp_style_prefer_range_operator = true:silent

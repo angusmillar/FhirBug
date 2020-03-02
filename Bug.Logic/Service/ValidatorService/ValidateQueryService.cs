@@ -15,33 +15,31 @@ namespace Bug.Logic.Service.ValidatorService
     private readonly IOperationOutcomeSupport IOperationOutcomeSupport;
     private readonly IFhirResourceNameSupport IFhirResourceNameSupport;
     private readonly IFhirResourceIdSupport IFhirResourceIdSupport;
-    private readonly IFhirUriValidator IFhirUriValidator;
+    private readonly IFhirUriFactory IFhirUriFactory;
 
     public ValidateQueryService(IOperationOutcomeSupport IOperationOutcomeSupport,
       IFhirResourceNameSupport IFhirResourceNameSupport,
       IFhirResourceIdSupport IFhirResourceIdSupport,
-      IFhirUriValidator IFhirUriValidator)
+      IFhirUriFactory IFhirUriFactory)
     {
       this.IOperationOutcomeSupport = IOperationOutcomeSupport;
       this.IFhirResourceNameSupport = IFhirResourceNameSupport;
       this.IFhirResourceIdSupport = IFhirResourceIdSupport;
-      this.IFhirUriValidator = IFhirUriValidator;
+      this.IFhirUriFactory = IFhirUriFactory;
     }
     public bool IsValid(FhirBaseApiQuery fhirApiQuery, out FhirResource? OperationOutCome)
-    {
-      //if (fhirApiQuery.RequestUri is null)
-      //  throw new ArgumentNullException(paramName: nameof(fhirApiQuery.RequestUri));
+    {      
+      OperationOutCome = null;
 
-      //OperationOutCome = null;
-
-      //Parse the FHUR URI for errors
-      //IFhirUri? FhirUri;
-      if (!IFhirUriValidator.IsValid(fhirApiQuery.RequestUri.OriginalString, fhirApiQuery.FhirMajorVersion, out IFhirUri? FhirUri, out OperationOutCome))
+      if (!IFhirUriFactory.TryParse(fhirApiQuery.RequestUri.OriginalString, fhirApiQuery.FhirMajorVersion, out IFhirUri? FhirUri, out string ErrorMessage))
       {
+        OperationOutCome = IOperationOutcomeSupport.GetError(fhirApiQuery.FhirMajorVersion, new string[] { ErrorMessage });
         return false;
       }
 
-     // string test = FhirUri!.OriginalString;
+      if (FhirUri is null)
+        throw new ArgumentNullException(nameof(FhirUri));
+            
 
       if (fhirApiQuery is FhirApiResourceQuery fhirApiResourceQuery)
       {
@@ -178,15 +176,15 @@ namespace Bug.Logic.Service.ValidatorService
         }
       }
 
-      if (fhirApiQuery is ReadQuery readQuery)
-      {
+      //if (fhirApiQuery is ReadQuery readQuery)
+      //{
 
-      }
+      //}
 
-      if (fhirApiQuery is VReadQuery vReadQuery)
-      {
+      //if (fhirApiQuery is VReadQuery vReadQuery)
+      //{
 
-      }
+      //}
 
       return true;
     }

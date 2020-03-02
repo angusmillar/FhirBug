@@ -16,7 +16,7 @@ namespace Bug.Api.ActionResults
       this.IServiceBaseUrl = IServiceBaseUrl;
     }
 
-    public ActionResult Get(FhirApiResult FhirApiResult)
+    public ActionResult GetActionResult(FhirApiResult FhirApiResult)
     {
       if (FhirApiResult is null)
         throw new ArgumentNullException(nameof(FhirApiResult));
