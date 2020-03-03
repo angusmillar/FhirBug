@@ -123,7 +123,10 @@ namespace Bug.Api
       container.Register<Bug.Logic.Interfaces.CompositionRoot.IFhirResourceNameSupportFactory, Bug.Api.CompositionRoot.FhirResourceNameSupportFactory>(Lifestyle.Singleton);
       container.Register<Bug.Logic.Interfaces.CompositionRoot.IValidateResourceNameFactory, Bug.Api.CompositionRoot.ValidateResourceNameFactory>(Lifestyle.Singleton);
       container.Register<Bug.Logic.UriSupport.IFhirUriFactory, Bug.Logic.UriSupport.FhirUriFactory>(Lifestyle.Singleton);
+      container.Register<Bug.Logic.Interfaces.CompositionRoot.IFhirResourceBundleSupportFactory, Bug.Api.CompositionRoot.FhirResourceBundleSupportFactory>(Lifestyle.Singleton);
+
       
+
 
       //-- Serialization & Compression ---------------      
       container.Register<Bug.Stu3Fhir.Serialization.IStu3SerializationToJsonBytes, Bug.Stu3Fhir.Serialization.SerializationSupport>(Lifestyle.Singleton);      
@@ -203,6 +206,11 @@ namespace Bug.Api
       container.Register<Bug.Stu3Fhir.OperationOutCome.IStu3OperationOutComeSupport, Bug.Stu3Fhir.OperationOutCome.OperationOutComeSupport>(Lifestyle.Scoped);
       container.Register<Bug.R4Fhir.OperationOutCome.IR4OperationOutComeSupport, Bug.R4Fhir.OperationOutCome.OperationOutComeSupport>(Lifestyle.Scoped);
 
+      container.Register<Bug.Stu3Fhir.ResourceSupport.IStu3BundleSupport, Bug.Stu3Fhir.ResourceSupport.BundleSupport>(Lifestyle.Scoped);
+      container.Register<Bug.R4Fhir.ResourceSupport.IR4BundleSupport, Bug.R4Fhir.ResourceSupport.BundleSupport>(Lifestyle.Scoped);
+
+      
+
       //-- Fhir Services ---------------      
       container.Register<Logic.Service.IUpdateResourceService, Logic.Service.UpdateResourceService>(Lifestyle.Scoped);
       container.Register<Logic.Service.ValidatorService.IValidateQueryService, Logic.Service.ValidatorService.ValidateQueryService>(Lifestyle.Scoped);      
@@ -213,6 +221,7 @@ namespace Bug.Api
       container.Register<Logic.Service.IFhirResourceVersionSupport, Logic.Service.FhirResourceVersionSupport>(Lifestyle.Scoped);
       container.Register<Logic.Service.IFhirResourceNameSupport, Logic.Service.FhirResourceNameSupport>(Lifestyle.Scoped);
       container.Register<Logic.Service.IOperationOutcomeSupport, Logic.Service.OperationOutcomeSupport>(Lifestyle.Scoped);
+      container.Register<Logic.Service.IFhirResourceBundleSupport, Logic.Service.FhirResourceBundleSupport>(Lifestyle.Scoped);
       
       //-- Cache Services ---------------      
       container.Register<Logic.CacheService.IResourceNameCache, Logic.CacheService.ResourceNameCache>(Lifestyle.Scoped);

@@ -1,6 +1,6 @@
 ﻿using System;
 using Bug.Common.FhirTools;
-using Bug.R4.Enums;
+using Bug.R4Fhir.Enums;
 using Hl7.Fhir.Model;
 using Hl7.Fhir.Serialization;
 
@@ -23,8 +23,7 @@ namespace Bug.R4Fhir.Serialization
     }
 
     public Resource ParseJson(string jsonResource)
-    {
-      SummaryTypeMap Map = new SummaryTypeMap();
+    {      
       try
       {
         FhirJsonParser FhirJsonParser = new FhirJsonParser();

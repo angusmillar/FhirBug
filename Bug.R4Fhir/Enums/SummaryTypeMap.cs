@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using Bug.Common.Enums;
 
-namespace Bug.Stu3Fhir.Enums
+namespace Bug.R4Fhir.Enums
 {
   public class SummaryTypeMap : MapBase<Common.Enums.SummaryType, Hl7.Fhir.Rest.SummaryType>
   {

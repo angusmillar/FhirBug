@@ -36,6 +36,26 @@ namespace Bug.Data.Repository
         x.VersionId == versionId);
     }
 
+    public async Task<IList<ResourceStore>> GetHistoryListAsync(FhirMajorVersion fhirMajorVersion, string resourceName, string resourceId)
+    {
+      return await DbSet.Select(x => new ResourceStore()
+      {
+        Id = x.Id,
+        ResourceId = x.ResourceId,
+        IsCurrent = x.IsCurrent,
+        IsDeleted = x.IsDeleted,
+        LastUpdated = x.LastUpdated,
+        VersionId = x.VersionId,
+        ResourceBlob = x.ResourceBlob,
+        FhirVersion = x.FhirVersion,
+        ResourceName = x.ResourceName,
+        Method = x.Method
+      }).Where(y =>
+        y.FhirVersion.FhirMajorVersion == fhirMajorVersion &
+        y.ResourceName.Name == resourceName &
+        y.ResourceId == resourceId).ToListAsync();
+    }
+
     public void UpdateIsCurrent(ResourceStore resourceStore)
     {
       DbSet.Attach(resourceStore);
