@@ -33,7 +33,7 @@ namespace Bug.Logic.UriSupport
     private const string _HttpName = "http";
     private const string _HttpsName = "https";
 
-    public bool TryParse(string requestUri, FhirMajorVersion fhirMajorVersion, out IFhirUri? fhirUri, out string errorMessage)
+    public bool TryParse(string requestUri, FhirVersion fhirMajorVersion, out IFhirUri? fhirUri, out string errorMessage)
     {
       FhirUri fhirUriParse = new FhirUri
       {
@@ -338,11 +338,11 @@ namespace Bug.Logic.UriSupport
     private bool IsResourceTypeString(string value, FhirUri fhirUri)
     {
       //This is a valid Resource Type string   
-      if (fhirUri.FhirMajorVersion == FhirMajorVersion.Stu3)
+      if (fhirUri.FhirMajorVersion == FhirVersion.Stu3)
       {
         return IResourceNameSupportFactory.GetStu3().IsKnownResource(value);
       }
-      else if (fhirUri.FhirMajorVersion == FhirMajorVersion.R4)
+      else if (fhirUri.FhirMajorVersion == FhirVersion.R4)
       {
         return IResourceNameSupportFactory.GetR4().IsKnownResource(value);
       }

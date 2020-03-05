@@ -19,16 +19,16 @@ namespace Bug.Logic.Service
     /// <param name="fhirMajorVersion"></param>
     /// <param name="errorMessages"></param>
     /// <returns></returns>
-    public FhirResource GetError(FhirMajorVersion fhirMajorVersion, string[] errorMessages)
+    public FhirResource GetError(FhirVersion fhirMajorVersion, string[] errorMessages)
     {
       switch (fhirMajorVersion)
       {
-        case Common.Enums.FhirMajorVersion.Stu3:
+        case Common.Enums.FhirVersion.Stu3:
           var Stu3Tool = IOperationOutcomeSupportFactory.GetStu3();
           var Stu3FhirResource = new FhirResource(fhirMajorVersion);
           Stu3FhirResource.Stu3 = Stu3Tool.GetError(errorMessages);
           return Stu3FhirResource;
-        case Common.Enums.FhirMajorVersion.R4:
+        case Common.Enums.FhirVersion.R4:
           var R4Tool = IOperationOutcomeSupportFactory.GetR4();
           var R4FhirResource = new FhirResource(fhirMajorVersion);
           R4FhirResource.R4 = R4Tool.GetError(errorMessages);
@@ -44,16 +44,16 @@ namespace Bug.Logic.Service
     /// <param name="fhirMajorVersion"></param>
     /// <param name="errorMessages"></param>
     /// <returns></returns>
-    public FhirResource GetFatal(FhirMajorVersion fhirMajorVersion, string[] errorMessages)
+    public FhirResource GetFatal(FhirVersion fhirMajorVersion, string[] errorMessages)
     {
       switch (fhirMajorVersion)
       {
-        case Common.Enums.FhirMajorVersion.Stu3:
+        case Common.Enums.FhirVersion.Stu3:
           var Stu3Tool = IOperationOutcomeSupportFactory.GetStu3();
           var Stu3FhirResource = new FhirResource(fhirMajorVersion);
           Stu3FhirResource.Stu3 = Stu3Tool.GetFatal(errorMessages);
           return Stu3FhirResource;
-        case Common.Enums.FhirMajorVersion.R4:
+        case Common.Enums.FhirVersion.R4:
           var R4Tool = IOperationOutcomeSupportFactory.GetR4();
           var R4FhirResource = new FhirResource(fhirMajorVersion);
           R4FhirResource.R4 = R4Tool.GetFatal(errorMessages);
@@ -69,16 +69,16 @@ namespace Bug.Logic.Service
     /// <param name="fhirMajorVersion"></param>
     /// <param name="errorMessages"></param>
     /// <returns></returns>
-    public FhirResource GetInformation(FhirMajorVersion fhirMajorVersion, string[] errorMessages)
+    public FhirResource GetInformation(FhirVersion fhirMajorVersion, string[] errorMessages)
     {
       switch (fhirMajorVersion)
       {
-        case Common.Enums.FhirMajorVersion.Stu3:
+        case Common.Enums.FhirVersion.Stu3:
           var Stu3Tool = IOperationOutcomeSupportFactory.GetStu3();
           var Stu3FhirResource = new FhirResource(fhirMajorVersion);
           Stu3FhirResource.Stu3 = Stu3Tool.GetInformation(errorMessages);
           return Stu3FhirResource;
-        case Common.Enums.FhirMajorVersion.R4:
+        case Common.Enums.FhirVersion.R4:
           var R4Tool = IOperationOutcomeSupportFactory.GetR4();
           var R4FhirResource = new FhirResource(fhirMajorVersion);
           R4FhirResource.R4 = R4Tool.GetInformation(errorMessages);
@@ -94,16 +94,16 @@ namespace Bug.Logic.Service
     /// <param name="fhirMajorVersion"></param>
     /// <param name="errorMessages"></param>
     /// <returns></returns>
-    public FhirResource GetWarning(FhirMajorVersion fhirMajorVersion, string[] errorMessages)
+    public FhirResource GetWarning(FhirVersion fhirMajorVersion, string[] errorMessages)
     {
       switch (fhirMajorVersion)
       {
-        case Common.Enums.FhirMajorVersion.Stu3:
+        case Common.Enums.FhirVersion.Stu3:
           var Stu3Tool = IOperationOutcomeSupportFactory.GetStu3();
           var Stu3FhirResource = new FhirResource(fhirMajorVersion);
           Stu3FhirResource.Stu3 = Stu3Tool.GetWarning(errorMessages);
           return Stu3FhirResource;
-        case Common.Enums.FhirMajorVersion.R4:
+        case Common.Enums.FhirVersion.R4:
           var R4Tool = IOperationOutcomeSupportFactory.GetR4();
           var R4FhirResource = new FhirResource(fhirMajorVersion);
           R4FhirResource.R4 = R4Tool.GetWarning(errorMessages);

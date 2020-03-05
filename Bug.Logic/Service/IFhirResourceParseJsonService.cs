@@ -5,6 +5,6 @@ namespace Bug.Logic.Service
 {
   public interface IFhirResourceParseJsonService
   {
-    FhirResource ParseJson(FhirMajorVersion fhirMajorVersion, string jsonResource);
+    FhirResource ParseJson(FhirVersion fhirMajorVersion, string jsonResource);
   }
 }

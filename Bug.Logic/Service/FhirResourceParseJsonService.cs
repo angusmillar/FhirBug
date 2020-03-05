@@ -20,13 +20,13 @@ namespace Bug.Logic.Service
       this.IR4ParseJson = IR4ParseJson;
     }
 
-    public FhirResource ParseJson(FhirMajorVersion fhirMajorVersion ,string jsonResource)
+    public FhirResource ParseJson(FhirVersion fhirMajorVersion ,string jsonResource)
     {
       switch (fhirMajorVersion)
       {
-        case FhirMajorVersion.Stu3:
+        case FhirVersion.Stu3:
           return new FhirResource(fhirMajorVersion) { Stu3 = IStu3ParseJson.ParseJson(jsonResource) };
-        case FhirMajorVersion.R4:
+        case FhirVersion.R4:
           return new FhirResource(fhirMajorVersion) { R4 = IR4ParseJson.ParseJson(jsonResource) };
         default:
           throw new FhirVersionFatalException(fhirMajorVersion);

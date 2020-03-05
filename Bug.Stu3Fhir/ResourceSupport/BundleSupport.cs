@@ -71,7 +71,8 @@ namespace Bug.Stu3Fhir.ResourceSupport
             EntryComponent.Request = new Bundle.RequestComponent();
             HttpVerbMap HttpVerbMap = new HttpVerbMap();
             EntryComponent.Request.Method = HttpVerbMap.Get(entry.Request.Method);
-            EntryComponent.Request.Url = entry.Request.Url.OriginalString;
+            if (!string.IsNullOrWhiteSpace(entry.Request.Url))
+              EntryComponent.Request.Url = entry.Request.Url;
             EntryComponent.Request.IfNoneMatch = entry.Request.IfNoneMatch;
             EntryComponent.Request.IfModifiedSince = entry.Request.IfModifiedSince;
             EntryComponent.Request.IfMatch = entry.Request.IfMatch;
@@ -94,7 +95,7 @@ namespace Bug.Stu3Fhir.ResourceSupport
           }
         }
       }
-      return new FhirResource(FhirMajorVersion.Stu3) { Stu3 = Bundle };
+      return new FhirResource(FhirVersion.Stu3) { Stu3 = Bundle };
     }
   }
 }

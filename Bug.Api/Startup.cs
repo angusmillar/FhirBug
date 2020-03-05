@@ -235,9 +235,7 @@ namespace Bug.Api
       
       //Table Service
       container.Register<Logic.Service.TableService.IResourceNameTableService, Logic.Service.TableService.ResourceNameTableService>(Lifestyle.Scoped);
-      container.Register<Logic.Service.TableService.IFhirVersionTableService, Logic.Service.TableService.FhirVersionTableService>(Lifestyle.Scoped);
-      container.Register<Logic.Service.TableService.IMethodTableService, Logic.Service.TableService.MethodTableService>(Lifestyle.Scoped);
-
+      
       //-- Repositories ---------------
       container.Register<IUnitOfWork, Bug.Data.AppDbContext>(Lifestyle.Scoped);
       container.Register<IResourceStoreRepository, Bug.Data.Repository.ResourceStoreRepository>(Lifestyle.Scoped);

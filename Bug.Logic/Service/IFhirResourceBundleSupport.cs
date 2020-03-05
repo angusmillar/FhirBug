@@ -6,6 +6,6 @@ namespace Bug.Logic.Service
 {
   public interface IFhirResourceBundleSupport
   {
-    FhirResource GetFhirResource(FhirMajorVersion fhirMajorVersion, BundleModel bundleModel);
+    FhirResource GetFhirResource(FhirVersion fhirMajorVersion, BundleModel bundleModel);
   }
 }

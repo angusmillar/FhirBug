@@ -2,9 +2,7 @@
 using Bug.Common.FhirTools;
 using Bug.Logic.Query.FhirApi;
 using Bug.Logic.Query.FhirApi.Create;
-using Bug.Logic.Query.FhirApi.Read;
 using Bug.Logic.Query.FhirApi.Update;
-using Bug.Logic.Query.FhirApi.VRead;
 using Bug.Logic.UriSupport;
 using System;
 
@@ -31,9 +29,9 @@ namespace Bug.Logic.Service.ValidatorService
     {      
       OperationOutCome = null;
 
-      if (!IFhirUriFactory.TryParse(fhirApiQuery.RequestUri.OriginalString, fhirApiQuery.FhirMajorVersion, out IFhirUri? FhirUri, out string ErrorMessage))
+      if (!IFhirUriFactory.TryParse(fhirApiQuery.RequestUri.OriginalString, fhirApiQuery.FhirVersion, out IFhirUri? FhirUri, out string ErrorMessage))
       {
-        OperationOutCome = IOperationOutcomeSupport.GetError(fhirApiQuery.FhirMajorVersion, new string[] { ErrorMessage });
+        OperationOutCome = IOperationOutcomeSupport.GetError(fhirApiQuery.FhirVersion, new string[] { ErrorMessage });
         return false;
       }
 
@@ -74,7 +72,7 @@ namespace Bug.Logic.Service.ValidatorService
         {
           string message = $"A {nameof(fhirApiResourceInstanceHistoryInstanceQuery.VersionId)} must begin at one for this server. The request had a {nameof(fhirApiResourceInstanceHistoryInstanceQuery.VersionId)} equal to {fhirApiResourceInstanceHistoryInstanceQuery.VersionId.ToString()}. " +
             $"All {nameof(fhirApiResourceInstanceHistoryInstanceQuery.VersionId)} requests must be numeric and begin from one within this server.";          
-          OperationOutCome = IOperationOutcomeSupport.GetError(fhirApiResourceInstanceHistoryInstanceQuery.FhirMajorVersion, new string[] { message });
+          OperationOutCome = IOperationOutcomeSupport.GetError(fhirApiResourceInstanceHistoryInstanceQuery.FhirVersion, new string[] { message });
           return false;
         }
 
@@ -99,7 +97,7 @@ namespace Bug.Logic.Service.ValidatorService
         if (createQuery.FhirResource is null)
         {
           string message = $"A {HttpVerb.POST.GetCode()} request must have a FHIR resource provided in the body of the request.";
-          OperationOutCome = IOperationOutcomeSupport.GetError(fhirApiQuery.FhirMajorVersion, new string[] { message });
+          OperationOutCome = IOperationOutcomeSupport.GetError(fhirApiQuery.FhirVersion, new string[] { message });
           return false;
         }
 
@@ -135,7 +133,7 @@ namespace Bug.Logic.Service.ValidatorService
         if (updateQuery.FhirResource is null)
         {
           string message = $"A {HttpVerb.PUT.GetCode()} request must have a FHIR resource provided in the body of the request.";
-          OperationOutCome = IOperationOutcomeSupport.GetError(fhirApiQuery.FhirMajorVersion, new string[] { message });
+          OperationOutCome = IOperationOutcomeSupport.GetError(fhirApiQuery.FhirVersion, new string[] { message });
           return false;
         }
 
@@ -182,6 +180,11 @@ namespace Bug.Logic.Service.ValidatorService
       //}
 
       //if (fhirApiQuery is VReadQuery vReadQuery)
+      //{
+
+      //}
+
+      //if (fhirApiQuery is DeleteQuery DeleteQuery)
       //{
 
       //}

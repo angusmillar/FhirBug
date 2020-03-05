@@ -68,12 +68,12 @@ namespace Bug.Api.ContentFormatters
 
         try
         {
-          if (FhirMajorVersion == Common.Enums.FhirMajorVersion.Stu3)
+          if (FhirMajorVersion == Common.Enums.FhirVersion.Stu3)
           {
             var resource = new R4Serialization.FhirJsonParser().Parse<R4Model.Resource>(jsonReader);
             return InputFormatterResult.Success(resource);
           }
-          else if (FhirMajorVersion == Common.Enums.FhirMajorVersion.R4)
+          else if (FhirMajorVersion == Common.Enums.FhirVersion.R4)
           {
             var resource = new Stu3Serialization.FhirJsonParser().Parse<Stu3Model.Resource>(jsonReader);
             return InputFormatterResult.Success(resource);

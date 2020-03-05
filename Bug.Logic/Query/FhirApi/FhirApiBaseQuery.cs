@@ -10,15 +10,15 @@ namespace Bug.Logic.Query.FhirApi
 {
   public abstract class FhirBaseApiQuery: IQuery<FhirApiResult>, IQuery<ResourceStore>
   {
-    public FhirBaseApiQuery(HttpVerb HttpVerb, FhirMajorVersion FhirMajorVersion, Uri RequestUri, Dictionary<string, StringValues> HeaderDictionary)
+    public FhirBaseApiQuery(HttpVerb HttpVerb, Common.Enums.FhirVersion FhirVersion, Uri RequestUri, Dictionary<string, StringValues> HeaderDictionary)
     {
       this.Method = HttpVerb;
-      this.FhirMajorVersion = FhirMajorVersion;
+      this.FhirVersion = FhirVersion;
       this.RequestUri = RequestUri;
       this.RequestHeaderDictionary = HeaderDictionary;
     }
     public HttpVerb Method { get; set; }
-    public FhirMajorVersion FhirMajorVersion { get; set; }
+    public Common.Enums.FhirVersion FhirVersion { get; set; }
     public Uri RequestUri { get; set; }        
     public Dictionary<string, StringValues> RequestHeaderDictionary { get; set; }
   }

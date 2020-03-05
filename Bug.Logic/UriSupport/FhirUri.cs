@@ -51,7 +51,7 @@ namespace Bug.Logic.UriSupport
     }
     public Uri PrimaryServiceRootRemote { get; set; }
     public Uri PrimaryServiceRootServers { get; set; }
-    public FhirMajorVersion FhirMajorVersion { get; set; }
+    public FhirVersion FhirMajorVersion { get; set; }
   }
 }
 

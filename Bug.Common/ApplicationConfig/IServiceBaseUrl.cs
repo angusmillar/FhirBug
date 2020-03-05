@@ -5,6 +5,6 @@ namespace Bug.Common.ApplicationConfig
 {
   public interface IServiceBaseUrl
   {
-    Uri Url(FhirMajorVersion fhirMajorVersion);
+    Uri Url(FhirVersion fhirMajorVersion);
   }
 }

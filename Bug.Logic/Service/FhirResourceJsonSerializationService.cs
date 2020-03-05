@@ -24,9 +24,9 @@ namespace Bug.Logic.Service
     {
       switch (fhirResource.FhirMajorVersion)
       {
-        case FhirMajorVersion.Stu3:
+        case FhirVersion.Stu3:
           return IStu3SerializationToJsonBytes.SerializeToJsonBytes(fhirResource);
-        case FhirMajorVersion.R4:
+        case FhirVersion.R4:
           return IR4SerializationToJsonBytes.SerializeToJsonBytes(fhirResource);
         default:
           throw new FhirVersionFatalException(fhirResource.FhirMajorVersion);

@@ -19,10 +19,10 @@ namespace Bug.Logic.Service
     {
       switch (fhirResource.FhirMajorVersion)
       {
-        case Common.Enums.FhirMajorVersion.Stu3:
+        case Common.Enums.FhirVersion.Stu3:
           var Stu3Tool = IFhirResourceNameSupportFactory.GetStu3();
           return Stu3Tool.GetName(fhirResource);
-        case Common.Enums.FhirMajorVersion.R4:
+        case Common.Enums.FhirVersion.R4:
           var R4Tool = IFhirResourceNameSupportFactory.GetR4();
           return R4Tool.GetName(fhirResource);
         default:

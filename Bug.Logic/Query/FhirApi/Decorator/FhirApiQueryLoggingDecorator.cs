@@ -34,7 +34,7 @@ namespace Bug.Logic.Query.FhirApi.Decorator
           throw new ArgumentNullException(paramName: nameof(FhirApiQuery.RequestUri));
 
         ILogger.LogInformation($"{new String('-', 80)}");
-        ILogger.LogInformation($"Major Fhir version: {FhirApiQuery.FhirMajorVersion.GetCode()}");
+        ILogger.LogInformation($"Major Fhir version: {FhirApiQuery.FhirVersion.GetCode()}");
         ILogger.LogInformation($"Request Uri: {FhirApiQuery.RequestUri.OriginalString}");
         ILogger.LogInformation($"Headers {new String('-', 72)}");
         foreach (var Header in FhirApiQuery.RequestHeaderDictionary)

@@ -1,6 +1,7 @@
 ﻿using Bug.Logic.Query;
 using Bug.Logic.Query.FhirApi;
 using Bug.Logic.Query.FhirApi.Create;
+using Bug.Logic.Query.FhirApi.Delete;
 using Bug.Logic.Query.FhirApi.History;
 using Bug.Logic.Query.FhirApi.Read;
 using Bug.Logic.Query.FhirApi.Update;
@@ -15,5 +16,6 @@ namespace Bug.Logic.Interfaces.CompositionRoot
     IQueryHandler<ReadQuery, FhirApiResult> GetReadCommand();
     IQueryHandler<VReadQuery, FhirApiResult> GetVReadCommand();
     IQueryHandler<HistoryQuery, FhirApiResult> GetHistoryCommand();
+    IQueryHandler<DeleteQuery, FhirApiResult> GetDeleteCommand();
   }
 }

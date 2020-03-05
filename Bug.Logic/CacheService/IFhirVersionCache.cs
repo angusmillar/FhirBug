@@ -6,8 +6,8 @@ namespace Bug.Logic.CacheService
 {
   public interface IFhirVersionCache
   {
-    Task<FhirVersion?> GetAsync(FhirMajorVersion fhirMajorVersion);
-    Task RemoveAsync(FhirMajorVersion fhirMajorVersion);
-    Task SetAsync(FhirVersion fhirVersion);
+    Task<DomainModel.FhirVersion?> GetAsync(Common.Enums.FhirVersion fhirMajorVersion);
+    Task RemoveAsync(Common.Enums.FhirVersion fhirMajorVersion);
+    Task SetAsync(DomainModel.FhirVersion fhirVersion);
   }
 }

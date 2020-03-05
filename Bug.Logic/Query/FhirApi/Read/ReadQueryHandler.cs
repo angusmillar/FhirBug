@@ -13,19 +13,18 @@ namespace Bug.Logic.Query.FhirApi.Read
   public class ReadQueryHandler : IQueryHandler<ReadQuery, FhirApiResult>
   {
     private readonly IValidateQueryService IValidateQueryService;
-    private readonly IResourceStoreRepository IResourceStoreRepository;    
+    private readonly IResourceStoreRepository IResourceStoreRepository;
     private readonly IFhirResourceParseJsonService IFhirResourceParseJsonService;
     private readonly IGZipper IGZipper;
 
-
     public ReadQueryHandler(
       IValidateQueryService IValidateQueryService,
-      IResourceStoreRepository IResourceStoreRepository,                  
+      IResourceStoreRepository IResourceStoreRepository,
       IFhirResourceParseJsonService IFhirResourceParseJsonService,
       IGZipper IGZipper)
     {
       this.IValidateQueryService = IValidateQueryService;
-      this.IResourceStoreRepository = IResourceStoreRepository;            
+      this.IResourceStoreRepository = IResourceStoreRepository;
       this.IFhirResourceParseJsonService = IFhirResourceParseJsonService;
       this.IGZipper = IGZipper;
     }
@@ -43,23 +42,23 @@ namespace Bug.Logic.Query.FhirApi.Read
         };
       }
 
-      ResourceStore? ResourceStore = await IResourceStoreRepository.GetCurrentAsync(query.FhirMajorVersion, query.ResourceName, query.ResourceId);
+      ResourceStore? ResourceStore = await IResourceStoreRepository.GetCurrentAsync(query.FhirVersion, query.ResourceName, query.ResourceId);
 
       if (ResourceStore is object)
       {
         if (ResourceStore.IsDeleted)
         {
-          return new FhirApiResult(System.Net.HttpStatusCode.Gone, query.FhirMajorVersion);
+          return new FhirApiResult(System.Net.HttpStatusCode.Gone, query.FhirVersion);
         }
         else
         {
           if (ResourceStore.ResourceBlob is object)
           {
-            return new FhirApiResult(System.Net.HttpStatusCode.OK, query.FhirMajorVersion)
+            return new FhirApiResult(System.Net.HttpStatusCode.OK, query.FhirVersion)
             {
               ResourceId = ResourceStore.ResourceId,
               VersionId = ResourceStore.VersionId,
-              FhirResource = IFhirResourceParseJsonService.ParseJson(query.FhirMajorVersion, IGZipper.Decompress(ResourceStore.ResourceBlob))
+              FhirResource = IFhirResourceParseJsonService.ParseJson(query.FhirVersion, IGZipper.Decompress(ResourceStore.ResourceBlob))
             };
           }
           else
@@ -71,7 +70,7 @@ namespace Bug.Logic.Query.FhirApi.Read
       }
       else
       {
-        return new FhirApiResult(System.Net.HttpStatusCode.NotFound, query.FhirMajorVersion);
+        return new FhirApiResult(System.Net.HttpStatusCode.NotFound, query.FhirVersion);
       }
 
     }

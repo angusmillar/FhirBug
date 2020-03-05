@@ -28,16 +28,16 @@ namespace Bug.Logic.CacheService
       this.IFhirServerConfig = IFhirServerConfig;
     }
 
-    public async Task<FhirVersion?> GetAsync(FhirMajorVersion fhirMajorVersion)
+    public async Task<DomainModel.FhirVersion?> GetAsync(Common.Enums.FhirVersion fhirMajorVersion)
     {
       byte[]? data = await IDistributedCache.GetAsync($"{ParameterName}{fhirMajorVersion.GetCode()}");
       if (data is object)
       {
-        return JsonSerializer.Deserialize<FhirVersion>(data);
+        return JsonSerializer.Deserialize<DomainModel.FhirVersion>(data);
       }
       else
       {
-        FhirVersion? FhirVersion = await IFhirVersionRepository.GetByVersionAsycn(fhirMajorVersion);
+        DomainModel.FhirVersion? FhirVersion = await IFhirVersionRepository.GetByVersionAsycn(fhirMajorVersion);
         if (FhirVersion is object)
         {
           await this.SetAsync(FhirVersion);
@@ -47,7 +47,7 @@ namespace Bug.Logic.CacheService
       }
     }
 
-    public async Task SetAsync(FhirVersion fhirVersion)
+    public async Task SetAsync(DomainModel.FhirVersion fhirVersion)
     {      
       byte[] jsonUtf8Bytes;
       jsonUtf8Bytes = JsonSerializer.SerializeToUtf8Bytes(fhirVersion);
@@ -55,10 +55,10 @@ namespace Bug.Logic.CacheService
       {
         SlidingExpiration = TimeSpan.FromMinutes(IFhirServerConfig.CahceSlidingExpirationMinites)
       };
-      await IDistributedCache.SetAsync($"{ParameterName}{fhirVersion.FhirMajorVersion.GetCode()}", jsonUtf8Bytes, RedisOptions);      
+      await IDistributedCache.SetAsync($"{ParameterName}{fhirVersion.Id.GetCode()}", jsonUtf8Bytes, RedisOptions);      
     }
 
-    public async Task RemoveAsync(FhirMajorVersion fhirMajorVersion)
+    public async Task RemoveAsync(Common.Enums.FhirVersion fhirMajorVersion)
     {
       await IDistributedCache.RemoveAsync($"{ParameterName}{fhirMajorVersion.GetCode()}");
     }

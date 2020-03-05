@@ -19,7 +19,7 @@ namespace Bug.Data.Repository
 
     public async Task<Method?> GetBy(HttpVerb httpVerb)
     {
-      return await DbSet.SingleOrDefaultAsync(x => x.Code == httpVerb);
+      return await DbSet.SingleOrDefaultAsync(x => x.Id == httpVerb);
     }
 
   }

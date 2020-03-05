@@ -50,13 +50,13 @@ namespace Bug.Common.FhirTools.Bundle
 
     public class RequestComponent
     {
-      public RequestComponent(HttpVerb Method, Uri Url)
+      public RequestComponent(HttpVerb Method, string Url)
       {
         this.Method = Method;
         this.Url = Url;
       }
       public HttpVerb Method { get; set; }
-      public Uri Url { get; set; }
+      public string Url { get; set; }
       public string? IfNoneMatch { get; set; }
       public DateTimeOffset? IfModifiedSince { get; set; }
       public string? IfMatch { get; set; }

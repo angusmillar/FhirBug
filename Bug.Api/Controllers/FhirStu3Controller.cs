@@ -27,7 +27,7 @@ namespace Bug.Api.Controllers
     private readonly IActionResultFactory IActionResultFactory;
 
 
-    private readonly FhirMajorVersion _ControllerFhirMajorVersion = FhirMajorVersion.Stu3;
+    private readonly FhirVersion _ControllerFhirVersion = FhirVersion.Stu3;
 
     public FhirStu3Controller(IFhirApiQueryHandlerFactory IFhirApiQueryHandlerFactory, IActionResultFactory IActionResultFactory)
     {      
@@ -72,7 +72,7 @@ namespace Bug.Api.Controllers
     {
       var Query = new Logic.Query.FhirApi.Read.ReadQuery(
         HttpVerb.PUT,
-        _ControllerFhirMajorVersion,
+        _ControllerFhirVersion,
         this.Request.GetUrl(),
         new Dictionary<string, StringValues>(this.Request.Headers),
         resourceName,
@@ -91,7 +91,7 @@ namespace Bug.Api.Controllers
     {
       var Query = new Logic.Query.FhirApi.VRead.VReadQuery(
        HttpVerb.PUT,
-       _ControllerFhirMajorVersion,
+       _ControllerFhirVersion,
        this.Request.GetUrl(),
        new Dictionary<string, StringValues>(this.Request.Headers),
        resourceName,
@@ -111,7 +111,7 @@ namespace Bug.Api.Controllers
     {
       var Query = new Logic.Query.FhirApi.History.HistoryQuery(
        HttpVerb.PUT,
-       _ControllerFhirMajorVersion,
+       _ControllerFhirVersion,
        this.Request.GetUrl(),
        new Dictionary<string, StringValues>(this.Request.Headers),
        resourceName,
@@ -160,11 +160,11 @@ namespace Bug.Api.Controllers
 
       var Query = new Logic.Query.FhirApi.Create.CreateQuery(
         HttpVerb.POST,
-        _ControllerFhirMajorVersion,
+        _ControllerFhirVersion,
         this.Request.GetUrl(),
         new Dictionary<string, StringValues>(this.Request.Headers),
         resourceName,
-        new FhirResource(_ControllerFhirMajorVersion) { Stu3 = resource }
+        new FhirResource(_ControllerFhirVersion) { Stu3 = resource }
         );
 
       var CreateQueryHandler = this.IFhirApiQueryHandlerFactory.GetCreateCommand();
@@ -194,12 +194,12 @@ namespace Bug.Api.Controllers
 
       var command = new UpdateQuery(
         HttpVerb.PUT,
-        _ControllerFhirMajorVersion,
+        _ControllerFhirVersion,
         this.Request.GetUrl(),
         new Dictionary<string, StringValues>(this.Request.Headers),
         resourceName,
         resourceId,
-        new FhirResource(_ControllerFhirMajorVersion) { Stu3 = resource }
+        new FhirResource(_ControllerFhirVersion) { Stu3 = resource }
         );
 
       var UpdateCommandHandler = this.IFhirApiQueryHandlerFactory.GetUpdateCommand();
@@ -213,11 +213,23 @@ namespace Bug.Api.Controllers
 
 
     // DELETE: stu3/fhir/Patient/100    
-    //[HttpDelete("{resourceName}/{fhirId}")]
-    //public IActionResult Delete(string resourceName, string fhirId)
-    //{
-    //  return NoContent();
-    //}
+    [HttpDelete("{resourceName}/{resourceId}")]
+    public async Task<ActionResult<Stu3Model.Resource>> Delete(string resourceName, string resourceId)
+    {
+      var Query = new Logic.Query.FhirApi.Delete.DeleteQuery(
+        HttpVerb.DELETE,
+        _ControllerFhirVersion,
+        this.Request.GetUrl(),
+        new Dictionary<string, StringValues>(this.Request.Headers),
+        resourceName,
+        resourceId
+        );
+
+      var ReadQueryHandler = this.IFhirApiQueryHandlerFactory.GetDeleteCommand();
+      FhirApiResult Result = await ReadQueryHandler.Handle(Query);
+
+      return IActionResultFactory.GetActionResult(Result);
+    }
 
 
   }

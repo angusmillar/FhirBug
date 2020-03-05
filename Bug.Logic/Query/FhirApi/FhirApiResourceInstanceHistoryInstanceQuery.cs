@@ -9,8 +9,8 @@ namespace Bug.Logic.Query.FhirApi
 {
   public abstract class FhirApiResourceInstanceHistoryInstanceQuery : FhirApiResourceInstanceQuery
   {
-    public FhirApiResourceInstanceHistoryInstanceQuery(HttpVerb HttpVerb, FhirMajorVersion FhirMajorVersion, Uri RequestUri, Dictionary<string, StringValues> HeaderDictionary, string ResourceName, string ResourceId, int VersionId)
-      : base(HttpVerb, FhirMajorVersion, RequestUri, HeaderDictionary, ResourceName, ResourceId)
+    public FhirApiResourceInstanceHistoryInstanceQuery(HttpVerb HttpVerb, FhirVersion FhirVersion, Uri RequestUri, Dictionary<string, StringValues> HeaderDictionary, string ResourceName, string ResourceId, int VersionId)
+      : base(HttpVerb, FhirVersion, RequestUri, HeaderDictionary, ResourceName, ResourceId)
     {
       this.VersionId = VersionId;      
     }    

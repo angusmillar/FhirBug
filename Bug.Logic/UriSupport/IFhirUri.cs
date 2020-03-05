@@ -7,7 +7,7 @@ namespace Bug.Logic.UriSupport
   {
     string CompartmentalisedResourseName { get; set; }
     bool ErrorInParseing { get; set; }
-    FhirMajorVersion FhirMajorVersion { get; set; }
+    FhirVersion FhirMajorVersion { get; set; }
     bool IsCompartment { get; set; }
     bool IsContained { get; set; }
     bool IsFormDataSearch { get; set; }

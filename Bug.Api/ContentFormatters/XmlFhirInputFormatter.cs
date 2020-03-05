@@ -63,12 +63,12 @@ namespace Bug.Api.ContentFormatters
       {
         try
         {
-          if (FhirMajorVersion == Common.Enums.FhirMajorVersion.Stu3)
+          if (FhirMajorVersion == Common.Enums.FhirVersion.Stu3)
           {
             var resource = new Stu3Serialization.FhirXmlParser().Parse<Stu3Model.Resource>(xmlReader);
             return InputFormatterResult.Success(resource);
           }
-          else if (FhirMajorVersion == Common.Enums.FhirMajorVersion.R4)
+          else if (FhirMajorVersion == Common.Enums.FhirVersion.R4)
           {
             var resource = new R4Serialization.FhirXmlParser().Parse<R4Model.Resource>(xmlReader);
             return InputFormatterResult.Success(resource);

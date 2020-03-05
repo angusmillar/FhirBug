@@ -4,8 +4,8 @@ using System.Threading.Tasks;
 
 namespace Bug.Logic.Interfaces.Repository
 {
-  public interface IFhirVersionRepository : IRepository<FhirVersion>
+  public interface IFhirVersionRepository : IRepository<DomainModel.FhirVersion>
   {
-    Task<FhirVersion?> GetByVersionAsycn(FhirMajorVersion fhirMajorVersion);
+    Task<DomainModel.FhirVersion?> GetByVersionAsycn(Common.Enums.FhirVersion fhirMajorVersion);
   }
 }

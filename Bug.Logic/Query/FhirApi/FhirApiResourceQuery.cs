@@ -9,8 +9,8 @@ namespace Bug.Logic.Query.FhirApi
 {
   public abstract class FhirApiResourceQuery : FhirBaseApiQuery
   {
-    public FhirApiResourceQuery(HttpVerb HttpVerb, FhirMajorVersion FhirMajorVersion, Uri RequestUri, Dictionary<string, StringValues> HeaderDictionary, string ResourceName)
-      : base(HttpVerb, FhirMajorVersion, RequestUri, HeaderDictionary)
+    public FhirApiResourceQuery(HttpVerb HttpVerb, FhirVersion FhirVersion, Uri RequestUri, Dictionary<string, StringValues> HeaderDictionary, string ResourceName)
+      : base(HttpVerb, FhirVersion, RequestUri, HeaderDictionary)
     {      
       this.ResourceName = ResourceName;
     }    

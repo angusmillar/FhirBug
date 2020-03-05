@@ -11,6 +11,8 @@ using System.Threading.Tasks;
 using Bug.Common.FhirTools.Bundle;
 using Bug.Common.DateTimeTools;
 using Bug.Common.Enums;
+using Bug.Common.ApplicationConfig;
+using System;
 
 namespace Bug.Logic.Query.FhirApi.History
 {
@@ -20,7 +22,7 @@ namespace Bug.Logic.Query.FhirApi.History
     private readonly IResourceStoreRepository IResourceStoreRepository;    
     private readonly IFhirResourceParseJsonService IFhirResourceParseJsonService;
     private readonly IFhirResourceBundleSupport IFhirResourceBundleSupport;
-    private readonly IServerDateTimeSupport IServerDefaultDateTimeOffSet;
+    private readonly IServerDateTimeSupport IServerDefaultDateTimeOffSet;    
     private readonly IGZipper IGZipper;
 
     public HistoryQueryHandler(
@@ -28,14 +30,14 @@ namespace Bug.Logic.Query.FhirApi.History
       IResourceStoreRepository IResourceStoreRepository,            
       IFhirResourceParseJsonService IFhirResourceParseJsonService,
       IFhirResourceBundleSupport IFhirResourceBundleSupport,
-      IServerDateTimeSupport IServerDefaultDateTimeOffSet,
+      IServerDateTimeSupport IServerDefaultDateTimeOffSet,      
       IGZipper IGZipper)
     {
       this.IValidateQueryService = IValidateQueryService;
       this.IResourceStoreRepository = IResourceStoreRepository;            
       this.IFhirResourceParseJsonService = IFhirResourceParseJsonService;
       this.IFhirResourceBundleSupport = IFhirResourceBundleSupport;
-      this.IServerDefaultDateTimeOffSet = IServerDefaultDateTimeOffSet;
+      this.IServerDefaultDateTimeOffSet = IServerDefaultDateTimeOffSet;      
       this.IGZipper = IGZipper;
     }
 
@@ -52,9 +54,10 @@ namespace Bug.Logic.Query.FhirApi.History
       }
 
 
-      IList<ResourceStore> ResourceStoreList = await IResourceStoreRepository.GetHistoryListAsync(query.FhirMajorVersion, query.ResourceName, query.ResourceId);
+      IList<ResourceStore> ResourceStoreList = await IResourceStoreRepository.GetHistoryListAsync(query.FhirVersion, query.ResourceName, query.ResourceId);
 
-      var BundleModel = new BundleModel(Common.Enums.BundleType.History)
+      //Construct the History Bundle
+      var BundleModel = new BundleModel(BundleType.History)
       {
         Total = ResourceStoreList.Count
       };
@@ -62,22 +65,27 @@ namespace Bug.Logic.Query.FhirApi.History
       foreach (var ResourceStore in ResourceStoreList)
       {
         var entry = new BundleModel.EntryComponent();
-        BundleModel.Entry.Add(entry);
-        //entry.FullUrl = new System.Uri("dddddd");
+        BundleModel.Entry.Add(entry);        
         if (ResourceStore.ResourceBlob is object)
         {
-          entry.Resource = IFhirResourceParseJsonService.ParseJson(ResourceStore.FhirVersion.FhirMajorVersion, IGZipper.Decompress(ResourceStore.ResourceBlob));
-        }        
-        entry.Request = new BundleModel.RequestComponent(ResourceStore.FkMethodId, new System.Uri("https://blabla/Patient/1"));
+          entry.Resource = IFhirResourceParseJsonService.ParseJson(ResourceStore.FkFhirVersionId, IGZipper.Decompress(ResourceStore.ResourceBlob));
+        }
+
+        string RequestUrl = ResourceStore.ResourceName.Name;       
+        if (ResourceStore.FkMethodId == HttpVerb.PUT || ResourceStore.FkMethodId == HttpVerb.DELETE)
+        {
+          RequestUrl = $"{RequestUrl}/{ResourceStore.ResourceId}";
+        }                
+        entry.Request = new BundleModel.RequestComponent(ResourceStore.FkMethodId, RequestUrl);
         entry.Response = new BundleModel.ResponseComponent($"{ResourceStore.HttpStatusCode.Code.ToString()} - {((int)ResourceStore.HttpStatusCode.Number).ToString()}")
         {          
           LastModified = IServerDefaultDateTimeOffSet.ZuluToServerTimeZone(ResourceStore.LastUpdated)
         };
       }
 
-      return new FhirApiResult(System.Net.HttpStatusCode.OK, query.FhirMajorVersion)
+      return new FhirApiResult(System.Net.HttpStatusCode.OK, query.FhirVersion)
       {
-        FhirResource = IFhirResourceBundleSupport.GetFhirResource(query.FhirMajorVersion, BundleModel)
+        FhirResource = IFhirResourceBundleSupport.GetFhirResource(query.FhirVersion, BundleModel)
       };
         
     }

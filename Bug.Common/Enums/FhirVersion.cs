@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Bug.Common.Enums
 {
-  public enum FhirMajorVersion 
+  public enum FhirVersion 
   {  
     [EnumInfo("Stu3", "Stu 3 Sequence")]
     Stu3,

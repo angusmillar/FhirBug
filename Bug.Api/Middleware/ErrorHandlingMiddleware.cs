@@ -62,18 +62,18 @@ namespace Bug.Api.Middleware
     {
 
       _logger.LogError(exec, exec.Message);
-      FhirMajorVersion VersionInUse = GetFhirVersionInUse(context.Request.Path.Value);
+      FhirVersion VersionInUse = GetFhirVersionInUse(context.Request.Path.Value);
       if (exec is FhirException FhirException)
       {
         _logger.LogError(FhirException, "FhirException has been throwen");
         FhirFormatType AcceptFormatType = Bug.Api.ContentFormatters.FhirMediaType.GetFhirFormatTypeFromAcceptHeader(context.Request.Headers.SingleOrDefault(x => x.Key.ToLower(System.Globalization.CultureInfo.CurrentCulture) == "accept").Value);
         switch (VersionInUse)
         {
-          case FhirMajorVersion.Stu3:
+          case FhirVersion.Stu3:
             {
               return Stu3FhirExceptionProcessing(context, FhirException, AcceptFormatType);
             }
-          case FhirMajorVersion.R4:
+          case FhirVersion.R4:
             {
               return R4FhirExceptionProcessing(context, FhirException, AcceptFormatType);
             }
@@ -96,7 +96,7 @@ namespace Bug.Api.Middleware
         _logger.LogError(exec, $"Error log identifier: {ErrorGuid}");
         switch (VersionInUse)
         {
-          case FhirMajorVersion.Stu3:
+          case FhirVersion.Stu3:
             {
 
               Stu3Model.OperationOutcome Stu3OperationOutcomeResult = IOperationOutComeSupportFactory.GetStu3().GetFatal(new string[] { UsersErrorMessage });
@@ -104,7 +104,7 @@ namespace Bug.Api.Middleware
               context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
               return context.Response.WriteAsync(IStu3SerializationToXml.SerializeToXml(Stu3OperationOutcomeResult));
             }
-          case FhirMajorVersion.R4:
+          case FhirVersion.R4:
             {
               R4Model.OperationOutcome R4OperationOutcomeResult = IOperationOutComeSupportFactory.GetR4().GetFatal(new string[] { UsersErrorMessage });
               context.Response.ContentType = Bug.Api.ContentFormatters.FhirMediaType.GetMediaTypeHeaderValue(R4OperationOutcomeResult.GetType(), FhirFormatType.xml).Value;
@@ -202,15 +202,15 @@ namespace Bug.Api.Middleware
       }
     }
 
-    private static FhirMajorVersion GetFhirVersionInUse(string RequestPath)
+    private static FhirVersion GetFhirVersionInUse(string RequestPath)
     {
-      if (RequestPath.Contains(FhirMajorVersion.Stu3.GetCode(), StringComparison.CurrentCultureIgnoreCase))
+      if (RequestPath.Contains(FhirVersion.Stu3.GetCode(), StringComparison.CurrentCultureIgnoreCase))
       {
-        return FhirMajorVersion.Stu3;
+        return FhirVersion.Stu3;
       }
-      else if (RequestPath.Contains(FhirMajorVersion.R4.GetCode(), StringComparison.CurrentCultureIgnoreCase))
+      else if (RequestPath.Contains(FhirVersion.R4.GetCode(), StringComparison.CurrentCultureIgnoreCase))
       {
-        return FhirMajorVersion.R4;
+        return FhirVersion.R4;
       }
       else
       {

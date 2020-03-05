@@ -16,7 +16,7 @@ namespace Bug.Logic.DomainModel
     public byte[]? ResourceBlob { get; set; }
     public int FkResourceNameId { get; set; }
     public ResourceName ResourceName { get; set; }
-    public int FkFhirVersionId { get; set; }
+    public Common.Enums.FhirVersion FkFhirVersionId { get; set; }
     public FhirVersion FhirVersion { get; set; }
     public HttpVerb FkMethodId { get; set; }
     public Method Method { get; set; }

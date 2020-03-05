@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace Bug.Data.Repository.Base
 {
   public class Repository<TEntity> : IRepository<TEntity> 
-    where TEntity : ModelBase
+    where TEntity : BaseDateStamp
   {
     protected readonly AppDbContext _context;
     protected readonly DbSet<TEntity> DbSet;

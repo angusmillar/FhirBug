@@ -9,13 +9,13 @@ namespace Bug.Logic.Query.FhirApi
 {
   public class FhirApiResult
   {
-    public FhirApiResult(HttpStatusCode HttpStatusCode, FhirMajorVersion FhirMajorVersion)
+    public FhirApiResult(HttpStatusCode HttpStatusCode, FhirVersion FhirVersion)
     {
       this.HttpStatusCode = HttpStatusCode;
-      this.FhirMajorVersion = FhirMajorVersion;
+      this.FhirVersion = FhirVersion;
     }
     public HttpStatusCode HttpStatusCode { get; set; }
-    public FhirMajorVersion FhirMajorVersion { get; set; }
+    public FhirVersion FhirVersion { get; set; }
     public string? ResourceId { get; set; }
     public int? VersionId { get; set; }    
     public FhirResource? FhirResource { get; set; }

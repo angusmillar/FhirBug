@@ -8,6 +8,6 @@ namespace Bug.Logic.DomainModel
   #pragma warning disable CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
   public class Method : BaseEnumKey<HttpVerb>
   {    
-    public HttpVerb Code { get; set; }
+    public string Code { get; set; }
   }
 }

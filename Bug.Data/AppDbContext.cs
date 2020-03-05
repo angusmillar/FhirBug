@@ -7,17 +7,26 @@ using Bug.Logic.Interfaces.Repository;
 using Bug.Common.Enums;
 using System.Collections.Generic;
 using System.Linq;
+using Bug.Common.DateTimeTools;
 
 namespace Bug.Data
 {
   public class AppDbContext : DbContext, IUnitOfWork
-  {    
+  {
+    public virtual DbSet<ResourceStore> ResourceStore { get; set; } = null!;
+    public virtual DbSet<ResourceName> ResourceName { get; set; } = null!;
+    public virtual DbSet<Logic.DomainModel.FhirVersion> FhirVersion { get; set; } = null!;
+
     public AppDbContext(DbContextOptions<AppDbContext> options)
       : base(options) { }
 
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    
+    protected override void OnModelCreating(ModelBuilder builder)
     {
-      modelBuilder.Entity<ResourceStore>(entity =>
+      DateTime DateTimeNow = DateTimeOffset.Now.ToZulu();
+      base.OnModelCreating(builder);
+
+      builder.Entity<ResourceStore>(entity =>
       {
         entity.HasKey(e => e.Id);
         entity.Property(e => e.Id).HasColumnName("id");
@@ -30,7 +39,7 @@ namespace Bug.Data
         entity.Property(e => e.LastUpdated).HasColumnName("last_updated").IsRequired(true);
         entity.Property(e => e.ResourceBlob).HasColumnName("resource_blob").IsRequired(false);
         entity.Property(e => e.FkResourceNameId).HasColumnName("fk_resourcename_id").IsRequired(true);
-        entity.Property(e => e.FkFhirVersionId).HasColumnName("fk_fhirversion_id").IsRequired(true);
+        entity.Property(e => e.FkFhirVersionId).HasColumnName("fk_fhirversion_id").IsRequired(true).HasConversion<int>();
         entity.Property(e => e.FkMethodId).HasColumnName("fk_method_id").IsRequired(true).HasConversion<int>();
         entity.Property(e => e.FkHttpStatusCodeId).HasColumnName("fk_httpstatuscode_id").IsRequired(true);
 
@@ -56,7 +65,7 @@ namespace Bug.Data
         .IsUnique();
       });
 
-      modelBuilder.Entity<ResourceName>(entity =>
+      builder.Entity<ResourceName>(entity =>
       {
         entity.HasKey(e => e.Id);
         entity.Property(e => e.Id).HasColumnName("id");
@@ -66,39 +75,40 @@ namespace Bug.Data
 
       });
 
-      modelBuilder.Entity<FhirVersion>(entity =>
+      builder.Entity<Logic.DomainModel.FhirVersion>(entity =>
       {
         entity.HasKey(e => e.Id);
-        entity.Property(e => e.Id).HasColumnName("id");
-        entity.Property(x => x.FhirMajorVersion).IsRequired(true).HasColumnName("fhir_major_version");
+        entity.Property(e => e.Id).HasColumnName("id").HasConversion<int>();
+        entity.Property(e => e.Created).HasColumnName("created").IsRequired(true);
+        entity.Property(e => e.Updated).HasColumnName("updated").IsRequired(true);        
         entity.Property(x => x.Code).IsRequired(true).HasColumnName("code");
       });
 
       //Seed data
-      modelBuilder.Entity<FhirVersion>().HasData(
-        new FhirVersion() { Id = 1, FhirMajorVersion = FhirMajorVersion.Stu3, Code = FhirMajorVersion.Stu3.GetCode() },
-        new FhirVersion() { Id = 2, FhirMajorVersion = FhirMajorVersion.R4, Code = FhirMajorVersion.R4.GetCode() });
+      builder.Entity<Logic.DomainModel.FhirVersion>().HasData(
+        new Logic.DomainModel.FhirVersion() { Id = Common.Enums.FhirVersion.Stu3, Code = Common.Enums.FhirVersion.Stu3.GetCode(), Created = DateTimeNow, Updated = DateTimeNow },
+        new Logic.DomainModel.FhirVersion() { Id = Common.Enums.FhirVersion.R4, Code = Common.Enums.FhirVersion.R4.GetCode(), Created = DateTimeNow, Updated = DateTimeNow });
         
 
-      modelBuilder.Entity<Method>(entity =>
+      builder.Entity<Method>(entity =>
       {
         entity.HasKey(e => e.Id);
         entity.Property(e => e.Id).HasColumnName("id").HasConversion<int>(); ;
         entity.Property(e => e.Created).HasColumnName("created").IsRequired(true);
         entity.Property(e => e.Updated).HasColumnName("updated").IsRequired(true);
-        entity.Property(x => x.Code).HasColumnName("code").IsRequired(true).HasConversion<string>();        
+        entity.Property(x => x.Code).HasColumnName("code").IsRequired(true);        
       });
 
       //Seed data
-      modelBuilder.Entity<Method>().HasData(
-        new Method() { Id = HttpVerb.DELETE, Code = HttpVerb.DELETE },
-        new Method() { Id = HttpVerb.GET, Code = HttpVerb.GET },
-        new Method() { Id = HttpVerb.HEAD, Code = HttpVerb.HEAD },
-        new Method() { Id = HttpVerb.PATCH, Code = HttpVerb.PATCH },
-        new Method() { Id = HttpVerb.POST, Code = HttpVerb.POST },
-        new Method() { Id = HttpVerb.PUT, Code = HttpVerb.PUT });
+      builder.Entity<Method>().HasData(
+        new Method() { Id = HttpVerb.DELETE, Code = HttpVerb.DELETE.GetCode(), Created = DateTimeNow, Updated = DateTimeNow },
+        new Method() { Id = HttpVerb.GET, Code = HttpVerb.GET.GetCode(), Created = DateTimeNow, Updated = DateTimeNow },
+        new Method() { Id = HttpVerb.HEAD, Code = HttpVerb.HEAD.GetCode(), Created = DateTimeNow, Updated = DateTimeNow },
+        new Method() { Id = HttpVerb.PATCH, Code = HttpVerb.PATCH.GetCode(), Created = DateTimeNow, Updated = DateTimeNow },
+        new Method() { Id = HttpVerb.POST, Code = HttpVerb.POST.GetCode(), Created = DateTimeNow, Updated = DateTimeNow },
+        new Method() { Id = HttpVerb.PUT, Code = HttpVerb.PUT.GetCode(), Created = DateTimeNow, Updated = DateTimeNow });
 
-      modelBuilder.Entity<HttpStatusCode>(entity =>
+      builder.Entity<HttpStatusCode>(entity =>
       {
         entity.HasKey(e => e.Id);
         entity.Property(e => e.Id).HasColumnName("id").HasConversion<int>();
@@ -114,11 +124,9 @@ namespace Bug.Data
       });
 
       //Seed data
-      modelBuilder.Entity<HttpStatusCode>().HasData(GetHttpStatusSeedData());
+      builder.Entity<HttpStatusCode>().HasData(GetHttpStatusSeedData(DateTimeNow));
   
     }
-
-
 
     public async Task<IBugDbContextTransaction> BeginTransactionAsync()
     {      
@@ -131,14 +139,10 @@ namespace Bug.Data
         return new BugDbContextTransaction(await this.Database.BeginTransactionAsync());
       }            
     }
-    public virtual DbSet<ResourceStore> ResourceStore { get; set; } = null!;
-    public virtual DbSet<ResourceName> ResourceName { get; set; } = null!;
-    public virtual DbSet<FhirVersion> FhirVersion { get; set; } = null!;
 
-    private HttpStatusCode[] GetHttpStatusSeedData()
+    private HttpStatusCode[] GetHttpStatusSeedData(DateTime dateTimeNow)
     {
-      int Key = 1;
-      var DateNowZulu = DateTime.UtcNow;
+      int Key = 1;      
       var ResultList = new List<HttpStatusCode>();
       var HttpStatusCodeList = Enum.GetValues(typeof(System.Net.HttpStatusCode)).Cast<System.Net.HttpStatusCode>();
       // HttpStatusCode enum uses multiple integer values for the same value, e.g.
@@ -161,8 +165,8 @@ namespace Bug.Data
           Id = Key,          
           Code = HttpStatusEnum.ToString(),
           Number = HttpStatusEnum,
-          Created = DateNowZulu,
-          Updated = DateNowZulu
+          Created = dateTimeNow,
+          Updated = dateTimeNow
         });
         Key++;
       }

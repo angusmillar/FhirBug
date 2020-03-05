@@ -14,18 +14,18 @@ namespace Bug.Common.ApplicationConfig
       this.IFhirServerConfig = IFhirServerConfig;
     }
 
-    public Uri Url(FhirMajorVersion fhirMajorVersion)
+    public Uri Url(FhirVersion fhirMajorVersion)
     {
       return ConstructFullUrl(fhirMajorVersion);
     }
 
-    private Uri ConstructFullUrl(FhirMajorVersion FhirMajorVersion)
+    private Uri ConstructFullUrl(FhirVersion FhirMajorVersion)
     {
-      if (FhirMajorVersion == Enums.FhirMajorVersion.Stu3)
+      if (FhirMajorVersion == Enums.FhirVersion.Stu3)
       {
         return new Uri($"{this.IFhirServerConfig.ServiceBaseUrl.AbsoluteUri.TrimEnd('/')}/{Constant.EndpointPath.Stu3Fhir}");
       }
-      else if (FhirMajorVersion == Enums.FhirMajorVersion.R4)
+      else if (FhirMajorVersion == Enums.FhirVersion.R4)
       {
         return new Uri($"{this.IFhirServerConfig.ServiceBaseUrl.AbsoluteUri.TrimEnd('/')}/{Constant.EndpointPath.R4Fhir}");
       }

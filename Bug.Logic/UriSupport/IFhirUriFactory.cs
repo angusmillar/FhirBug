@@ -4,6 +4,6 @@ namespace Bug.Logic.UriSupport
 {
   public interface IFhirUriFactory
   {
-    bool TryParse(string requestUri, FhirMajorVersion fhirMajorVersion, out IFhirUri? fhirUri, out string errorMessage);
+    bool TryParse(string requestUri, FhirVersion fhirMajorVersion, out IFhirUri? fhirUri, out string errorMessage);
   }
 }

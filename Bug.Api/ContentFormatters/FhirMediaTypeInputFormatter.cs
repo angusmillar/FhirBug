@@ -19,8 +19,8 @@ namespace Bug.Api.ContentFormatters
     /// This is set by the actual formatter (xml or json)
     /// </summary>
     //protected R4Model.Resource entry = null;
-    private Common.Enums.FhirMajorVersion _FhirMajorVersion = Common.Enums.FhirMajorVersion.Stu3;
-    protected Common.Enums.FhirMajorVersion FhirMajorVersion
+    private Common.Enums.FhirVersion _FhirMajorVersion = Common.Enums.FhirVersion.Stu3;
+    protected Common.Enums.FhirVersion FhirMajorVersion
     {
       get
       {
@@ -36,13 +36,13 @@ namespace Bug.Api.ContentFormatters
     {
       if (typeof(Stu3Model.Resource).IsAssignableFrom(type))
       {
-        FhirMajorVersion = Common.Enums.FhirMajorVersion.Stu3;
+        FhirMajorVersion = Common.Enums.FhirVersion.Stu3;
         return true;
       }
 
       if (typeof(R4Model.Resource).IsAssignableFrom(type))
       {
-        FhirMajorVersion = Common.Enums.FhirMajorVersion.R4;
+        FhirMajorVersion = Common.Enums.FhirVersion.R4;
         return true;        
       }
         

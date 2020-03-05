@@ -19,10 +19,10 @@ namespace Bug.Logic.Service
     {
       switch (fhirResource.FhirMajorVersion)
       {
-        case Common.Enums.FhirMajorVersion.Stu3:
+        case Common.Enums.FhirVersion.Stu3:
           var Stu3Tool = IFhirResourceLastUpdatedSupportFactory.GetStu3();
           return Stu3Tool.GetLastUpdated(fhirResource);
-        case Common.Enums.FhirMajorVersion.R4:
+        case Common.Enums.FhirVersion.R4:
           var R4Tool = IFhirResourceLastUpdatedSupportFactory.GetR4();
           return R4Tool.GetLastUpdated(fhirResource);
         default:
@@ -34,11 +34,11 @@ namespace Bug.Logic.Service
     {
       switch (fhirResource.FhirMajorVersion)
       {
-        case Common.Enums.FhirMajorVersion.Stu3:
+        case Common.Enums.FhirVersion.Stu3:
           var Stu3Tool = IFhirResourceLastUpdatedSupportFactory.GetStu3();
           Stu3Tool.SetLastUpdated(dateTime, fhirResource);
           break;
-        case Common.Enums.FhirMajorVersion.R4:
+        case Common.Enums.FhirVersion.R4:
           var R4Tool = IFhirResourceLastUpdatedSupportFactory.GetR4();
           R4Tool.SetLastUpdated(dateTime, fhirResource);
           break;

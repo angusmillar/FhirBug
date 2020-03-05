@@ -2,6 +2,7 @@
 using Bug.Logic.Query;
 using Bug.Logic.Query.FhirApi;
 using Bug.Logic.Query.FhirApi.Create;
+using Bug.Logic.Query.FhirApi.Delete;
 using Bug.Logic.Query.FhirApi.History;
 using Bug.Logic.Query.FhirApi.Read;
 using Bug.Logic.Query.FhirApi.Update;
@@ -39,6 +40,11 @@ namespace Bug.Api.CompositionRoot
     public IQueryHandler<HistoryQuery, FhirApiResult> GetHistoryCommand()
     {
       return (IQueryHandler<HistoryQuery, FhirApiResult>)_container.GetInstance(typeof(IQueryHandler<HistoryQuery, FhirApiResult>));
+    }
+
+    public IQueryHandler<DeleteQuery, FhirApiResult> GetDeleteCommand()
+    {
+      return (IQueryHandler<DeleteQuery, FhirApiResult>)_container.GetInstance(typeof(IQueryHandler<DeleteQuery, FhirApiResult>));
     }
   }
 }

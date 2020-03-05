@@ -12,14 +12,14 @@ using Bug.Common.Enums;
 
 namespace Bug.Data.Repository
 {
-  public class FhirVersionRepository : Repository<FhirVersion>, IFhirVersionRepository
+  public class FhirVersionRepository : Repository<Logic.DomainModel.FhirVersion>, IFhirVersionRepository
   {
     public FhirVersionRepository(AppDbContext context)
       : base(context) { }
 
-    public async Task<FhirVersion?> GetByVersionAsycn(FhirMajorVersion fhirMajorVersion)
+    public async Task<Logic.DomainModel.FhirVersion?> GetByVersionAsycn(Common.Enums.FhirVersion fhirMajorVersion)
     {
-      return await DbSet.SingleOrDefaultAsync(x => x.FhirMajorVersion == fhirMajorVersion);
+      return await DbSet.SingleOrDefaultAsync(x => x.Id == fhirMajorVersion);
     }
 
   }

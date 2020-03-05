@@ -19,10 +19,10 @@ namespace Bug.Logic.Service
     {
       switch (fhirResource.FhirMajorVersion)
       {
-        case Common.Enums.FhirMajorVersion.Stu3:
+        case Common.Enums.FhirVersion.Stu3:
           var Stu3FhirResourceIdSupport = IFhirResourceIdSupportFactory.GetStu3();
           return Stu3FhirResourceIdSupport.GetFhirId(fhirResource);
-        case Common.Enums.FhirMajorVersion.R4:
+        case Common.Enums.FhirVersion.R4:
           var R4FhirResourceIdSupport = IFhirResourceIdSupportFactory.GetR4();
           return R4FhirResourceIdSupport.GetFhirId(fhirResource);
         default:
@@ -34,11 +34,11 @@ namespace Bug.Logic.Service
     {
       switch (fhirResource.FhirMajorVersion)
       {
-        case Common.Enums.FhirMajorVersion.Stu3:
+        case Common.Enums.FhirVersion.Stu3:
           var Stu3FhirResourceIdSupport = IFhirResourceIdSupportFactory.GetStu3();
           Stu3FhirResourceIdSupport.SetFhirId(id, fhirResource);
           break;
-        case Common.Enums.FhirMajorVersion.R4:
+        case Common.Enums.FhirVersion.R4:
           var R4FhirResourceIdSupport = IFhirResourceIdSupportFactory.GetR4();
           R4FhirResourceIdSupport.SetFhirId(id, fhirResource);
           break;

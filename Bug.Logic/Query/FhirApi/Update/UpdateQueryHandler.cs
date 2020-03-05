@@ -16,11 +16,9 @@ namespace Bug.Logic.Query.FhirApi.Update
   public class UpdateQueryHandler : IQueryHandler<UpdateQuery, FhirApiResult>
   {
     private readonly IValidateQueryService IValidateQueryService;
-    private readonly IResourceStoreRepository IResourceStoreRepository;
-    private readonly IFhirVersionTableService IFhirVersionTableService;
+    private readonly IResourceStoreRepository IResourceStoreRepository;    
     private readonly IResourceNameTableService IResourceNameTableService;
-    private readonly IHttpStatusCodeCache IHttpStatusCodeCache;
-    private readonly IFhirResourceIdSupport IFhirResourceIdSupport;
+    private readonly IHttpStatusCodeCache IHttpStatusCodeCache;    
     private readonly IUpdateResourceService IUpdateResourceService;
     private readonly IServerDateTimeSupport IServerDefaultDateTimeOffSet;
     private readonly IFhirResourceJsonSerializationService IFhirResourceJsonSerializationService;
@@ -28,22 +26,18 @@ namespace Bug.Logic.Query.FhirApi.Update
 
     public UpdateQueryHandler(
       IValidateQueryService IValidateQueryService,
-      IResourceStoreRepository IResourceStoreRepository,
-      IFhirVersionTableService IFhirVersionTableService,      
+      IResourceStoreRepository IResourceStoreRepository,      
       IResourceNameTableService IResourceNameTableService,
-      IHttpStatusCodeCache IHttpStatusCodeCache,
-      IFhirResourceIdSupport IFhirResourceIdSupport,
+      IHttpStatusCodeCache IHttpStatusCodeCache,      
       IUpdateResourceService IUpdateResourceService,
       IServerDateTimeSupport IServerDefaultDateTimeOffSet,
       IFhirResourceJsonSerializationService IFhirResourceJsonSerializationService,
       IGZipper IGZipper)
     {
       this.IValidateQueryService = IValidateQueryService;
-      this.IResourceStoreRepository = IResourceStoreRepository;
-      this.IFhirVersionTableService = IFhirVersionTableService;      
+      this.IResourceStoreRepository = IResourceStoreRepository;      
       this.IResourceNameTableService = IResourceNameTableService;
-      this.IHttpStatusCodeCache = IHttpStatusCodeCache;
-      this.IFhirResourceIdSupport = IFhirResourceIdSupport;
+      this.IHttpStatusCodeCache = IHttpStatusCodeCache;      
       this.IUpdateResourceService = IUpdateResourceService;
       this.IServerDefaultDateTimeOffSet = IServerDefaultDateTimeOffSet;
       this.IFhirResourceJsonSerializationService = IFhirResourceJsonSerializationService;
@@ -65,14 +59,11 @@ namespace Bug.Logic.Query.FhirApi.Update
         };
       }
 
-      string ResourceId = IFhirResourceIdSupport.GetResourceId(query.FhirResource);
-      ResourceName ResourceName = await IResourceNameTableService.GetSetResourceName(query.ResourceName);
-      FhirVersion FhirVersion = await IFhirVersionTableService.GetSetFhirVersion(query.FhirResource.FhirMajorVersion);
-      
       System.Net.HttpStatusCode FinalyHttpStatusCode = System.Net.HttpStatusCode.Created;      
       int NewVersionId = 1;
-      
-      ResourceStore? PreviousResourseStore = await IResourceStoreRepository.GetCurrentMetaAsync(query.FhirResource.FhirMajorVersion, query.ResourceName, ResourceId);
+      ResourceName ResourceName = await IResourceNameTableService.GetSetResourceName(query.ResourceName);
+
+      ResourceStore? PreviousResourseStore = await IResourceStoreRepository.GetCurrentMetaAsync(query.FhirResource.FhirMajorVersion, query.ResourceName, query.ResourceId);
       if (PreviousResourseStore is object)
       {
         FinalyHttpStatusCode = System.Net.HttpStatusCode.OK;
@@ -88,21 +79,22 @@ namespace Bug.Logic.Query.FhirApi.Update
           VersionId = NewVersionId,
           LastUpdated = NewLastUpdated
         });
-
+      
+      
       HttpStatusCode? HttpStatusCode = await IHttpStatusCodeCache.GetAsync(FinalyHttpStatusCode);
       if (HttpStatusCode is null)
-        throw new ArgumentNullException($"Unable to locate {nameof(HttpStatusCode)} of type {FinalyHttpStatusCode.GetCode()} in the database.");
+        throw new ArgumentNullException($"Unable to locate {nameof(HttpStatusCode)} of type {FinalyHttpStatusCode.ToString()} in the database.");
 
       var ResourceStore = new ResourceStore()
       {
-        ResourceId = ResourceId,
+        ResourceId = query.ResourceId,
         IsCurrent = true,
         IsDeleted = false,
         VersionId = NewVersionId,
         LastUpdated = NewLastUpdated.ToZulu(),
         ResourceBlob = IGZipper.Compress(IFhirResourceJsonSerializationService.SerializeToJsonBytes(UpdatedFhirResource)),
         FkResourceNameId = ResourceName.Id,
-        FkFhirVersionId = FhirVersion.Id,
+        FkFhirVersionId = query.FhirVersion,
         FkHttpStatusCodeId = HttpStatusCode.Id,
         FkMethodId = query.Method
       };
@@ -110,10 +102,10 @@ namespace Bug.Logic.Query.FhirApi.Update
       IResourceStoreRepository.Add(ResourceStore);
       await IResourceStoreRepository.SaveChangesAsync();
       
-      var OutCome = new FhirApiResult(FinalyHttpStatusCode, query.FhirMajorVersion)
+      var OutCome = new FhirApiResult(FinalyHttpStatusCode, query.FhirVersion)
       {
         FhirResource = query.FhirResource,
-        ResourceId = ResourceId,
+        ResourceId = query.ResourceId,
         VersionId = NewVersionId
       };
 
