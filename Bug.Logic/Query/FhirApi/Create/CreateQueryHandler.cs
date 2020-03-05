@@ -1,6 +1,7 @@
 ﻿using Bug.Common.Compression;
 using Bug.Common.DateTimeTools;
 using Bug.Common.FhirTools;
+using Bug.Logic.CacheService;
 using Bug.Logic.DomainModel;
 using Bug.Logic.Interfaces.Repository;
 using Bug.Logic.Service;
@@ -17,10 +18,11 @@ namespace Bug.Logic.Query.FhirApi.Create
     private readonly IValidateQueryService IValidateQueryService;
     private readonly IResourceStoreRepository IResourceStoreRepository;
     private readonly IResourceNameTableService IResourceNameTableService;
-    private readonly IMethodTableService IMethodTableService;
+    private readonly IHttpStatusCodeCache IHttpStatusCodeCache;
     private readonly IFhirVersionTableService IFhirVersionTableService;
     private readonly IFhirResourceJsonSerializationService IFhirResourceJsonSerializationService;
     private readonly IUpdateResourceService IUpdateResourceService;
+    private readonly IServerDateTimeSupport IServerDefaultDateTimeOffSet;
     private readonly IGZipper IGZipper;        
 
     public CreateQueryHandler(
@@ -28,18 +30,20 @@ namespace Bug.Logic.Query.FhirApi.Create
       IResourceStoreRepository IResourceStoreRepository,
       IResourceNameTableService IResourceNameTableService,
       IFhirVersionTableService IFhirVersionTableService,
-      IMethodTableService IMethodTableService,      
+      IHttpStatusCodeCache IHttpStatusCodeCache,      
       IFhirResourceJsonSerializationService IFhirResourceJsonSerializationService,     
       IUpdateResourceService IUpdateResourceService,
+      IServerDateTimeSupport IServerDefaultDateTimeOffSet,
       IGZipper IGZipper)
     {
       this.IValidateQueryService = IValidateQueryService;
       this.IResourceStoreRepository = IResourceStoreRepository;
       this.IResourceNameTableService = IResourceNameTableService;
       this.IFhirVersionTableService = IFhirVersionTableService;
-      this.IMethodTableService = IMethodTableService;
+      this.IHttpStatusCodeCache = IHttpStatusCodeCache;
       this.IFhirResourceJsonSerializationService = IFhirResourceJsonSerializationService;      
       this.IUpdateResourceService = IUpdateResourceService;
+      this.IServerDefaultDateTimeOffSet = IServerDefaultDateTimeOffSet;
       this.IGZipper = IGZipper;            
     }
 
@@ -58,19 +62,23 @@ namespace Bug.Logic.Query.FhirApi.Create
         };
       }
 
+      
       var UpdateResource = new UpdateResource(query.FhirResource)
       {
         ResourceId = FhirGuidSupport.NewFhirGuid(),
         VersionId = 1,
-        LastUpdated = DateTimeOffset.Now.ToZulu()
-      };
+        LastUpdated = IServerDefaultDateTimeOffSet.Now()
+    };
 
       FhirResource UpdatedFhirResource = IUpdateResourceService.Process(UpdateResource);
       byte[] ResourceBytes = IFhirResourceJsonSerializationService.SerializeToJsonBytes(UpdatedFhirResource);
 
       ResourceName ResourceName = await IResourceNameTableService.GetSetResourceName(query.ResourceName);
       FhirVersion FhirVersion = await IFhirVersionTableService.GetSetFhirVersion(UpdatedFhirResource.FhirMajorVersion);
-      Method Method = await IMethodTableService.GetSetMethod(query.Method);
+      HttpStatusCode? HttpStatusCode = await IHttpStatusCodeCache.GetAsync(System.Net.HttpStatusCode.Created);
+
+      if (HttpStatusCode is null)
+        throw new ArgumentNullException(nameof(HttpStatusCode));
 
       var ResourceStore = new ResourceStore()
       {
@@ -78,11 +86,12 @@ namespace Bug.Logic.Query.FhirApi.Create
         IsCurrent = true,
         IsDeleted = false,
         VersionId = UpdateResource.VersionId.Value,
-        LastUpdated = UpdateResource.LastUpdated.Value,
+        LastUpdated = UpdateResource.LastUpdated.Value.ToZulu(),
         ResourceBlob = IGZipper.Compress(ResourceBytes),        
         FkResourceNameId = ResourceName.Id,
         FkFhirVersionId = FhirVersion.Id,
-        FkMethodId = Method.Id
+        FkMethodId = query.Method,
+        FkHttpStatusCodeId = HttpStatusCode.Id
       };     
       
 

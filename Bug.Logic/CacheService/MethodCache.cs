@@ -54,7 +54,7 @@ namespace Bug.Logic.CacheService
       {
         SlidingExpiration = TimeSpan.FromMinutes(IFhirServerConfig.CahceSlidingExpirationMinites)
       };
-      await IDistributedCache.SetAsync($"{ParameterName}{method.HttpVerb}", jsonUtf8Bytes, RedisOptions);
+      await IDistributedCache.SetAsync($"{ParameterName}{method.Code.GetCode()}", jsonUtf8Bytes, RedisOptions);
     }
 
     public async Task RemoveAsync(HttpVerb httpVerb)

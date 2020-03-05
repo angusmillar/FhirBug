@@ -7,7 +7,6 @@ using Bug.Data.Repository.Base;
 using Bug.Logic.DomainModel;
 using Bug.Logic.Interfaces.Repository;
 using System.Threading.Tasks;
-using Bug.Logic.DomainModel.Projection;
 //using System.Data.Entity;
 
 namespace Bug.Data.Repository

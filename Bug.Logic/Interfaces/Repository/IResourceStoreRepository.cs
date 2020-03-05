@@ -1,6 +1,5 @@
 ﻿using Bug.Common.Enums;
 using Bug.Logic.DomainModel;
-using Bug.Logic.DomainModel.Projection;
 using System;
 using System.Collections.Generic;
 using System.Text;

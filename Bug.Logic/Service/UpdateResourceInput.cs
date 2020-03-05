@@ -16,7 +16,7 @@ namespace Bug.Logic.Service
     public FhirResource FhirResource { get; set; }
     public string? ResourceId { get; set; } 
     public int? VersionId { get; set; }
-    public DateTime? LastUpdated { get; set; }
+    public DateTimeOffset? LastUpdated { get; set; }
 
   }
 }

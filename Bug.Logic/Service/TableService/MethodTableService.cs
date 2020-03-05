@@ -1,4 +1,5 @@
 ﻿using Bug.Common.Enums;
+using Bug.Common.DateTimeTools;
 using Bug.Logic.CacheService;
 using Bug.Logic.DomainModel;
 using Bug.Logic.Interfaces.Repository;
@@ -24,7 +25,8 @@ namespace Bug.Logic.Service.TableService
       Method? Method = await IMethodCache.GetAsync(httpVerb);
       if (Method is null)
       {
-        Method = new Method() { HttpVerb = httpVerb, Code = httpVerb.GetCode() };
+        var DateTimeNow = DateTimeOffset.Now.ToZulu();
+        Method = new Method() { Code = httpVerb, Created = DateTimeNow , Updated = DateTimeNow };
         IMethodRepository.Add(Method);
         await IMethodRepository.SaveChangesAsync();
         await IMethodCache.SetAsync(Method);

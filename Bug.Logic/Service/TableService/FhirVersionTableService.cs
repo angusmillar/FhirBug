@@ -27,7 +27,7 @@ namespace Bug.Logic.Service.TableService
         FhirVersion = new FhirVersion()
         {
           FhirMajorVersion = fhirMajorVersion,
-          VersionCode = fhirMajorVersion.GetCode()
+          Code = fhirMajorVersion.GetCode()
         };
         IFhirVersionRepository.Add(FhirVersion);
         await IFhirVersionRepository.SaveChangesAsync();

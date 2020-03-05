@@ -8,7 +8,7 @@ namespace Bug.Common.ApplicationConfig
 
   public class ServiceBaseUrl : IServiceBaseUrl
   {
-    private IFhirServerConfig IFhirServerConfig;
+    private readonly IFhirServerConfig IFhirServerConfig;
     public ServiceBaseUrl(IFhirServerConfig IFhirServerConfig)
     {
       this.IFhirServerConfig = IFhirServerConfig;

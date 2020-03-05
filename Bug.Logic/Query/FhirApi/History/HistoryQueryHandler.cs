@@ -9,32 +9,33 @@ using Bug.Logic.Service.ValidatorService;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Bug.Common.FhirTools.Bundle;
+using Bug.Common.DateTimeTools;
+using Bug.Common.Enums;
 
 namespace Bug.Logic.Query.FhirApi.History
 {
   public class HistoryQueryHandler : IQueryHandler<HistoryQuery, FhirApiResult>
   {
     private readonly IValidateQueryService IValidateQueryService;
-    private readonly IResourceStoreRepository IResourceStoreRepository;
-    private readonly IMethodTableService IMethodTableService;    
+    private readonly IResourceStoreRepository IResourceStoreRepository;    
     private readonly IFhirResourceParseJsonService IFhirResourceParseJsonService;
     private readonly IFhirResourceBundleSupport IFhirResourceBundleSupport;
+    private readonly IServerDateTimeSupport IServerDefaultDateTimeOffSet;
     private readonly IGZipper IGZipper;
-
 
     public HistoryQueryHandler(
       IValidateQueryService IValidateQueryService,
-      IResourceStoreRepository IResourceStoreRepository,      
-      IMethodTableService IMethodTableService,
+      IResourceStoreRepository IResourceStoreRepository,            
       IFhirResourceParseJsonService IFhirResourceParseJsonService,
       IFhirResourceBundleSupport IFhirResourceBundleSupport,
+      IServerDateTimeSupport IServerDefaultDateTimeOffSet,
       IGZipper IGZipper)
     {
       this.IValidateQueryService = IValidateQueryService;
-      this.IResourceStoreRepository = IResourceStoreRepository;      
-      this.IMethodTableService = IMethodTableService;
+      this.IResourceStoreRepository = IResourceStoreRepository;            
       this.IFhirResourceParseJsonService = IFhirResourceParseJsonService;
       this.IFhirResourceBundleSupport = IFhirResourceBundleSupport;
+      this.IServerDefaultDateTimeOffSet = IServerDefaultDateTimeOffSet;
       this.IGZipper = IGZipper;
     }
 
@@ -50,7 +51,6 @@ namespace Bug.Logic.Query.FhirApi.History
         };
       }
 
-      await IMethodTableService.GetSetMethod(query.Method);
 
       IList<ResourceStore> ResourceStoreList = await IResourceStoreRepository.GetHistoryListAsync(query.FhirMajorVersion, query.ResourceName, query.ResourceId);
 
@@ -67,12 +67,12 @@ namespace Bug.Logic.Query.FhirApi.History
         if (ResourceStore.ResourceBlob is object)
         {
           entry.Resource = IFhirResourceParseJsonService.ParseJson(ResourceStore.FhirVersion.FhirMajorVersion, IGZipper.Decompress(ResourceStore.ResourceBlob));
-        }
-        entry.Search = new BundleModel.EntryComponent.SearchComponent()
-        {
-          Mode = Common.Enums.SearchEntryMode.Match
+        }        
+        entry.Request = new BundleModel.RequestComponent(ResourceStore.FkMethodId, new System.Uri("https://blabla/Patient/1"));
+        entry.Response = new BundleModel.ResponseComponent($"{ResourceStore.HttpStatusCode.Code.ToString()} - {((int)ResourceStore.HttpStatusCode.Number).ToString()}")
+        {          
+          LastModified = IServerDefaultDateTimeOffSet.ZuluToServerTimeZone(ResourceStore.LastUpdated)
         };
-        entry.Request = new BundleModel.RequestComponent(ResourceStore.Method.HttpVerb, new System.Uri("https://blabla/Patient/1"));
       }
 
       return new FhirApiResult(System.Net.HttpStatusCode.OK, query.FhirMajorVersion)

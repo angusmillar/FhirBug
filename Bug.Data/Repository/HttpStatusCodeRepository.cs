@@ -12,14 +12,14 @@ using Bug.Common.Enums;
 
 namespace Bug.Data.Repository
 {
-  public class MethodRepository : Repository<Method>, IMethodRepository
+  public class HttpStatusCodeRepository : Repository<HttpStatusCode>, IHttpStatusCodeRepository
   {
-    public MethodRepository(AppDbContext context)
+    public HttpStatusCodeRepository(AppDbContext context)
       : base(context) { }
 
-    public async Task<Method?> GetBy(HttpVerb httpVerb)
+    public async Task<HttpStatusCode?> GetByCode(System.Net.HttpStatusCode httpStatusCode)
     {
-      return await DbSet.SingleOrDefaultAsync(x => x.Code == httpVerb);
+      return await DbSet.SingleOrDefaultAsync(x => x.Code == httpStatusCode.ToString());
     }
 
   }

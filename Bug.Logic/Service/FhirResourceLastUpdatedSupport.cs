@@ -30,7 +30,7 @@ namespace Bug.Logic.Service
       }
     }
 
-    public void SetLastUpdated(FhirResource fhirResource, DateTime dateTime)
+    public void SetLastUpdated(FhirResource fhirResource, DateTimeOffset dateTime)
     {
       switch (fhirResource.FhirMajorVersion)
       {

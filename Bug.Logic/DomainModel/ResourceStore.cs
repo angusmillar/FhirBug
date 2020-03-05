@@ -1,11 +1,12 @@
-﻿using System;
+﻿using Bug.Common.Enums;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace Bug.Logic.DomainModel
 {
   #pragma warning disable CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
-  public class ResourceStore : ModelBase
+  public class ResourceStore : BaseIntKey
   {
     public string ResourceId { get; set; }
     public int VersionId { get; set; }
@@ -17,8 +18,10 @@ namespace Bug.Logic.DomainModel
     public ResourceName ResourceName { get; set; }
     public int FkFhirVersionId { get; set; }
     public FhirVersion FhirVersion { get; set; }
-    public int FkMethodId { get; set; }
+    public HttpVerb FkMethodId { get; set; }
     public Method Method { get; set; }
+    public int FkHttpStatusCodeId { get; set; }
+    public HttpStatusCode HttpStatusCode { get; set; }
 
   }
 }

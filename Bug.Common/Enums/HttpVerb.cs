@@ -6,17 +6,17 @@ namespace Bug.Common.Enums
 {
   public enum HttpVerb
   {
-    [EnumInfo("GET", "Get")]
-    GET,
-    [EnumInfo("HEAD", "Head")]
-    HEAD,
     [EnumInfo("POST", "Post")]
-    POST,
+    POST = 1,
     [EnumInfo("PUT", "Put")]
-    PUT,
+    PUT = 2,
+    [EnumInfo("GET", "Get")]
+    GET = 3,
     [EnumInfo("DELETE", "Delete")]
-    DELETE,
+    DELETE = 4,
+    [EnumInfo("HEAD", "Head")]
+    HEAD = 5,
     [EnumInfo("PATCH", "Patch")]
-    PATCH
+    PATCH = 6
   };
 }

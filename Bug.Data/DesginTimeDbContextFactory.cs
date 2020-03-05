@@ -13,6 +13,7 @@ namespace Bug.Data
       var builder = new DbContextOptionsBuilder<AppDbContext>();
       var connectionString = config.GetConnectionString("MigrationDatabaseConnection");
       builder.UseNpgsql(connectionString);
+      builder.EnableSensitiveDataLogging();
       return new AppDbContext(builder.Options);
     }
   }

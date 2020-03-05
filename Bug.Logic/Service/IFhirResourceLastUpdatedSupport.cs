@@ -6,6 +6,6 @@ namespace Bug.Logic.Service
   public interface IFhirResourceLastUpdatedSupport
   {
     DateTimeOffset? GetLastUpdated(FhirResource fhirResource);
-    void SetLastUpdated(FhirResource fhirResource, DateTime dateTime);
+    void SetLastUpdated(FhirResource fhirResource, DateTimeOffset dateTime);
   }
 }

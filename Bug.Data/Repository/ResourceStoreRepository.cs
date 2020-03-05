@@ -7,7 +7,6 @@ using Bug.Data.Repository.Base;
 using Bug.Logic.DomainModel;
 using Bug.Logic.Interfaces.Repository;
 using System.Threading.Tasks;
-using Bug.Logic.DomainModel.Projection;
 using Bug.Common.Enums;
 //using System.Data.Entity;
 
@@ -49,7 +48,8 @@ namespace Bug.Data.Repository
         ResourceBlob = x.ResourceBlob,
         FhirVersion = x.FhirVersion,
         ResourceName = x.ResourceName,
-        Method = x.Method
+        FkMethodId = x.FkMethodId,        
+        HttpStatusCode = x.HttpStatusCode
       }).Where(y =>
         y.FhirVersion.FhirMajorVersion == fhirMajorVersion &
         y.ResourceName.Name == resourceName &

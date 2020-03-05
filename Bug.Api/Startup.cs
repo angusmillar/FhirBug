@@ -111,7 +111,10 @@ namespace Bug.Api
       //-- AppSettings Conofiguration Loading ---------------
       Common.ApplicationConfig.FhirServerConfig fhirServerConfig = Configuration.GetSection(typeof(Common.ApplicationConfig.FhirServerConfig).Name).Get<Common.ApplicationConfig.FhirServerConfig>();
       container.RegisterInstance<Common.ApplicationConfig.IFhirServerConfig>(fhirServerConfig);
-      container.Register<Common.ApplicationConfig.IServiceBaseUrl, Common.ApplicationConfig.ServiceBaseUrl>(Lifestyle.Singleton);
+      container.RegisterInstance<Common.ApplicationConfig.IServerDefaultTimeZoneTimeSpan>(fhirServerConfig);
+      container.Register<Common.ApplicationConfig.IServiceBaseUrl, Common.ApplicationConfig.ServiceBaseUrl>(Lifestyle.Singleton);      
+      container.Register<Common.DateTimeTools.IServerDateTimeSupport, Common.DateTimeTools.ServerDateTimeSupport>(Lifestyle.Singleton);
+
       container.Register<Bug.Api.ActionResults.IActionResultFactory, Bug.Api.ActionResults.ActionResultFactory>(Lifestyle.Singleton);
       
 
@@ -227,7 +230,9 @@ namespace Bug.Api
       container.Register<Logic.CacheService.IResourceNameCache, Logic.CacheService.ResourceNameCache>(Lifestyle.Scoped);
       container.Register<Logic.CacheService.IFhirVersionCache, Logic.CacheService.FhirVersionCache>(Lifestyle.Scoped);
       container.Register<Logic.CacheService.IMethodCache, Logic.CacheService.MethodCache>(Lifestyle.Scoped);
+      container.Register<Logic.CacheService.IHttpStatusCodeCache, Logic.CacheService.HttpStatusCodeCache>(Lifestyle.Scoped);
 
+      
       //Table Service
       container.Register<Logic.Service.TableService.IResourceNameTableService, Logic.Service.TableService.ResourceNameTableService>(Lifestyle.Scoped);
       container.Register<Logic.Service.TableService.IFhirVersionTableService, Logic.Service.TableService.FhirVersionTableService>(Lifestyle.Scoped);
@@ -239,11 +244,8 @@ namespace Bug.Api
       container.Register<IResourceNameRepository, Bug.Data.Repository.ResourceNameRepository>(Lifestyle.Scoped);
       container.Register<IFhirVersionRepository, Bug.Data.Repository.FhirVersionRepository>(Lifestyle.Scoped);
       container.Register<IMethodRepository, Bug.Data.Repository.MethodRepository>(Lifestyle.Scoped);
+      container.Register<IHttpStatusCodeRepository, Bug.Data.Repository.HttpStatusCodeRepository>(Lifestyle.Scoped);
       
-
-
-
-
       //container.Register<Bug.Stu3Fhir.ResourceSupport.IResourceNameSupport, Bug.Stu3Fhir.ResourceSupport.ResourceNameSupport>(Lifestyle.Scoped);
       //container.Register<Bug.R4Fhir.ResourceSupport.IResourceNameSupport, Bug.R4Fhir.ResourceSupport.ResourceNameSupport>(Lifestyle.Scoped);
 

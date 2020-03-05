@@ -13,26 +13,19 @@ namespace Bug.Logic.Query.FhirApi.Read
   public class ReadQueryHandler : IQueryHandler<ReadQuery, FhirApiResult>
   {
     private readonly IValidateQueryService IValidateQueryService;
-    private readonly IResourceStoreRepository IResourceStoreRepository;
-    private readonly IMethodTableService IMethodTableService;
-    private readonly IFhirVersionTableService IFhirVersionTableService;
+    private readonly IResourceStoreRepository IResourceStoreRepository;    
     private readonly IFhirResourceParseJsonService IFhirResourceParseJsonService;
     private readonly IGZipper IGZipper;
 
 
     public ReadQueryHandler(
       IValidateQueryService IValidateQueryService,
-      IResourceStoreRepository IResourceStoreRepository,
-      IResourceNameTableService IResourceNameTableService,
-      IFhirVersionTableService IFhirVersionTableService,
-      IMethodTableService IMethodTableService,
+      IResourceStoreRepository IResourceStoreRepository,                  
       IFhirResourceParseJsonService IFhirResourceParseJsonService,
       IGZipper IGZipper)
     {
       this.IValidateQueryService = IValidateQueryService;
-      this.IResourceStoreRepository = IResourceStoreRepository;
-      this.IFhirVersionTableService = IFhirVersionTableService;
-      this.IMethodTableService = IMethodTableService;
+      this.IResourceStoreRepository = IResourceStoreRepository;            
       this.IFhirResourceParseJsonService = IFhirResourceParseJsonService;
       this.IGZipper = IGZipper;
     }
@@ -49,8 +42,6 @@ namespace Bug.Logic.Query.FhirApi.Read
           VersionId = null
         };
       }
-
-      Method Method = await IMethodTableService.GetSetMethod(query.Method);
 
       ResourceStore? ResourceStore = await IResourceStoreRepository.GetCurrentAsync(query.FhirMajorVersion, query.ResourceName, query.ResourceId);
 
