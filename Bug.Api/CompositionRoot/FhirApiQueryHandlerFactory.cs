@@ -3,7 +3,9 @@ using Bug.Logic.Query;
 using Bug.Logic.Query.FhirApi;
 using Bug.Logic.Query.FhirApi.Create;
 using Bug.Logic.Query.FhirApi.Delete;
-using Bug.Logic.Query.FhirApi.History;
+using Bug.Logic.Query.FhirApi.HistoryBase;
+using Bug.Logic.Query.FhirApi.HistoryInstance;
+using Bug.Logic.Query.FhirApi.HistoryResource;
 using Bug.Logic.Query.FhirApi.Read;
 using Bug.Logic.Query.FhirApi.Update;
 using Bug.Logic.Query.FhirApi.VRead;
@@ -37,14 +39,24 @@ namespace Bug.Api.CompositionRoot
       return (IQueryHandler<VReadQuery, FhirApiResult>)_container.GetInstance(typeof(IQueryHandler<VReadQuery, FhirApiResult>));
     }
 
-    public IQueryHandler<HistoryQuery, FhirApiResult> GetHistoryCommand()
+    public IQueryHandler<HistoryInstanceQuery, FhirApiResult> GetHistoryInstanceCommand()
     {
-      return (IQueryHandler<HistoryQuery, FhirApiResult>)_container.GetInstance(typeof(IQueryHandler<HistoryQuery, FhirApiResult>));
+      return (IQueryHandler<HistoryInstanceQuery, FhirApiResult>)_container.GetInstance(typeof(IQueryHandler<HistoryInstanceQuery, FhirApiResult>));
+    }
+    public IQueryHandler<HistoryResourceQuery, FhirApiResult> GetHistoryResourceCommand()
+    {
+      return (IQueryHandler<HistoryResourceQuery, FhirApiResult>)_container.GetInstance(typeof(IQueryHandler<HistoryResourceQuery, FhirApiResult>));
+    }
+    public IQueryHandler<HistoryBaseQuery, FhirApiResult> GetHistoryBaseCommand()
+    {
+      return (IQueryHandler<HistoryBaseQuery, FhirApiResult>)_container.GetInstance(typeof(IQueryHandler<HistoryBaseQuery, FhirApiResult>));
     }
 
     public IQueryHandler<DeleteQuery, FhirApiResult> GetDeleteCommand()
     {
       return (IQueryHandler<DeleteQuery, FhirApiResult>)_container.GetInstance(typeof(IQueryHandler<DeleteQuery, FhirApiResult>));
     }
+
+
   }
 }

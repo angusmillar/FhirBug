@@ -87,7 +87,7 @@ namespace Bug.Api.Controllers
 
     // GET: stu3/fhir/Patient/100/_history/2
     [HttpGet, Route("{resourceName}/{resourceId}/_history/{versionId}")]
-    public async Task<ActionResult<Stu3Model.Resource>> GetHistoryVersion(string resourceName, string resourceId, int versionId)
+    public async Task<ActionResult<Stu3Model.Resource>> GetVRead(string resourceName, string resourceId, int versionId)
     {
       var Query = new Logic.Query.FhirApi.VRead.VReadQuery(
        HttpVerb.PUT,
@@ -107,9 +107,9 @@ namespace Bug.Api.Controllers
 
     // GET: stu3/fhir/Patient/100/_history/2
     [HttpGet, Route("{resourceName}/{resourceId}/_history")]
-    public async Task<ActionResult<Stu3Model.Resource>> GetHistory(string resourceName, string resourceId)
+    public async Task<ActionResult<Stu3Model.Resource>> GetHistoryInstance(string resourceName, string resourceId)
     {
-      var Query = new Logic.Query.FhirApi.History.HistoryQuery(
+      var Query = new Logic.Query.FhirApi.HistoryInstance.HistoryInstanceQuery(
        HttpVerb.PUT,
        _ControllerFhirVersion,
        this.Request.GetUrl(),
@@ -118,12 +118,46 @@ namespace Bug.Api.Controllers
        resourceId
        );
 
-      var ReadQueryHandler = this.IFhirApiQueryHandlerFactory.GetHistoryCommand();
+      var ReadQueryHandler = this.IFhirApiQueryHandlerFactory.GetHistoryInstanceCommand();
       FhirApiResult Result = await ReadQueryHandler.Handle(Query);
 
       return IActionResultFactory.GetActionResult(Result);
     }
 
+    // GET: stu3/fhir/Patient/100/_history
+    [HttpGet, Route("{resourceName}/_history")]
+    public async Task<ActionResult<Stu3Model.Resource>> GetHistoryResource(string resourceName)
+    {
+      var Query = new Logic.Query.FhirApi.HistoryResource.HistoryResourceQuery(
+       HttpVerb.PUT,
+       _ControllerFhirVersion,
+       this.Request.GetUrl(),
+       new Dictionary<string, StringValues>(this.Request.Headers),
+       resourceName   
+       );
+
+      var ReadQueryHandler = this.IFhirApiQueryHandlerFactory.GetHistoryResourceCommand();
+      FhirApiResult Result = await ReadQueryHandler.Handle(Query);
+
+      return IActionResultFactory.GetActionResult(Result);
+    }
+
+    // GET: stu3/fhir/_history
+    [HttpGet, Route("_history")]
+    public async Task<ActionResult<Stu3Model.Resource>> GetHistoryBase()
+    {
+      var Query = new Logic.Query.FhirApi.HistoryBase.HistoryBaseQuery(
+       HttpVerb.PUT,
+       _ControllerFhirVersion,
+       this.Request.GetUrl(),
+       new Dictionary<string, StringValues>(this.Request.Headers)       
+       );
+
+      var ReadQueryHandler = this.IFhirApiQueryHandlerFactory.GetHistoryBaseCommand();
+      FhirApiResult Result = await ReadQueryHandler.Handle(Query);
+
+      return IActionResultFactory.GetActionResult(Result);
+    }
 
     // GET: stu3/fhir/Patient
     //[HttpGet, Route("{resourceName}")]

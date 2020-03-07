@@ -13,35 +13,39 @@ using Bug.Common.DateTimeTools;
 using Bug.Common.Enums;
 using Bug.Common.ApplicationConfig;
 using System;
+using Bug.Logic.Service.FhirResourceService;
 
-namespace Bug.Logic.Query.FhirApi.History
+namespace Bug.Logic.Query.FhirApi.HistoryInstance
 {
-  public class HistoryQueryHandler : IQueryHandler<HistoryQuery, FhirApiResult>
+  public class HistoryInstanceQueryHandler : IQueryHandler<HistoryInstanceQuery, FhirApiResult>
   {
     private readonly IValidateQueryService IValidateQueryService;
     private readonly IResourceStoreRepository IResourceStoreRepository;    
     private readonly IFhirResourceParseJsonService IFhirResourceParseJsonService;
     private readonly IFhirResourceBundleSupport IFhirResourceBundleSupport;
-    private readonly IServerDateTimeSupport IServerDefaultDateTimeOffSet;    
+    private readonly IServerDateTimeSupport IServerDateTimeSupport;
     private readonly IGZipper IGZipper;
+    private readonly IHistoryBundleService IHistoryBundleService;
 
-    public HistoryQueryHandler(
+    public HistoryInstanceQueryHandler(
       IValidateQueryService IValidateQueryService,
       IResourceStoreRepository IResourceStoreRepository,            
       IFhirResourceParseJsonService IFhirResourceParseJsonService,
       IFhirResourceBundleSupport IFhirResourceBundleSupport,
-      IServerDateTimeSupport IServerDefaultDateTimeOffSet,      
-      IGZipper IGZipper)
+      IServerDateTimeSupport IServerDateTimeSupport,      
+      IGZipper IGZipper,
+      IHistoryBundleService IHistoryBundleService)
     {
       this.IValidateQueryService = IValidateQueryService;
       this.IResourceStoreRepository = IResourceStoreRepository;            
       this.IFhirResourceParseJsonService = IFhirResourceParseJsonService;
       this.IFhirResourceBundleSupport = IFhirResourceBundleSupport;
-      this.IServerDefaultDateTimeOffSet = IServerDefaultDateTimeOffSet;      
+      this.IServerDateTimeSupport = IServerDateTimeSupport;      
       this.IGZipper = IGZipper;
+      this.IHistoryBundleService = IHistoryBundleService;
     }
 
-    public async Task<FhirApiResult> Handle(HistoryQuery query)
+    public async Task<FhirApiResult> Handle(HistoryInstanceQuery query)
     {
       if (!IValidateQueryService.IsValid(query, out FhirResource? IsNotValidOperationOutCome))
       {
@@ -54,35 +58,11 @@ namespace Bug.Logic.Query.FhirApi.History
       }
 
 
-      IList<ResourceStore> ResourceStoreList = await IResourceStoreRepository.GetHistoryListAsync(query.FhirVersion, query.ResourceName, query.ResourceId);
+      IList<ResourceStore> ResourceStoreList = await IResourceStoreRepository.GetInstanceHistoryListAsync(query.FhirVersion, query.ResourceName, query.ResourceId);
 
       //Construct the History Bundle
-      var BundleModel = new BundleModel(BundleType.History)
-      {
-        Total = ResourceStoreList.Count
-      };
-      BundleModel.Entry = new List<BundleModel.EntryComponent>();
-      foreach (var ResourceStore in ResourceStoreList)
-      {
-        var entry = new BundleModel.EntryComponent();
-        BundleModel.Entry.Add(entry);        
-        if (ResourceStore.ResourceBlob is object)
-        {
-          entry.Resource = IFhirResourceParseJsonService.ParseJson(ResourceStore.FkFhirVersionId, IGZipper.Decompress(ResourceStore.ResourceBlob));
-        }
-
-        string RequestUrl = ResourceStore.ResourceName.Name;       
-        if (ResourceStore.FkMethodId == HttpVerb.PUT || ResourceStore.FkMethodId == HttpVerb.DELETE)
-        {
-          RequestUrl = $"{RequestUrl}/{ResourceStore.ResourceId}";
-        }                
-        entry.Request = new BundleModel.RequestComponent(ResourceStore.FkMethodId, RequestUrl);
-        entry.Response = new BundleModel.ResponseComponent($"{ResourceStore.HttpStatusCode.Code.ToString()} - {((int)ResourceStore.HttpStatusCode.Number).ToString()}")
-        {          
-          LastModified = IServerDefaultDateTimeOffSet.ZuluToServerTimeZone(ResourceStore.LastUpdated)
-        };
-      }
-
+      var BundleModel = IHistoryBundleService.GetHistoryBundleModel(ResourceStoreList);
+      
       return new FhirApiResult(System.Net.HttpStatusCode.OK, query.FhirVersion)
       {
         FhirResource = IFhirResourceBundleSupport.GetFhirResource(query.FhirVersion, BundleModel)

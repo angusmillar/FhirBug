@@ -6,13 +6,35 @@ using Bug.Logic.Interfaces.CompositionRoot;
 using System;
 using System.Linq;
 
-#nullable disable
 namespace Bug.Logic.UriSupport
 {
   public enum UrnType { uuid, oid };
 
   public class FhirUri : IFhirUri
   {
+    public FhirUri(FhirVersion fhirVersion)
+    {
+      this.FhirVersion = fhirVersion;
+      this.ParseErrorMessage = string.Empty;
+      this.ErrorInParseing = false;
+      this.ResourseName = string.Empty;
+      this.CompartmentalisedResourseName = string.Empty;
+      this.ResourseName = string.Empty;
+      this.ResourceId = string.Empty;
+      this.VersionId = string.Empty;
+      this.OperationName = string.Empty;
+      this.Query = string.Empty;
+      this.OriginalString = string.Empty;
+      this.IsUrn = false;
+      this.Urn = string.Empty;
+      this.IsFormDataSearch = false;
+      this.IsRelativeToServer = false;
+      this.IsContained = false;
+      this.IsCompartment = false;
+      this.IsMetaData = false;
+      this.IsHistoryReferance = false;
+    }
+
     public string ParseErrorMessage { get; set; }
     public bool ErrorInParseing { get; set; }
     public string ResourseName { get; set; }
@@ -44,14 +66,32 @@ namespace Bug.Logic.UriSupport
       get
       {
         if (this.IsRelativeToServer)
-          return this.PrimaryServiceRootServers;
+        {
+          if (this.PrimaryServiceRootServers is object)
+          {
+            return this.PrimaryServiceRootServers;
+          }
+          else
+          {
+            throw new ArgumentNullException(nameof(this.PrimaryServiceRootServers));
+          }          
+        }          
         else
-          return this.PrimaryServiceRootRemote;
+        {
+          if (this.PrimaryServiceRootRemote is object)
+          {
+            return this.PrimaryServiceRootRemote;
+          }
+          else
+          {
+            throw new ArgumentNullException(nameof(this.PrimaryServiceRootServers));
+          }          
+        }          
       }
     }
-    public Uri PrimaryServiceRootRemote { get; set; }
-    public Uri PrimaryServiceRootServers { get; set; }
-    public FhirVersion FhirMajorVersion { get; set; }
+    public Uri? PrimaryServiceRootRemote { get; set; }
+    public Uri? PrimaryServiceRootServers { get; set; }
+    public FhirVersion FhirVersion { get; set; }
   }
 }
 

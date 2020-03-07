@@ -10,6 +10,7 @@ using Xunit;
 using Bug.Common.Enums;
 using Bug.Logic.Interfaces.CompositionRoot;
 using Bug.Logic.Query;
+using Bug.Common.FhirTools;
 
 namespace Bug.Test.Logic
 {
@@ -29,9 +30,9 @@ namespace Bug.Test.Logic
 
 
     //[Theory]
-    //[InlineData("Dummy Resource", "5", "1", FhirMajorVersion.Stu3)]
-    //[InlineData("Dummy Resource", "6", "4", FhirMajorVersion.R4)]
-    //public async void CreateCommandHandler(string Resource, string ResourceId, string ResourceVersionId, FhirMajorVersion FhirMajorVersion)
+    //[InlineData("Dummy Resource", "5", "1", FhirVersion.Stu3)]
+    //[InlineData("Dummy Resource", "6", "4", FhirVersion.R4)]
+    //public async void CreateCommandHandler(string Resource, string ResourceId, string ResourceVersionId, FhirVersion FhirMajorVersion)
     //{
     //  // Prepare
     //  Mock<IResourceStoreRepository> IResourceStoreRepositoryMock = new Mock<IResourceStoreRepository>();
@@ -40,11 +41,11 @@ namespace Bug.Test.Logic
 
     //  Mock<IStu3SerializationToJsonBytes> IStu3SerializationToJsonBytesMock = new Mock<IStu3SerializationToJsonBytes>();
     //  IStu3SerializationToJsonBytesMock.Setup(x =>
-    //  x.SerializeToJsonBytes(It.IsAny<object>(), It.IsAny<SummaryType>())).Returns(new byte[10]);
+    //  x.SerializeToJsonBytes(It.IsAny<IFhirResourceStu3>(), It.IsAny<SummaryType>())).Returns(new byte[10]);
 
     //  Mock<IR4SerializationToJsonBytes> IR4SerializationToJsonBytesMock = new Mock<IR4SerializationToJsonBytes>();
     //  IR4SerializationToJsonBytesMock.Setup(x =>
-    //  x.SerializeToJsonBytes(It.IsAny<object>(), It.IsAny<SummaryType>())).Returns(new byte[10]);
+    //  x.SerializeToJsonBytes(It.IsAny<IFhirResourceR4>(), It.IsAny<SummaryType>())).Returns(new byte[10]);
 
     //  Mock<IGZipper> IGZipperMock = new Mock<IGZipper>();
     //  IGZipperMock.Setup(x =>
@@ -102,7 +103,7 @@ namespace Bug.Test.Logic
 
     //  // Act
     //  var CommandDecorator = new CreateDataCollectionDecorator<CreateQuery, FhirApiResult>(ICommandHandlerMock.Object, IFhirResourceIdSupportFactoryMock.Object, IFhirResourceVersionSupportFactoryMock.Object, IFhirResourceLastUpdatedSupportFactoryMock.Object);
-      
+
     //  CreateQuery CreateCommand = new CreateQuery()
     //  {       
     //    FhirMajorVersion = FhirMajorVersion,     

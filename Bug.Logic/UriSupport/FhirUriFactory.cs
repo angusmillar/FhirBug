@@ -33,16 +33,13 @@ namespace Bug.Logic.UriSupport
     private const string _HttpName = "http";
     private const string _HttpsName = "https";
 
-    public bool TryParse(string requestUri, FhirVersion fhirMajorVersion, out IFhirUri? fhirUri, out string errorMessage)
+    public bool TryParse(string requestUri, FhirVersion fhirVersion, out IFhirUri? fhirUri, out string errorMessage)
     {
-      FhirUri fhirUriParse = new FhirUri
+      FhirUri fhirUriParse = new FhirUri(fhirVersion)
       {
-        PrimaryServiceRootServers = this.IServiceBaseUrl.Url(fhirMajorVersion),
-        FhirMajorVersion = fhirMajorVersion,
-        IsCompartment = false,
-        ParseErrorMessage = string.Empty,
-        ErrorInParseing = false
+        PrimaryServiceRootServers = this.IServiceBaseUrl.Url(fhirVersion),        
       };
+
       if (ProcessRequestUri(System.Net.WebUtility.UrlDecode(requestUri), fhirUriParse))
       {
         fhirUri = fhirUriParse;
@@ -107,12 +104,12 @@ namespace Bug.Logic.UriSupport
     private string ResolvePrimaryServiceRoot(string RequestUri, FhirUri fhirUri)
     {
       string RequestRelativePath;
-      if (RequestUri.StripHttp().ToLower().StartsWith(fhirUri.PrimaryServiceRootServers.OriginalString.StripHttp()))
+      if (RequestUri.StripHttp().ToLower().StartsWith(fhirUri.PrimaryServiceRootServers!.OriginalString.StripHttp()))
       {
         //If the request URL starts with our known servers root then cut it off and return relative part , job done.
         fhirUri.IsRelativeToServer = true;
         RequestUri = RequestUri.StripHttp();
-        string PrimaryServiceRootServers = fhirUri.PrimaryServiceRootServers.OriginalString.StripHttp();
+        string PrimaryServiceRootServers = fhirUri.PrimaryServiceRootServers!.OriginalString.StripHttp();
         RequestRelativePath = RequestUri.Substring(PrimaryServiceRootServers.Count(), RequestUri.Count() - PrimaryServiceRootServers.Count());
         if (RequestRelativePath.StartsWith("/"))
           RequestRelativePath = RequestRelativePath.TrimStart('/');
@@ -256,7 +253,7 @@ namespace Bug.Logic.UriSupport
         var Split = value.Split('/');
         foreach (string Segment in Split)
         {
-          if (fhirUri.ResourceId == null)
+          if (string.IsNullOrWhiteSpace(fhirUri.ResourceId))
           {
             //Resource Id
             if (Segment.StartsWith("#"))
@@ -292,7 +289,7 @@ namespace Bug.Logic.UriSupport
           }
           else
           {
-            if (!fhirUri.IsOperation && fhirUri.ResourceId != null && Segment.StartsWith("$"))
+            if (!fhirUri.IsOperation && !string.IsNullOrWhiteSpace(fhirUri.ResourceId) && Segment.StartsWith("$"))
             {
               //A Resource Instance $operation e.g (base/Patient/10/$operation)              
               fhirUri.OperationType = OperationScope.Instance;
@@ -338,17 +335,17 @@ namespace Bug.Logic.UriSupport
     private bool IsResourceTypeString(string value, FhirUri fhirUri)
     {
       //This is a valid Resource Type string   
-      if (fhirUri.FhirMajorVersion == FhirVersion.Stu3)
+      if (fhirUri.FhirVersion == FhirVersion.Stu3)
       {
         return IResourceNameSupportFactory.GetStu3().IsKnownResource(value);
       }
-      else if (fhirUri.FhirMajorVersion == FhirVersion.R4)
+      else if (fhirUri.FhirVersion == FhirVersion.R4)
       {
         return IResourceNameSupportFactory.GetR4().IsKnownResource(value);
       }
       else
       {
-        throw new Bug.Common.Exceptions.FhirVersionFatalException(fhirUri.FhirMajorVersion);
+        throw new Bug.Common.Exceptions.FhirVersionFatalException(fhirUri.FhirVersion);
       }
     }
     private string GenerateIncorrectResourceNameMessage(string ResourceName, FhirUri fhirUri)
@@ -359,7 +356,7 @@ namespace Bug.Logic.UriSupport
       }
       else if (ResourceName.ToLower() == "conformance")
       {
-        return $"The resource name given '{ResourceName}' is not a resource supported by the .net FHIR API Version: {fhirUri.FhirMajorVersion.GetCode()}. Perhaps you wish to find the server's conformance statement resource named 'CapabilityStatement' which can be obtained from the endpoint '[base]/metadata' ";
+        return $"The resource name given '{ResourceName}' is not a resource supported by the .net FHIR API Version: {fhirUri.FhirVersion.GetCode()}. Perhaps you wish to find the server's conformance statement resource named 'CapabilityStatement' which can be obtained from the endpoint '[base]/metadata' ";
       }
       else
       {
@@ -371,12 +368,12 @@ namespace Bug.Logic.UriSupport
           }
           else
           {
-            return $"The resource name or Compartment name given '{ResourceName}' is not a Resource supported by the .net FHIR API Version: {fhirUri.FhirMajorVersion.GetCode()}.";
+            return $"The resource name or Compartment name given '{ResourceName}' is not a Resource supported by the .net FHIR API Version: {fhirUri.FhirVersion.GetCode()}.";
           }
         }
         else
         {
-          return $"The resource name or compartment is not supported for this FHIR version. The resource name found in the URI was {fhirUri.ResourseName} and the version of FHIR used was {fhirUri.FhirMajorVersion.GetCode()}. Remember that FHIR resource names are case sensitive."; ;
+          return $"The resource name or compartment is not supported for this FHIR version. The resource name found in the URI was {fhirUri.ResourseName} and the version of FHIR used was {fhirUri.FhirVersion.GetCode()}. Remember that FHIR resource names are case sensitive."; ;
         }
       }
     }

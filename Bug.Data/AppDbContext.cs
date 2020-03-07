@@ -61,8 +61,13 @@ namespace Bug.Data
 
         //Ensure that no two resources have the same ResourceId, VersionId, for the same FHIR Version and Resource Name
         entity.HasIndex(x => new { x.FkFhirVersionId, x.FkResourceNameId, x.ResourceId, x.VersionId, } )
-        .HasName("Unique_FhirVer_ResName_ResId_ResVer")
-        .IsUnique();
+          .HasName("UniqueIx_FhirVer_ResName_ResId_ResVer")
+          .IsUnique();
+
+        //We offtern order by LastUpdated
+        entity.HasIndex(x => new { x.LastUpdated })
+          .HasName("Ix_LastUpdated");
+
       });
 
       builder.Entity<ResourceName>(entity =>
