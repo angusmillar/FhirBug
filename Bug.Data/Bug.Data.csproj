@@ -6,6 +6,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Migrations\20200305143126_First.cs" />
+    <Compile Remove="Migrations\20200305143126_First.Designer.cs" />
+    <Compile Remove="Migrations\20200309083913_First.cs" />
+    <Compile Remove="Migrations\20200309083913_First.Designer.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Hosting.Abstractions" Version="2.2.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.1.1">

@@ -64,7 +64,7 @@ namespace Bug.Api
       services.AddMemoryCache();
 
       //These services are added to the .Net Core DI framework as they are required for a Middleware component
-      //they are later auto crosswired to the simpleinjector container
+      //they are later auto cross-wired to the simpleinjector container
       services.AddSingleton<Bug.Stu3Fhir.Serialization.IStu3SerializationToJson, Bug.Stu3Fhir.Serialization.SerializationSupport>();
       services.AddSingleton<Bug.Stu3Fhir.Serialization.IStu3SerializationToXml, Bug.Stu3Fhir.Serialization.SerializationSupport>();
       services.AddSingleton<Bug.R4Fhir.Serialization.IR4SerializationToJson, Bug.R4Fhir.Serialization.SerializationSupport>();
