@@ -25,7 +25,7 @@ namespace Bug.Logic.UriSupport
     string Query { get; }
     string ResourceId { get; }
     string ResourseName { get; }
-    Uri UriPrimaryServiceRoot { get; }
+    Uri? UriPrimaryServiceRoot { get; }
     string Urn { get; }
     UrnType? UrnType { get; }
     string VersionId { get; }

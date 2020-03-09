@@ -110,7 +110,7 @@ namespace Bug.Logic.Service.ValidatorService
           return false;
         }
 
-        //Check the FHIR Resource's name equals the query proptery ResourceName (should never fail but worth checking)
+        //Check the FHIR Resource's name equals the query property ResourceName (should never fail but worth checking)
         if (!ResourceName.Equals(createQuery.ResourceName, StringComparison.CurrentCulture))
         {
           string message = $"The resource provided in the body of the request does not match the resource type found on the {nameof(createQuery)}. The resource in the body was of type: {ResourceName} and the {nameof(createQuery)} stated the type: {createQuery.ResourceName}. The full URL was: {FhirUri.OriginalString}";
@@ -146,7 +146,7 @@ namespace Bug.Logic.Service.ValidatorService
           return false;
         }
 
-        //Check the FHIR Resource's name equals the query proptery ResourceName (should never fail but worth checking)
+        //Check the FHIR Resource's name equals the query property ResourceName (should never fail but worth checking)
         if (!ResourceName.Equals(updateQuery.ResourceName, StringComparison.CurrentCulture))
         {
           string message = $"The resource provided in the body of the request does not match the resource type found on the {nameof(updateQuery)}. The resource in the body was of type: {ResourceName} and the {nameof(updateQuery)} stated the type: {updateQuery.ResourceName}. The full URL was: {FhirUri.OriginalString}";

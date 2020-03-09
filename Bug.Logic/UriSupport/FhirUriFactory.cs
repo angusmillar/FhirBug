@@ -35,10 +35,7 @@ namespace Bug.Logic.UriSupport
 
     public bool TryParse(string requestUri, FhirVersion fhirVersion, out IFhirUri? fhirUri, out string errorMessage)
     {
-      FhirUri fhirUriParse = new FhirUri(fhirVersion)
-      {
-        PrimaryServiceRootServers = this.IServiceBaseUrl.Url(fhirVersion),        
-      };
+      FhirUri fhirUriParse = new FhirUri(fhirVersion, this.IServiceBaseUrl.Url(fhirVersion));      
 
       if (ProcessRequestUri(System.Net.WebUtility.UrlDecode(requestUri), fhirUriParse))
       {
@@ -104,7 +101,7 @@ namespace Bug.Logic.UriSupport
     private string ResolvePrimaryServiceRoot(string RequestUri, FhirUri fhirUri)
     {
       string RequestRelativePath;
-      if (RequestUri.StripHttp().ToLower().StartsWith(fhirUri.PrimaryServiceRootServers!.OriginalString.StripHttp()))
+      if (RequestUri.StripHttp().ToLower().StartsWith(fhirUri.PrimaryServiceRootServers!.OriginalString.StripHttp().ToLower()))
       {
         //If the request URL starts with our known servers root then cut it off and return relative part , job done.
         fhirUri.IsRelativeToServer = true;
@@ -138,6 +135,11 @@ namespace Bug.Logic.UriSupport
           else if (Segment.ToLower() == _MetadataName)
           {
             //metadate segment found
+            break;
+          }
+          else if (Segment.ToLower() == _HistoryName)
+          {
+            //_history segment found
             break;
           }
           RemotePrimaryServiceRoot = String.Join("/", RemotePrimaryServiceRoot, Segment);
@@ -181,8 +183,7 @@ namespace Bug.Logic.UriSupport
       }
       else
       {
-        //The path has not Primary root and is a relative URI
-        fhirUri.IsRelativeToServer = true;
+        //The path has not Primary root, it maybe just an Id without a ResourceName, work this out later on       
         RequestRelativePath = RequestUri;
         return RequestRelativePath;
       }
@@ -216,6 +217,13 @@ namespace Bug.Logic.UriSupport
           //This is a metadata request
           fhirUri.IsMetaData = true;
           Remainder = RequestRelativePath.Substring(_MetadataName.Count(), RequestRelativePath.Count() - _MetadataName.Count());
+          return RemoveStartsWithSlash(Remainder);
+        }
+        else if (Segment.ToLower() == _HistoryName)
+        {
+          //This is a metadata request
+          fhirUri.IsHistoryReferance = true;
+          Remainder = RequestRelativePath.Substring(_HistoryName.Count(), RequestRelativePath.Count() - _HistoryName.Count());
           return RemoveStartsWithSlash(Remainder);
         }
         else if (SplitParts.Count() > 1 || fhirUri.OriginalString.Contains('/'))
@@ -284,6 +292,18 @@ namespace Bug.Logic.UriSupport
             {
               //Normal Resource Id
               fhirUri.ResourceId = Segment;
+              if (string.IsNullOrEmpty(fhirUri.ResourseName) || fhirUri.IsContained)
+              {
+                fhirUri.IsRelativeToServer = false;
+              }
+              else if (fhirUri.PrimaryServiceRootRemote is object && fhirUri.PrimaryServiceRootRemote.OriginalString.StripHttp().ToLower() != fhirUri.PrimaryServiceRootServers.OriginalString.StripHttp().ToLower())
+              {
+                fhirUri.IsRelativeToServer = false;
+              }
+              else
+              {
+                fhirUri.IsRelativeToServer = true;
+              }
               Remainder = RemoveStartsWithSlash(Remainder.Substring(fhirUri.ResourceId.Count(), Remainder.Count() - fhirUri.ResourceId.Count()));
             }
           }
@@ -350,11 +370,11 @@ namespace Bug.Logic.UriSupport
     }
     private string GenerateIncorrectResourceNameMessage(string ResourceName, FhirUri fhirUri)
     {      
-      if (ResourceName.ToLower() == "_history")
-      {
-        return $"This server has not implemented the whole system Interaction of history. Instance level history is implemented, for example '[base]/Patient/1/_history'";
-      }
-      else if (ResourceName.ToLower() == "conformance")
+      //if (ResourceName.ToLower() == "_history")
+      //{
+      //  return $"This server has not implemented the whole system Interaction of history. Instance level history is implemented, for example '[base]/Patient/1/_history'";
+      //}
+      if (ResourceName.ToLower() == "conformance")
       {
         return $"The resource name given '{ResourceName}' is not a resource supported by the .net FHIR API Version: {fhirUri.FhirVersion.GetCode()}. Perhaps you wish to find the server's conformance statement resource named 'CapabilityStatement' which can be obtained from the endpoint '[base]/metadata' ";
       }

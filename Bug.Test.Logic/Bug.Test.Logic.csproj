@@ -16,6 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Bug.Common\Bug.Common.csproj" />
     <ProjectReference Include="..\Bug.Logic\Bug.Logic.csproj" />
   </ItemGroup>
 

@@ -108,13 +108,12 @@ namespace Bug.Api
     {
       //############## Singleton ###############################################################################
 
-      //-- AppSettings Conofiguration Loading ---------------
+      //-- AppSettings Configuration Loading ---------------
       Common.ApplicationConfig.FhirServerConfig fhirServerConfig = Configuration.GetSection(typeof(Common.ApplicationConfig.FhirServerConfig).Name).Get<Common.ApplicationConfig.FhirServerConfig>();
       container.RegisterInstance<Common.ApplicationConfig.IFhirServerConfig>(fhirServerConfig);
       container.RegisterInstance<Common.ApplicationConfig.IServerDefaultTimeZoneTimeSpan>(fhirServerConfig);
       container.Register<Common.ApplicationConfig.IServiceBaseUrl, Common.ApplicationConfig.ServiceBaseUrl>(Lifestyle.Singleton);      
       container.Register<Common.DateTimeTools.IServerDateTimeSupport, Common.DateTimeTools.ServerDateTimeSupport>(Lifestyle.Singleton);
-
       container.Register<Bug.Api.ActionResults.IActionResultFactory, Bug.Api.ActionResults.ActionResultFactory>(Lifestyle.Singleton);
       
 
@@ -140,11 +139,10 @@ namespace Bug.Api
 
       //-- Thread safe Tools ---------------      
       container.Register<Bug.Common.Compression.IGZipper, Bug.Common.Compression.GZipper>(Lifestyle.Singleton);
-      container.Register<Bug.Common.FhirTools.IResourceVersionIdSupport, Bug.Common.FhirTools.ResourceVersionIdSupport>(Lifestyle.Singleton);
-      //container.Register<Bug.R4Fhir.ResourceSupport.IResourceNameSupport, Bug.R4Fhir.ResourceSupport.ResourceNameSupport>(Lifestyle.Singleton);
+      container.Register<Bug.Common.FhirTools.IResourceVersionIdSupport, Bug.Common.FhirTools.ResourceVersionIdSupport>(Lifestyle.Singleton);      
       container.Register<Bug.Stu3Fhir.ResourceSupport.IStu3ValidateResourceName, Bug.Stu3Fhir.ResourceSupport.ValidateResourceName>(Lifestyle.Singleton);
-      container.Register<Bug.R4Fhir.ResourceSupport.IR4ValidateResourceName, Bug.R4Fhir.ResourceSupport.ValidateResourceName>(Lifestyle.Singleton);
-
+      container.Register<Bug.R4Fhir.ResourceSupport.IR4ValidateResourceName, Bug.R4Fhir.ResourceSupport.ValidateResourceName>(Lifestyle.Singleton);      
+      
 
       //############## Scoped ###############################################################################
 
@@ -225,6 +223,7 @@ namespace Bug.Api
       container.Register<Logic.Service.IFhirResourceNameSupport, Logic.Service.FhirResourceNameSupport>(Lifestyle.Scoped);
       container.Register<Logic.Service.IOperationOutcomeSupport, Logic.Service.OperationOutcomeSupport>(Lifestyle.Scoped);
       container.Register<Logic.Service.IFhirResourceBundleSupport, Logic.Service.FhirResourceBundleSupport>(Lifestyle.Scoped);
+      container.Register<Logic.Service.FhirResourceService.IHistoryBundleService, Logic.Service.FhirResourceService.HistoryBundleService>(Lifestyle.Scoped);
       
       //-- Cache Services ---------------      
       container.Register<Logic.CacheService.IResourceNameCache, Logic.CacheService.ResourceNameCache>(Lifestyle.Scoped);
@@ -249,7 +248,7 @@ namespace Bug.Api
 
 
       // ## Transient ###################################################################
-      container.Register<Bug.Logic.UriSupport.IFhirUri, Bug.Logic.UriSupport.FhirUri>(Lifestyle.Transient);
+      //container.Register<Bug.Logic.UriSupport.IFhirUri, Bug.Logic.UriSupport.FhirUri>(Lifestyle.Transient);
       
 
     }

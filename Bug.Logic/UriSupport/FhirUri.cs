@@ -12,8 +12,9 @@ namespace Bug.Logic.UriSupport
 
   public class FhirUri : IFhirUri
   {
-    public FhirUri(FhirVersion fhirVersion)
+    public FhirUri(FhirVersion fhirVersion, Uri PrimaryServiceRootServers)
     {
+      this.PrimaryServiceRootServers = PrimaryServiceRootServers;
       this.FhirVersion = fhirVersion;
       this.ParseErrorMessage = string.Empty;
       this.ErrorInParseing = false;
@@ -61,7 +62,7 @@ namespace Bug.Logic.UriSupport
     public bool IsMetaData { get; set; }
     public bool IsHistoryReferance { get; set; }
     public bool IsCompartment { get; set; }
-    public System.Uri UriPrimaryServiceRoot
+    public Uri? UriPrimaryServiceRoot
     {
       get
       {
@@ -76,6 +77,12 @@ namespace Bug.Logic.UriSupport
             throw new ArgumentNullException(nameof(this.PrimaryServiceRootServers));
           }          
         }          
+        else if (this.IsContained || (string.IsNullOrEmpty(this.ResourseName) && !this.IsHistoryReferance))
+        {
+          //Contained references are relative to the resource and not the server or remote
+          //Uri's with no Resource part are not relative to server or remote
+          return null;                    
+        }
         else
         {
           if (this.PrimaryServiceRootRemote is object)
@@ -85,12 +92,12 @@ namespace Bug.Logic.UriSupport
           else
           {
             throw new ArgumentNullException(nameof(this.PrimaryServiceRootServers));
-          }          
-        }          
+          }
+        }
       }
     }
     public Uri? PrimaryServiceRootRemote { get; set; }
-    public Uri? PrimaryServiceRootServers { get; set; }
+    public Uri PrimaryServiceRootServers { get; set; }
     public FhirVersion FhirVersion { get; set; }
   }
 }
