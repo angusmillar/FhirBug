@@ -6,13 +6,27 @@ namespace Bug.Common.Enums
     where ReturnEnumType : System.Enum
     where InputEnumType : System.Enum
   {
-    protected abstract Dictionary<InputEnumType, ReturnEnumType> Map { get; }     
+    protected abstract Dictionary<InputEnumType, ReturnEnumType> ForwardMap { get; }
+    protected abstract Dictionary<ReturnEnumType, InputEnumType> ReverseMap { get; }
 
-    public ReturnEnumType Get(InputEnumType value)
+    public ReturnEnumType GetForward(InputEnumType value)
     {
-      if (Map.ContainsKey(value))
+      if (ForwardMap.ContainsKey(value))
       {
-        return Map[value];
+        return ForwardMap[value];
+      }
+      else
+      {
+        string Message = $"Unable to convert {nameof(value)} of type {value.GetType().Name} enum to the required return type.";
+        throw new Common.Exceptions.FhirFatalException(System.Net.HttpStatusCode.InternalServerError, Message);
+      }
+    }
+
+    public InputEnumType GetReverse(ReturnEnumType value)
+    {
+      if (ReverseMap.ContainsKey(value))
+      {
+        return ReverseMap[value];
       }
       else
       {
@@ -21,4 +35,5 @@ namespace Bug.Common.Enums
       }
     }
   }
+
 }

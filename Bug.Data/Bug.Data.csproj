@@ -6,10 +6,22 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Migrations\20200305143126_First.cs" />
-    <Compile Remove="Migrations\20200305143126_First.Designer.cs" />
-    <Compile Remove="Migrations\20200309083913_First.cs" />
-    <Compile Remove="Migrations\20200309083913_First.Designer.cs" />
+    <Compile Remove="Migrations\20200312005929_First.cs" />
+    <Compile Remove="Migrations\20200312005929_First.Designer.cs" />
+    <Compile Remove="Migrations\20200312010500_First.cs" />
+    <Compile Remove="Migrations\20200312010500_First.Designer.cs" />
+    <Compile Remove="Migrations\20200312084016_First.cs" />
+    <Compile Remove="Migrations\20200312084016_First.Designer.cs" />
+  </ItemGroup>
+
+  
+
+  <ItemGroup>
+    <Compile Include="..\Bug.CodeGeneration\T4Templates\ResourceName\ResourceNameSeed.cs" Link="Seeding\ResourceNameSeed.cs" />
+    <Compile Include="..\Bug.CodeGeneration\T4Templates\SearchParameterComponent\SearchParameterComponentSeed.cs" Link="Seeding\SearchParameterComponentSeed.cs" />
+    <Compile Include="..\Bug.CodeGeneration\T4Templates\SearchParameterResourceName\SearchParameterResourceNameSeed.cs" Link="Seeding\SearchParameterResourceNameSeed.cs" />
+    <Compile Include="..\Bug.CodeGeneration\T4Templates\SearchParameters\SearchParameterSeed.cs" Link="Seeding\SearchParameterSeed.cs" />
+    <Compile Include="..\Bug.CodeGeneration\T4Templates\SearchParameterTargetResourceName\SearchParameterTargetResourceNameSeed.cs" Link="Seeding\SearchParameterTargetResourceNameSeed.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -27,6 +39,14 @@
   <ItemGroup>
     <ProjectReference Include="..\Bug.Common\Bug.Common.csproj" />
     <ProjectReference Include="..\Bug.Logic\Bug.Logic.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Seeding\" />
   </ItemGroup>
 
 </Project>

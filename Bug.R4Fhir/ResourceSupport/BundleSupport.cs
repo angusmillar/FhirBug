@@ -15,7 +15,7 @@ namespace Bug.R4Fhir.ResourceSupport
     {
       Bundle Bundle = new Bundle();
       BundleTypeMap BundleTypeMap = new BundleTypeMap();
-      Bundle.Type = BundleTypeMap.Get(bundleModel.Type);
+      Bundle.Type = BundleTypeMap.GetForward(bundleModel.Type);
       Bundle.Timestamp = bundleModel.TimeStamp;
       Bundle.Total = bundleModel.Total;
       if (bundleModel.Link is object)
@@ -62,7 +62,7 @@ namespace Bug.R4Fhir.ResourceSupport
             EntryComponent.Search = new Bundle.SearchComponent();
             if (entry.Search.Mode.HasValue)
             {
-              EntryComponent.Search.Mode = SearchEntryModeMap.Get(entry.Search.Mode.Value);
+              EntryComponent.Search.Mode = SearchEntryModeMap.GetForward(entry.Search.Mode.Value);
             }
             EntryComponent.Search.Score = entry.Search.Score;
           }
@@ -70,7 +70,7 @@ namespace Bug.R4Fhir.ResourceSupport
           {
             EntryComponent.Request = new Bundle.RequestComponent();
             HttpVerbMap HttpVerbMap = new HttpVerbMap();
-            EntryComponent.Request.Method = HttpVerbMap.Get(entry.Request.Method);
+            EntryComponent.Request.Method = HttpVerbMap.GetForward(entry.Request.Method);
             if (!string.IsNullOrWhiteSpace(entry.Request.Url))
               EntryComponent.Request.Url = entry.Request.Url;
             EntryComponent.Request.IfNoneMatch = entry.Request.IfNoneMatch;

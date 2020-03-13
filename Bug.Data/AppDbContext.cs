@@ -8,12 +8,14 @@ using Bug.Common.Enums;
 using System.Collections.Generic;
 using System.Linq;
 using Bug.Common.DateTimeTools;
-using Bug.Data.Seeding;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+//using Bug.Data.Seeding;
 
 namespace Bug.Data
 {
   public class AppDbContext : DbContext, IUnitOfWork
   {
+    private const bool GenerateNonStaticSeedData = true;
     public virtual DbSet<ResourceStore> ResourceStore { get; set; } = null!;
     public virtual DbSet<ResourceName> ResourceName { get; set; } = null!;
     public virtual DbSet<Logic.DomainModel.FhirVersion> FhirVersion { get; set; } = null!;
@@ -21,6 +23,17 @@ namespace Bug.Data
     public AppDbContext(DbContextOptions<AppDbContext> options)
       : base(options) { }
 
+    public async Task<IBugDbContextTransaction> BeginTransactionAsync()
+    {
+      if (this.Database.CurrentTransaction is object)
+      {
+        return new BugDbContextTransaction(this.Database.CurrentTransaction);
+      }
+      else
+      {
+        return new BugDbContextTransaction(await this.Database.BeginTransactionAsync());
+      }
+    }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -30,10 +43,7 @@ namespace Bug.Data
       //##### ResourceStore #################################################
       builder.Entity<ResourceStore>(entity =>
       {
-        entity.HasKey(e => e.Id);
-        entity.Property(e => e.Id).HasColumnName("id");
-        entity.Property(e => e.Created).HasColumnName("created");
-        entity.Property(e => e.Updated).HasColumnName("updated");
+        SetupBaseIntKeyProperties(entity);
         entity.Property(e => e.ResourceId).HasColumnName("resource_id").IsRequired(true).HasMaxLength(DatabaseMetaData.FieldLength.FhirIdMaxLength); ;
         entity.Property(e => e.VersionId).HasColumnName("version_id").IsRequired(true);
         entity.Property(e => e.IsCurrent).HasColumnName("is_current").IsRequired(true); ;
@@ -76,13 +86,11 @@ namespace Bug.Data
 
       builder.Entity<ResourceName>(entity =>
       {
-        entity.HasKey(e => e.Id);
-        entity.Property(e => e.Id).HasColumnName("id");
-        entity.Property(e => e.Created).HasColumnName("created");
-        entity.Property(e => e.Updated).HasColumnName("updated");
+        SetupBaseIntKeyProperties(entity);
         entity.Property(x => x.Name).IsRequired(true).HasColumnName("name").HasMaxLength(DatabaseMetaData.FieldLength.ResourceTypeStringMaxLength);
-
       });
+      
+      builder.Entity<Logic.DomainModel.ResourceName>().HasData(Seeding.ResourceNameSeed.GetSeedData(DateTimeNow));
 
       //##### FhirVersion #################################################
 
@@ -124,11 +132,8 @@ namespace Bug.Data
 
       builder.Entity<HttpStatusCode>(entity =>
       {
-        entity.HasKey(e => e.Id);
-        entity.Property(e => e.Id).HasColumnName("id").HasConversion<int>();
-        entity.Property(e => e.Created).HasColumnName("created");
-        entity.Property(e => e.Updated).HasColumnName("updated");
-        entity.Property(x => x.Code).HasColumnName("code").IsRequired(true).HasMaxLength(DatabaseMetaData.FieldLength.CodeMaxLength); ;
+        SetupBaseIntKeyProperties(entity);
+        entity.Property(x => x.Code).HasColumnName("code").IsRequired(true).HasMaxLength(DatabaseMetaData.FieldLength.CodeMaxLength); 
         entity.Property(x => x.Number).HasColumnName("number").IsRequired(true).HasConversion<int>();
 
         entity.HasIndex(x => new { x.Number, })
@@ -144,10 +149,7 @@ namespace Bug.Data
 
       builder.Entity<SearchParameterResourceName>(entity =>
       {
-        entity.HasKey(e => e.Id);
-        entity.Property(e => e.Id).HasColumnName("id").HasConversion<int>();
-        entity.Property(e => e.Created).HasColumnName("created");
-        entity.Property(e => e.Updated).HasColumnName("updated");
+        SetupBaseIntKeyProperties(entity);
 
         entity.HasOne(x => x.SearchParameter)
         .WithMany(y => y.ResourceNameList)
@@ -156,17 +158,19 @@ namespace Bug.Data
         entity.HasOne(x => x.ResourceName)
         .WithMany()
         .HasForeignKey(x => x.FkResourceNameId);
-
       });
+
+      if (GenerateNonStaticSeedData)
+      {
+        builder.Entity<SearchParameterResourceName>().HasData(Seeding.SearchParameterResourceNameSeed.GetSeedData(DateTimeNow));
+      }
+        
 
       //##### SearchParameterTargetResourceName #################################################
 
       builder.Entity<SearchParameterTargetResourceName>(entity =>
       {
-        entity.HasKey(e => e.Id);
-        entity.Property(e => e.Id).HasColumnName("id").HasConversion<int>();
-        entity.Property(e => e.Created).HasColumnName("created");
-        entity.Property(e => e.Updated).HasColumnName("updated");
+        SetupBaseIntKeyProperties(entity);
 
         entity.HasOne(x => x.SearchParameter)
         .WithMany(y => y.TargetResourceNameList)
@@ -175,9 +179,31 @@ namespace Bug.Data
         entity.HasOne(x => x.ResourceName)
         .WithMany()
         .HasForeignKey(x => x.FkResourceNameId);
-
       });
 
+      if (GenerateNonStaticSeedData)
+      {
+        builder.Entity<SearchParameterTargetResourceName>().HasData(Seeding.SearchParameterTargetResourceNameSeed.GetSeedData(DateTimeNow));
+      }
+
+      //##### SearchParameterComponent #################################################
+
+      builder.Entity<SearchParameterComponent>(entity =>
+      {
+        SetupBaseIntKeyProperties(entity);
+
+        entity.Property(e => e.Definition).HasColumnName("definition").IsRequired(true).HasMaxLength(DatabaseMetaData.FieldLength.StringMaxLength);
+        entity.Property(e => e.Expression).HasColumnName("expression").IsRequired(true);
+
+        entity.HasOne(x => x.SearchParameter)
+        .WithMany(y => y.ComponentList)
+        .HasForeignKey(x => x.FkSearchParameterId);
+      });
+
+      if (GenerateNonStaticSeedData)
+      {
+        builder.Entity<SearchParameterComponent>().HasData(Seeding.SearchParameterComponentSeed.GetSeedData(DateTimeNow));
+      }
       //##### SearchParamType #################################################
 
       builder.Entity<Bug.Logic.DomainModel.SearchParamType>(entity =>
@@ -205,12 +231,10 @@ namespace Bug.Data
 
       builder.Entity<SearchParameter>(entity =>
       {
-        entity.HasKey(e => e.Id);
-        entity.Property(e => e.Id).HasColumnName("id").HasConversion<int>();
-        entity.Property(e => e.Created).HasColumnName("created");
-        entity.Property(e => e.Updated).HasColumnName("updated");
+        SetupBaseIntKeyProperties(entity);
+
         entity.Property(x => x.Name).HasColumnName("name").IsRequired(true).HasMaxLength(DatabaseMetaData.FieldLength.NameMaxLength);
-        entity.Property(x => x.Description).HasColumnName("description").IsRequired(false).HasMaxLength(DatabaseMetaData.FieldLength.DescriptionMaxLength);
+        entity.Property(x => x.Description).HasColumnName("description").IsRequired(false);
         entity.Property(x => x.FkSearchParamTypeId).HasColumnName("fk_searchparamtype_id").IsRequired(true).HasConversion<int>();
         entity.Property(x => x.Url).HasColumnName("url").IsRequired(false).HasMaxLength(DatabaseMetaData.FieldLength.StringMaxLength);
         entity.Property(x => x.FhirPath).HasColumnName("fhir_path").IsRequired(false);
@@ -228,25 +252,27 @@ namespace Bug.Data
         .WithMany()
         .HasForeignKey(x => x.FkSearchParamTypeId);
 
+        entity.HasMany(x => x.ComponentList)
+        .WithOne(y => y.SearchParameter)
+        .HasForeignKey(x => x.FkSearchParameterId);
+
         entity.HasOne(x => x.FhirVersion)
         .WithMany()
         .HasForeignKey(x => x.FkFhirVersionId);
       });
 
-      builder.Entity<SearchParameter>().HasData(SearchParameterSeed.GetSeedData(DateTimeNow));
-       
+      if (GenerateNonStaticSeedData)
+      {
+        builder.Entity<SearchParameter>().HasData(Bug.Data.Seeding.SearchParameterSeed.GetSeedData(DateTimeNow));
+      }
     }
 
-    public async Task<IBugDbContextTransaction> BeginTransactionAsync()
+    private static void SetupBaseIntKeyProperties<T>(EntityTypeBuilder<T> entity) where T :BaseIntKey
     {
-      if (this.Database.CurrentTransaction is object)
-      {
-        return new BugDbContextTransaction(this.Database.CurrentTransaction);
-      }
-      else
-      {
-        return new BugDbContextTransaction(await this.Database.BeginTransactionAsync());
-      }
+      entity.HasKey(e => e.Id);
+      entity.Property(e => e.Id).HasColumnName("id").HasConversion<int>();
+      entity.Property(e => e.Created).HasColumnName("created");
+      entity.Property(e => e.Updated).HasColumnName("updated");
     }
 
     private HttpStatusCode[] GetHttpStatusSeedData(DateTime dateTimeNow)

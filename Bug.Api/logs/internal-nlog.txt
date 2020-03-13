@@ -19692,3 +19692,364 @@ soft.AspNetCore.Server.Kestrel.Core.KestrelServer by level:
 2020-03-09 05:41:55.4936 Trace Opening /app/bin/Debug/netcoreapp3.1/logs/nlog-all-2020-03-09.log with allowFileSharedWriting=False
 2020-03-09 05:41:55.5058 Trace Opening /app/bin/Debug/netcoreapp3.1/logs/nlog-all-2020-03-09.log with allowFileSharedWriting=False
 2020-03-09 05:41:55.5248 Trace Opening /app/bin/Debug/netcoreapp3.1/logs/nlog-all-2020-03-09.log with allowFileSharedWriting=False
+2020-03-10 10:12:13.0179 Info Message Template Auto Format enabled
+2020-03-10 10:12:13.0731 Info Loading assembly: NLog.Web.AspNetCore
+2020-03-10 10:12:13.0903 Debug ScanAssembly('NLog.Web.AspNetCore, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c')
+2020-03-10 10:12:13.1687 Trace FindReachableObject<NLog.Internal.IRenderable>:
+2020-03-10 10:12:13.1991 Trace Scanning LongDateLayoutRenderer 'Layout Renderer: ${longdate}'
+2020-03-10 10:12:13.2310 Debug Setting 'UppercaseLayoutRendererWrapper.uppercase' to 'true'
+2020-03-10 10:12:13.3639 Trace Wrapping LevelLayoutRenderer with UppercaseLayoutRendererWrapper
+2020-03-10 10:12:13.3753 Trace FindReachableObject<NLog.Internal.IRenderable>:
+2020-03-10 10:12:13.4076 Trace Scanning LevelLayoutRenderer 'Layout Renderer: ${level}'
+2020-03-10 10:12:13.4466 Trace FindReachableObject<NLog.Internal.IRenderable>:
+2020-03-10 10:12:13.4656 Trace Scanning UppercaseLayoutRendererWrapper 'Layout Renderer: ${uppercase}'
+2020-03-10 10:12:13.4863 Trace  Scanning Property Inner 'SimpleLayout=Layout Renderer: ${level}' NLog.Layouts
+2020-03-10 10:12:13.5065 Trace  Scanning SimpleLayout 'SimpleLayout=Layout Renderer: ${level}'
+2020-03-10 10:12:13.5286 Trace   Scanning Property Renderers 'System.Collections.ObjectModel.ReadOnlyCollection`1[NLog.LayoutRenderers.LayoutRenderer]' System.Collections.ObjectModel
+2020-03-10 10:12:13.5677 Trace   Scanning LevelLayoutRenderer 'Layout Renderer: ${level}'
+2020-03-10 10:12:13.6493 Trace FindReachableObject<NLog.Internal.IRenderable>:
+2020-03-10 10:12:13.6724 Trace Scanning LoggerNameLayoutRenderer 'Layout Renderer: ${logger}'
+2020-03-10 10:12:13.7098 Trace FindReachableObject<NLog.Internal.IRenderable>:
+2020-03-10 10:12:13.7389 Trace Scanning MessageLayoutRenderer 'Layout Renderer: ${message}'
+2020-03-10 10:12:13.7961 Debug Setting 'FileTarget.name' to 'allfile'
+2020-03-10 10:12:13.8096 Debug Setting 'FileTarget.fileName' to 'logs/nlog-all-${shortdate}.log'
+2020-03-10 10:12:13.8478 Trace FindReachableObject<NLog.Internal.IRenderable>:
+2020-03-10 10:12:13.8600 Trace Scanning ShortDateLayoutRenderer 'Layout Renderer: ${shortdate}'
+2020-03-10 10:12:13.8804 Debug Setting 'FileTarget.layout' to '${longdate}|${event-properties:item=EventId_Id}|${uppercase:${level}}|${logger}|${message} ${exception:format=tostring}'
+2020-03-10 10:12:13.8956 Trace FindReachableObject<NLog.Internal.IRenderable>:
+2020-03-10 10:12:13.9151 Trace Scanning LongDateLayoutRenderer 'Layout Renderer: ${longdate}'
+2020-03-10 10:12:13.9337 Debug Setting 'EventPropertiesLayoutRenderer.item' to 'EventId_Id'
+2020-03-10 10:12:13.9476 Trace FindReachableObject<NLog.Internal.IRenderable>:
+2020-03-10 10:12:13.9619 Trace Scanning EventPropertiesLayoutRenderer 'Layout Renderer: ${event-properties}'
+2020-03-10 10:12:13.9833 Debug Setting 'UppercaseLayoutRendererWrapper.Inner' to '${level}'
+2020-03-10 10:12:13.9936 Trace FindReachableObject<NLog.Internal.IRenderable>:
+2020-03-10 10:12:14.0089 Trace Scanning LevelLayoutRenderer 'Layout Renderer: ${level}'
+2020-03-10 10:12:14.0247 Trace FindReachableObject<NLog.Internal.IRenderable>:
+2020-03-10 10:12:14.0375 Trace Scanning UppercaseLayoutRendererWrapper 'Layout Renderer: ${uppercase}'
+2020-03-10 10:12:14.0587 Trace  Scanning Property Inner ''${level}'' NLog.Layouts
+2020-03-10 10:12:14.0706 Trace  Scanning SimpleLayout ''${level}''
+2020-03-10 10:12:14.0882 Trace   Scanning Property Renderers 'System.Collections.ObjectModel.ReadOnlyCollection`1[NLog.LayoutRenderers.LayoutRenderer]' System.Collections.ObjectModel
+2020-03-10 10:12:14.1033 Trace   Scanning LevelLayoutRenderer 'Layout Renderer: ${level}'
+2020-03-10 10:12:14.1214 Trace FindReachableObject<NLog.Internal.IRenderable>:
+2020-03-10 10:12:14.1421 Trace Scanning LoggerNameLayoutRenderer 'Layout Renderer: ${logger}'
+2020-03-10 10:12:14.1727 Trace FindReachableObject<NLog.Internal.IRenderable>:
+2020-03-10 10:12:14.1908 Trace Scanning MessageLayoutRenderer 'Layout Renderer: ${message}'
+2020-03-10 10:12:14.2300 Debug Setting 'ExceptionLayoutRenderer.format' to 'tostring'
+2020-03-10 10:12:14.2362 Trace FindReachableObject<NLog.Internal.IRenderable>:
+2020-03-10 10:12:14.2561 Trace Scanning ExceptionLayoutRenderer 'Layout Renderer: ${exception}'
+2020-03-10 10:12:14.2699 Trace  Scanning Property Formats 'System.Collections.Generic.List`1[NLog.Config.ExceptionRenderingFormat]' System.Collections.Generic
+2020-03-10 10:12:14.2891 Info Adding target FileTarget(Name=allfile)
+2020-03-10 10:12:14.3015 Debug Registered target allfile: NLog.Targets.FileTarget
+2020-03-10 10:12:14.3310 Trace ParseRulesElement
+2020-03-10 10:12:14.3617 Warn Error has been raised. Exception: NLog.NLogConfigurationException: Target 'ownFile-web' not found for logging rule: *.
+2020-03-10 10:12:14.3974 Debug Unused target checking is started... Rule Count: 3, Target Count: 1
+2020-03-10 10:12:14.4370 Debug Unused target checking is completed. Total Rule Count: 3, Total Target Count: 1, Unused Target Count: 0
+2020-03-10 10:12:14.4719 Debug Watching path '/app/bin/Debug/netcoreapp3.1' filter 'nlog.config' for changes.
+2020-03-10 10:12:14.4759 Debug --- NLog configuration dump ---
+2020-03-10 10:12:14.5032 Debug Targets:
+2020-03-10 10:12:14.5170 Debug File Target[allfile]
+2020-03-10 10:12:14.5327 Debug Rules:
+2020-03-10 10:12:14.5559 Debug logNamePattern: (:All) levels: [ Trace Debug Info Warn Error Fatal ] appendTo: [ allfile ]
+2020-03-10 10:12:14.5618 Debug logNamePattern: (Microsoft.:StartsWith) levels: [ Trace Debug Info ] appendTo: [ ]
+2020-03-10 10:12:14.5730 Debug logNamePattern: (:All) levels: [ Trace Debug Info Warn Error Fatal ] appendTo: [ ]
+2020-03-10 10:12:14.5912 Debug --- End of NLog configuration dump ---
+2020-03-10 10:12:14.6115 Trace FindReachableObject<System.Object>:
+2020-03-10 10:12:14.6411 Trace Scanning LoggingRule 'logNamePattern: (:All) levels: [ Trace Debug Info Warn Error Fatal ] appendTo: [ allfile ]'
+2020-03-10 10:12:14.6599 Trace  Scanning Property Targets 'System.Collections.Generic.List`1[NLog.Targets.Target]' System.Collections.Generic
+2020-03-10 10:12:14.6801 Trace  Scanning FileTarget 'File Target[allfile]'
+2020-03-10 10:12:14.7015 Trace   Scanning Property FileName ''logs/nlog-all-${shortdate}.log'' NLog.Layouts
+2020-03-10 10:12:14.7371 Trace   Scanning SimpleLayout ''logs/nlog-all-${shortdate}.log''
+2020-03-10 10:12:14.7638 Trace    Scanning Property Renderers 'System.Collections.ObjectModel.ReadOnlyCollection`1[NLog.LayoutRenderers.LayoutRenderer]' System.Collections.ObjectModel
+2020-03-10 10:12:14.7888 Trace    Scanning LiteralLayoutRenderer 'Layout Renderer: ${literal}'
+2020-03-10 10:12:14.8176 Trace    Scanning ShortDateLayoutRenderer 'Layout Renderer: ${shortdate}'
+2020-03-10 10:12:14.8395 Trace    Scanning LiteralLayoutRenderer 'Layout Renderer: ${literal}'
+2020-03-10 10:12:14.8654 Trace   Scanning Property Layout ''${longdate}|${event-properties:item=EventId_Id}|${uppercase:${level}}|${logger}|${message} ${exception:format=tostring}'' NLog.Layouts
+2020-03-10 10:12:14.8801 Trace   Scanning SimpleLayout ''${longdate}|${event-properties:item=EventId_Id}|${uppercase:${level}}|${logger}|${message} ${exception:format=tostring}''
+2020-03-10 10:12:14.8993 Trace    Scanning Property Renderers 'System.Collections.ObjectModel.ReadOnlyCollection`1[NLog.LayoutRenderers.LayoutRenderer]' System.Collections.ObjectModel
+2020-03-10 10:12:14.9159 Trace    Scanning LongDateLayoutRenderer 'Layout Renderer: ${longdate}'
+2020-03-10 10:12:14.9300 Trace    Scanning LiteralLayoutRenderer 'Layout Renderer: ${literal}'
+2020-03-10 10:12:14.9476 Trace    Scanning EventPropertiesLayoutRenderer 'Layout Renderer: ${event-properties}'
+2020-03-10 10:12:14.9713 Trace    Scanning LiteralLayoutRenderer 'Layout Renderer: ${literal}'
+2020-03-10 10:12:14.9876 Trace    Scanning UppercaseLayoutRendererWrapper 'Layout Renderer: ${uppercase}'
+2020-03-10 10:12:15.0166 Trace     Scanning Property Inner ''${level}'' NLog.Layouts
+2020-03-10 10:12:15.0457 Trace     Scanning SimpleLayout ''${level}''
+2020-03-10 10:12:15.0660 Trace      Scanning Property Renderers 'System.Collections.ObjectModel.ReadOnlyCollection`1[NLog.LayoutRenderers.LayoutRenderer]' System.Collections.ObjectModel
+2020-03-10 10:12:15.0920 Trace      Scanning LevelLayoutRenderer 'Layout Renderer: ${level}'
+2020-03-10 10:12:15.1266 Trace    Scanning LiteralLayoutRenderer 'Layout Renderer: ${literal}'
+2020-03-10 10:12:15.1455 Trace    Scanning LoggerNameLayoutRenderer 'Layout Renderer: ${logger}'
+2020-03-10 10:12:15.1660 Trace    Scanning LiteralLayoutRenderer 'Layout Renderer: ${literal}'
+2020-03-10 10:12:15.1857 Trace    Scanning MessageLayoutRenderer 'Layout Renderer: ${message}'
+2020-03-10 10:12:15.2035 Trace    Scanning LiteralLayoutRenderer 'Layout Renderer: ${literal}'
+2020-03-10 10:12:15.2273 Trace    Scanning ExceptionLayoutRenderer 'Layout Renderer: ${exception}'
+2020-03-10 10:12:15.2405 Trace     Scanning Property Formats 'System.Collections.Generic.List`1[NLog.Config.ExceptionRenderingFormat]' System.Collections.Generic
+2020-03-10 10:12:15.2538 Trace   Scanning Property LineEnding 'Default' NLog.Targets
+2020-03-10 10:12:15.2819 Trace   Scanning Property Encoding 'System.Text.UTF8Encoding+UTF8EncodingSealed' System.Text
+2020-03-10 10:12:15.3045 Trace  Scanning Property ChildRules 'System.Collections.Generic.List`1[NLog.Config.LoggingRule]' System.Collections.Generic
+2020-03-10 10:12:15.3187 Trace  Scanning Property Filters 'System.Collections.Generic.List`1[NLog.Filters.Filter]' System.Collections.Generic
+2020-03-10 10:12:15.3327 Trace Scanning LoggingRule 'logNamePattern: (Microsoft.:StartsWith) levels: [ Trace Debug Info ] appendTo: [ ]'
+2020-03-10 10:12:15.3498 Trace  Scanning Property Targets 'System.Collections.Generic.List`1[NLog.Targets.Target]' System.Collections.Generic
+2020-03-10 10:12:15.3619 Trace  Scanning Property ChildRules 'System.Collections.Generic.List`1[NLog.Config.LoggingRule]' System.Collections.Generic
+2020-03-10 10:12:15.3843 Trace  Scanning Property Filters 'System.Collections.Generic.List`1[NLog.Filters.Filter]' System.Collections.Generic
+2020-03-10 10:12:15.4019 Trace Scanning LoggingRule 'logNamePattern: (:All) levels: [ Trace Debug Info Warn Error Fatal ] appendTo: [ ]'
+2020-03-10 10:12:15.4223 Trace  Scanning Property Targets 'System.Collections.Generic.List`1[NLog.Targets.Target]' System.Collections.Generic
+2020-03-10 10:12:15.4336 Trace  Scanning Property ChildRules 'System.Collections.Generic.List`1[NLog.Config.LoggingRule]' System.Collections.Generic
+2020-03-10 10:12:15.4541 Trace  Scanning Property Filters 'System.Collections.Generic.List`1[NLog.Filters.Filter]' System.Collections.Generic
+2020-03-10 10:12:15.4725 Info Found 22 configuration items
+2020-03-10 10:12:15.4942 Trace Initializing Layout Renderer: ${exception}
+2020-03-10 10:12:15.4981 Trace Initializing Layout Renderer: ${literal}
+2020-03-10 10:12:15.5157 Trace Initializing Layout Renderer: ${message}
+2020-03-10 10:12:15.5294 Trace Initializing Layout Renderer: ${literal}
+2020-03-10 10:12:15.5428 Trace Initializing Layout Renderer: ${logger}
+2020-03-10 10:12:15.5627 Trace Initializing Layout Renderer: ${literal}
+2020-03-10 10:12:15.5752 Trace Initializing Layout Renderer: ${level}
+2020-03-10 10:12:15.5919 Trace Initializing '${level}'
+2020-03-10 10:12:15.6050 Trace FindReachableObject<System.Object>:
+2020-03-10 10:12:15.6164 Trace Scanning SimpleLayout ''${level}''
+2020-03-10 10:12:15.6345 Trace  Scanning Property Renderers 'System.Collections.ObjectModel.ReadOnlyCollection`1[NLog.LayoutRenderers.LayoutRenderer]' System.Collections.ObjectModel
+2020-03-10 10:12:15.6514 Trace  Scanning LevelLayoutRenderer 'Layout Renderer: ${level}'
+2020-03-10 10:12:15.6690 Trace Initializing Layout Renderer: ${uppercase}
+2020-03-10 10:12:15.6899 Trace Initializing Layout Renderer: ${literal}
+2020-03-10 10:12:15.7105 Trace Initializing Layout Renderer: ${event-properties}
+2020-03-10 10:12:15.7316 Trace Initializing Layout Renderer: ${literal}
+2020-03-10 10:12:15.7603 Trace Initializing Layout Renderer: ${longdate}
+2020-03-10 10:12:15.7804 Trace Initializing '${longdate}|${event-properties:item=EventId_Id}|${uppercase:${level}}|${logger}|${message} ${exception:format=tostring}'
+2020-03-10 10:12:15.8046 Trace FindReachableObject<System.Object>:
+2020-03-10 10:12:15.8611 Trace Scanning SimpleLayout ''${longdate}|${event-properties:item=EventId_Id}|${uppercase:${level}}|${logger}|${message} ${exception:format=tostring}''
+2020-03-10 10:12:15.8938 Trace  Scanning Property Renderers 'System.Collections.ObjectModel.ReadOnlyCollection`1[NLog.LayoutRenderers.LayoutRenderer]' System.Collections.ObjectModel
+2020-03-10 10:12:15.9133 Trace  Scanning LongDateLayoutRenderer 'Layout Renderer: ${longdate}'
+2020-03-10 10:12:15.9427 Trace  Scanning LiteralLayoutRenderer 'Layout Renderer: ${literal}'
+2020-03-10 10:12:15.9586 Trace  Scanning EventPropertiesLayoutRenderer 'Layout Renderer: ${event-properties}'
+2020-03-10 10:12:15.9724 Trace  Scanning LiteralLayoutRenderer 'Layout Renderer: ${literal}'
+2020-03-10 10:12:15.9907 Trace  Scanning UppercaseLayoutRendererWrapper 'Layout Renderer: ${uppercase}'
+2020-03-10 10:12:16.0149 Trace   Scanning Property Inner ''${level}'' NLog.Layouts
+2020-03-10 10:12:16.0330 Trace   Scanning SimpleLayout ''${level}''
+2020-03-10 10:12:16.0590 Trace    Scanning Property Renderers 'System.Collections.ObjectModel.ReadOnlyCollection`1[NLog.LayoutRenderers.LayoutRenderer]' System.Collections.ObjectModel
+2020-03-10 10:12:16.0839 Trace    Scanning LevelLayoutRenderer 'Layout Renderer: ${level}'
+2020-03-10 10:12:16.1041 Trace  Scanning LiteralLayoutRenderer 'Layout Renderer: ${literal}'
+2020-03-10 10:12:16.1262 Trace  Scanning LoggerNameLayoutRenderer 'Layout Renderer: ${logger}'
+2020-03-10 10:12:16.1413 Trace  Scanning LiteralLayoutRenderer 'Layout Renderer: ${literal}'
+2020-03-10 10:12:16.1554 Trace  Scanning MessageLayoutRenderer 'Layout Renderer: ${message}'
+2020-03-10 10:12:16.1726 Trace  Scanning LiteralLayoutRenderer 'Layout Renderer: ${literal}'
+2020-03-10 10:12:16.1984 Trace  Scanning ExceptionLayoutRenderer 'Layout Renderer: ${exception}'
+2020-03-10 10:12:16.2125 Trace   Scanning Property Formats 'System.Collections.Generic.List`1[NLog.Config.ExceptionRenderingFormat]' System.Collections.Generic
+2020-03-10 10:12:16.2324 Trace Initializing Layout Renderer: ${literal}
+2020-03-10 10:12:16.2426 Trace Initializing Layout Renderer: ${shortdate}
+2020-03-10 10:12:16.2691 Trace Initializing Layout Renderer: ${literal}
+2020-03-10 10:12:16.2936 Trace Initializing 'logs/nlog-all-${shortdate}.log'
+2020-03-10 10:12:16.3121 Trace FindReachableObject<System.Object>:
+2020-03-10 10:12:16.3287 Trace Scanning SimpleLayout ''logs/nlog-all-${shortdate}.log''
+2020-03-10 10:12:16.3498 Trace  Scanning Property Renderers 'System.Collections.ObjectModel.ReadOnlyCollection`1[NLog.LayoutRenderers.LayoutRenderer]' System.Collections.ObjectModel
+2020-03-10 10:12:16.3720 Trace  Scanning LiteralLayoutRenderer 'Layout Renderer: ${literal}'
+2020-03-10 10:12:16.4047 Trace  Scanning ShortDateLayoutRenderer 'Layout Renderer: ${shortdate}'
+2020-03-10 10:12:16.4296 Trace  Scanning LiteralLayoutRenderer 'Layout Renderer: ${literal}'
+2020-03-10 10:12:16.4465 Trace Initializing File Target[allfile]
+2020-03-10 10:12:16.4718 Trace FindReachableObject<NLog.Layouts.Layout>:
+2020-03-10 10:12:16.4933 Trace Scanning FileTarget 'File Target[allfile]'
+2020-03-10 10:12:16.5211 Trace  Scanning Property FileName ''logs/nlog-all-${shortdate}.log'' NLog.Layouts
+2020-03-10 10:12:16.5552 Trace  Scanning SimpleLayout ''logs/nlog-all-${shortdate}.log''
+2020-03-10 10:12:16.5716 Trace  Scanning Property Layout ''${longdate}|${event-properties:item=EventId_Id}|${uppercase:${level}}|${logger}|${message} ${exception:format=tostring}'' NLog.Layouts
+2020-03-10 10:12:16.5909 Trace  Scanning SimpleLayout ''${longdate}|${event-properties:item=EventId_Id}|${uppercase:${level}}|${logger}|${message} ${exception:format=tostring}''
+2020-03-10 10:12:16.6113 Trace  Scanning Property LineEnding 'Default' NLog.Targets
+2020-03-10 10:12:16.6331 Trace  Scanning Property Encoding 'System.Text.UTF8Encoding+UTF8EncodingSealed' System.Text
+2020-03-10 10:12:16.6503 Trace File Target[allfile] has 2 layouts
+2020-03-10 10:12:16.6701 Trace FileTarget(Name=allfile): Using appenderFactory: NLog.Internal.FileAppenders.RetryingMultiProcessFileAppender+Factory
+2020-03-10 10:12:16.7150 Debug Targets for Bug.Api.Program by level:
+2020-03-10 10:12:16.7171 Debug Trace => allfile
+2020-03-10 10:12:16.7490 Debug Debug => allfile
+2020-03-10 10:12:16.7617 Debug Info => allfile
+2020-03-10 10:12:16.7785 Debug Warn => allfile
+2020-03-10 10:12:16.7925 Debug Error => allfile
+2020-03-10 10:12:16.8159 Debug Fatal => allfile
+2020-03-10 10:12:16.8684 Debug FileTarget(Name=allfile): Process file '/app/bin/Debug/netcoreapp3.1/logs/nlog-all-2020-03-10.log' on startup
+2020-03-10 10:12:16.8915 Debug Creating file appender: /app/bin/Debug/netcoreapp3.1/logs/nlog-all-2020-03-10.log
+2020-03-10 10:12:16.9067 Trace Opening /app/bin/Debug/netcoreapp3.1/logs/nlog-all-2020-03-10.log with allowFileSharedWriting=False
+2020-03-10 10:12:22.1747 Debug ScanAssembly('NLog.Web.AspNetCore, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c')
+2020-03-10 10:12:22.2717 Debug Hide assemblies for callsite
+2020-03-10 10:12:22.2754 Debug ScanAssembly('NLog.Extensions.Logging, Version=1.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c')
+2020-03-10 10:12:22.3258 Debug Targets for Microsoft.Extensions.Hosting.Internal.ApplicationLifetime by level:
+2020-03-10 10:12:22.3848 Debug Trace => allfile
+2020-03-10 10:12:22.4192 Debug Debug => allfile
+2020-03-10 10:12:22.4620 Debug Info => allfile
+2020-03-10 10:12:22.4967 Debug Warn => allfile
+2020-03-10 10:12:22.5179 Debug Error => allfile
+2020-03-10 10:12:22.5586 Debug Fatal => allfile
+2020-03-10 10:12:22.6082 Debug Targets for Microsoft.Extensions.Hosting.Internal.Host by level:
+2020-03-10 10:12:22.6404 Debug Trace => allfile
+2020-03-10 10:12:22.6556 Debug Debug => allfile
+2020-03-10 10:12:22.6650 Debug Info => allfile
+2020-03-10 10:12:22.6771 Debug Warn => allfile
+2020-03-10 10:12:22.6935 Debug Error => allfile
+2020-03-10 10:12:22.7034 Debug Fatal => allfile
+2020-03-10 10:12:22.7194 Debug Targets for Microsoft.Hosting.Lifetime by level:
+2020-03-10 10:12:22.7334 Debug Trace => allfile
+2020-03-10 10:12:22.7470 Debug Debug => allfile
+2020-03-10 10:12:22.7615 Debug Info => allfile
+2020-03-10 10:12:22.7809 Debug Warn => allfile
+2020-03-10 10:12:22.8010 Debug Error => allfile
+2020-03-10 10:12:22.8152 Debug Fatal => allfile
+2020-03-10 10:12:22.8516 Debug Targets for Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets by level:
+2020-03-10 10:12:22.8631 Debug Trace => allfile
+2020-03-10 10:12:22.8825 Debug Debug => allfile
+2020-03-10 10:12:22.9010 Debug Info => allfile
+2020-03-10 10:12:22.9149 Debug Warn => allfile
+2020-03-10 10:12:22.9275 Debug Error => allfile
+2020-03-10 10:12:22.9385 Debug Fatal => allfile
+2020-03-10 10:12:22.9543 Debug Targets for Microsoft.AspNetCore.Server.Kestrel by level:
+2020-03-10 10:12:22.9703 Debug Trace => allfile
+2020-03-10 10:12:22.9800 Debug Debug => allfile
+2020-03-10 10:12:22.9911 Debug Info => allfile
+2020-03-10 10:12:23.0223 Debug Warn => allfile
+2020-03-10 10:12:23.0392 Debug Error => allfile
+2020-03-10 10:12:23.0657 Debug Fatal => allfile
+2020-03-10 10:12:23.0827 Debug Targets for Microsoft.AspNetCore.Hosting.Diagnostics by level:
+2020-03-10 10:12:23.0925 Debug Trace => allfile
+2020-03-10 10:12:23.1106 Debug Debug => allfile
+2020-03-10 10:12:23.1293 Debug Info => allfile
+2020-03-10 10:12:23.1467 Debug Warn => allfile
+2020-03-10 10:12:23.1596 Debug Error => allfile
+2020-03-10 10:12:23.1766 Debug Fatal => allfile
+2020-03-10 10:12:23.2534 Debug Targets for Microsoft.AspNetCore.Mvc.MvcOptions by level:
+2020-03-10 10:12:23.2559 Debug Trace => allfile
+2020-03-10 10:12:23.2737 Debug Debug => allfile
+2020-03-10 10:12:23.2953 Debug Info => allfile
+2020-03-10 10:12:23.3115 Debug Warn => allfile
+2020-03-10 10:12:23.3244 Debug Error => allfile
+2020-03-10 10:12:23.3503 Debug Fatal => allfile
+2020-03-10 10:12:23.3869 Debug Targets for Microsoft.AspNetCore.Mvc.Formatters.SystemTextJsonInputFormatter by level:
+2020-03-10 10:12:23.3987 Debug Trace => allfile
+2020-03-10 10:12:23.4196 Debug Debug => allfile
+2020-03-10 10:12:23.4344 Debug Info => allfile
+2020-03-10 10:12:23.4473 Debug Warn => allfile
+2020-03-10 10:12:23.4580 Debug Error => allfile
+2020-03-10 10:12:23.4699 Debug Fatal => allfile
+2020-03-10 10:12:23.9700 Debug Targets for Bug.Logic.Query.FhirApi.Decorator.FhirApiQueryLoggingDecorator by level:
+2020-03-10 10:12:23.9849 Debug Trace => allfile
+2020-03-10 10:12:23.9968 Debug Debug => allfile
+2020-03-10 10:12:24.0094 Debug Info => allfile
+2020-03-10 10:12:24.0221 Debug Warn => allfile
+2020-03-10 10:12:24.0379 Debug Error => allfile
+2020-03-10 10:12:24.0517 Debug Fatal => allfile
+2020-03-10 10:12:24.5362 Debug Targets for Microsoft.EntityFrameworkCore.Infrastructure by level:
+2020-03-10 10:12:24.5382 Debug Trace => allfile
+2020-03-10 10:12:24.5494 Debug Debug => allfile
+2020-03-10 10:12:24.5591 Debug Info => allfile
+2020-03-10 10:12:24.5698 Debug Warn => allfile
+2020-03-10 10:12:24.5871 Debug Error => allfile
+2020-03-10 10:12:24.6013 Debug Fatal => allfile
+2020-03-10 10:12:24.6604 Debug Targets for Microsoft.EntityFrameworkCore.ChangeTracking by level:
+2020-03-10 10:12:24.6622 Debug Trace => allfile
+2020-03-10 10:12:24.6764 Debug Debug => allfile
+2020-03-10 10:12:24.6861 Debug Info => allfile
+2020-03-10 10:12:24.7018 Debug Warn => allfile
+2020-03-10 10:12:24.7196 Debug Error => allfile
+2020-03-10 10:12:24.7341 Debug Fatal => allfile
+2020-03-10 10:12:25.0028 Debug Targets for Microsoft.EntityFrameworkCore.Model by level:
+2020-03-10 10:12:25.0042 Debug Trace => allfile
+2020-03-10 10:12:25.0148 Debug Debug => allfile
+2020-03-10 10:12:25.0243 Debug Info => allfile
+2020-03-10 10:12:25.0352 Debug Warn => allfile
+2020-03-10 10:12:25.0448 Debug Error => allfile
+2020-03-10 10:12:25.0550 Debug Fatal => allfile
+2020-03-10 10:12:25.0666 Debug Targets for Microsoft.EntityFrameworkCore.Model.Validation by level:
+2020-03-10 10:12:25.0758 Debug Trace => allfile
+2020-03-10 10:12:25.0900 Debug Debug => allfile
+2020-03-10 10:12:25.1020 Debug Info => allfile
+2020-03-10 10:12:25.1121 Debug Warn => allfile
+2020-03-10 10:12:25.1281 Debug Error => allfile
+2020-03-10 10:12:25.1402 Debug Fatal => allfile
+2020-03-10 10:12:27.2165 Debug Targets for Microsoft.EntityFrameworkCore.Database.Command by level:
+2020-03-10 10:12:27.2192 Debug Trace => allfile
+2020-03-10 10:12:27.2304 Debug Debug => allfile
+2020-03-10 10:12:27.2427 Debug Info => allfile
+2020-03-10 10:12:27.2555 Debug Warn => allfile
+2020-03-10 10:12:27.2695 Debug Error => allfile
+2020-03-10 10:12:27.2790 Debug Fatal => allfile
+2020-03-10 10:12:27.2894 Debug Targets for Microsoft.EntityFrameworkCore.Query by level:
+2020-03-10 10:12:27.2999 Debug Trace => allfile
+2020-03-10 10:12:27.3161 Debug Debug => allfile
+2020-03-10 10:12:27.3249 Debug Info => allfile
+2020-03-10 10:12:27.3358 Debug Warn => allfile
+2020-03-10 10:12:27.3472 Debug Error => allfile
+2020-03-10 10:12:27.3575 Debug Fatal => allfile
+2020-03-10 10:12:27.3682 Debug Targets for Microsoft.EntityFrameworkCore.Database.Transaction by level:
+2020-03-10 10:12:27.3843 Debug Trace => allfile
+2020-03-10 10:12:27.3927 Debug Debug => allfile
+2020-03-10 10:12:27.4033 Debug Info => allfile
+2020-03-10 10:12:27.4152 Debug Warn => allfile
+2020-03-10 10:12:27.4264 Debug Error => allfile
+2020-03-10 10:12:27.4366 Debug Fatal => allfile
+2020-03-10 10:12:27.4506 Debug Targets for Microsoft.EntityFrameworkCore.Database.Connection by level:
+2020-03-10 10:12:27.4598 Debug Trace => allfile
+2020-03-10 10:12:27.4706 Debug Debug => allfile
+2020-03-10 10:12:27.4848 Debug Info => allfile
+2020-03-10 10:12:27.4956 Debug Warn => allfile
+2020-03-10 10:12:27.5041 Debug Error => allfile
+2020-03-10 10:12:27.5140 Debug Fatal => allfile
+2020-03-10 10:12:27.5425 Debug Targets for Microsoft.EntityFrameworkCore.Update by level:
+2020-03-10 10:12:27.5452 Debug Trace => allfile
+2020-03-10 10:12:27.5539 Debug Debug => allfile
+2020-03-10 10:12:27.5647 Debug Info => allfile
+2020-03-10 10:12:27.5775 Debug Warn => allfile
+2020-03-10 10:12:27.5883 Debug Error => allfile
+2020-03-10 10:12:27.6097 Debug Fatal => allfile
+2020-03-10 10:12:27.8033 Debug Targets for Microsoft.AspNetCore.Routing.EndpointMiddleware by level:
+2020-03-10 10:12:27.8150 Debug Trace => allfile
+2020-03-10 10:12:27.8259 Debug Debug => allfile
+2020-03-10 10:12:27.8449 Debug Info => allfile
+2020-03-10 10:12:27.8592 Debug Warn => allfile
+2020-03-10 10:12:27.8699 Debug Error => allfile
+2020-03-10 10:12:27.8784 Debug Fatal => allfile
+2020-03-10 10:12:27.8919 Debug Targets for Microsoft.AspNetCore.Routing.EndpointRoutingMiddleware by level:
+2020-03-10 10:12:27.9018 Debug Trace => allfile
+2020-03-10 10:12:27.9135 Debug Debug => allfile
+2020-03-10 10:12:27.9382 Debug Info => allfile
+2020-03-10 10:12:27.9573 Debug Warn => allfile
+2020-03-10 10:12:27.9724 Debug Error => allfile
+2020-03-10 10:12:27.9866 Debug Fatal => allfile
+2020-03-10 10:12:28.0077 Debug Targets for Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionMiddleware by level:
+2020-03-10 10:12:28.0205 Debug Trace => allfile
+2020-03-10 10:12:28.0341 Debug Debug => allfile
+2020-03-10 10:12:28.0477 Debug Info => allfile
+2020-03-10 10:12:28.0632 Debug Warn => allfile
+2020-03-10 10:12:28.0804 Debug Error => allfile
+2020-03-10 10:12:28.0954 Debug Fatal => allfile
+2020-03-10 10:12:28.1084 Debug Targets for Bug.Api.Middleware.ErrorHandlingMiddleware by level:
+2020-03-10 10:12:28.1233 Debug Trace => allfile
+2020-03-10 10:12:28.1581 Debug Debug => allfile
+2020-03-10 10:12:28.1765 Debug Info => allfile
+2020-03-10 10:12:28.1943 Debug Warn => allfile
+2020-03-10 10:12:28.2097 Debug Error => allfile
+2020-03-10 10:12:28.2271 Debug Fatal => allfile
+2020-03-10 10:12:28.2864 Debug Targets for Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddleware by level:
+2020-03-10 10:12:28.2894 Debug Trace => allfile
+2020-03-10 10:12:28.3057 Debug Debug => allfile
+2020-03-10 10:12:28.3257 Debug Info => allfile
+2020-03-10 10:12:28.3623 Debug Warn => allfile
+2020-03-10 10:12:28.3868 Debug Error => allfile
+2020-03-10 10:12:28.4051 Debug Fatal => allfile
+2020-03-10 10:12:28.4212 Debug Targets for Microsoft.AspNetCore.HostFiltering.HostFilteringMiddleware by level:
+2020-03-10 10:12:28.4434 Debug Trace => allfile
+2020-03-10 10:12:28.4579 Debug Debug => allfile
+2020-03-10 10:12:28.4685 Debug Info => allfile
+2020-03-10 10:12:28.4837 Debug Warn => allfile
+2020-03-10 10:12:28.4946 Debug Error => allfile
+2020-03-10 10:12:28.5044 Debug Fatal => allfile
+2020-03-10 10:12:28.5449 Debug Targets for Microsoft.AspNetCore.Server.Kestrel.Core.KestrelServer by level:
+2020-03-10 10:12:28.5501 Debug Trace => allfile
+2020-03-10 10:12:28.5701 Debug Debug => allfile
+2020-03-10 10:12:28.5800 Debug Info => allfile
+2020-03-10 10:12:28.5917 Debug Warn => allfile
+2020-03-10 10:12:28.6024 Debug Error => allfile
+2020-03-10 10:12:28.6133 Debug Fatal => allfile
+2020-03-10 10:12:28.7090 Debug Targets for Microsoft.AspNetCore.Server.Kestrel.Https.Internal.HttpsConnectionMiddleware by level:
+2020-03-10 10:12:28.7111 Debug Trace => allfile
+2020-03-10 10:12:28.7243 Debug Debug => allfile
+2020-03-10 10:12:28.7395 Debug Info => allfile
+2020-03-10 10:12:28.7541 Debug Warn => allfile
+2020-03-10 10:12:28.7679 Debug Error => allfile
+2020-03-10 10:12:28.7810 Debug Fatal => allfile
+2020-03-10 10:12:28.9179 Trace Opening /app/bin/Debug/netcoreapp3.1/logs/nlog-all-2020-03-10.log with allowFileSharedWriting=False
+2020-03-10 10:12:28.9435 Trace Opening /app/bin/Debug/netcoreapp3.1/logs/nlog-all-2020-03-10.log with allowFileSharedWriting=False
+2020-03-10 10:12:28.9697 Trace Opening /app/bin/Debug/netcoreapp3.1/logs/nlog-all-2020-03-10.log with allowFileSharedWriting=False
+2020-03-10 10:12:29.0031 Trace Opening /app/bin/Debug/netcoreapp3.1/logs/nlog-all-2020-03-10.log with allowFileSharedWriting=False
+2020-03-10 10:12:29.0181 Trace Opening /app/bin/Debug/netcoreapp3.1/logs/nlog-all-2020-03-10.log with allowFileSharedWriting=False
