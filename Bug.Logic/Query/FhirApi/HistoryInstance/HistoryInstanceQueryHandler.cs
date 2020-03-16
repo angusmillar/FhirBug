@@ -4,7 +4,6 @@ using Bug.Common.FhirTools;
 using Bug.Logic.DomainModel;
 using Bug.Logic.Interfaces.Repository;
 using Bug.Logic.Service;
-using Bug.Logic.Service.TableService;
 using Bug.Logic.Service.ValidatorService;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -20,29 +19,23 @@ namespace Bug.Logic.Query.FhirApi.HistoryInstance
   public class HistoryInstanceQueryHandler : IQueryHandler<HistoryInstanceQuery, FhirApiResult>
   {
     private readonly IValidateQueryService IValidateQueryService;
-    private readonly IResourceStoreRepository IResourceStoreRepository;    
-    private readonly IFhirResourceParseJsonService IFhirResourceParseJsonService;
-    private readonly IFhirResourceBundleSupport IFhirResourceBundleSupport;
-    private readonly IServerDateTimeSupport IServerDateTimeSupport;
-    private readonly IGZipper IGZipper;
+    private readonly IResourceStoreRepository IResourceStoreRepository;        
+    private readonly IFhirResourceBundleSupport IFhirResourceBundleSupport;       
     private readonly IHistoryBundleService IHistoryBundleService;
+    private readonly IResourceTypeSupport IResourceTypeSupport;
 
     public HistoryInstanceQueryHandler(
       IValidateQueryService IValidateQueryService,
-      IResourceStoreRepository IResourceStoreRepository,            
-      IFhirResourceParseJsonService IFhirResourceParseJsonService,
-      IFhirResourceBundleSupport IFhirResourceBundleSupport,
-      IServerDateTimeSupport IServerDateTimeSupport,      
-      IGZipper IGZipper,
-      IHistoryBundleService IHistoryBundleService)
+      IResourceStoreRepository IResourceStoreRepository,                  
+      IFhirResourceBundleSupport IFhirResourceBundleSupport,            
+      IHistoryBundleService IHistoryBundleService,
+      IResourceTypeSupport IResourceTypeSupport)
     {
       this.IValidateQueryService = IValidateQueryService;
-      this.IResourceStoreRepository = IResourceStoreRepository;            
-      this.IFhirResourceParseJsonService = IFhirResourceParseJsonService;
-      this.IFhirResourceBundleSupport = IFhirResourceBundleSupport;
-      this.IServerDateTimeSupport = IServerDateTimeSupport;      
-      this.IGZipper = IGZipper;
+      this.IResourceStoreRepository = IResourceStoreRepository;                  
+      this.IFhirResourceBundleSupport = IFhirResourceBundleSupport;                
       this.IHistoryBundleService = IHistoryBundleService;
+      this.IResourceTypeSupport = IResourceTypeSupport;
     }
 
     public async Task<FhirApiResult> Handle(HistoryInstanceQuery query)
@@ -57,8 +50,11 @@ namespace Bug.Logic.Query.FhirApi.HistoryInstance
         };
       }
 
+      Bug.Common.Enums.ResourceType? ResourceType = IResourceTypeSupport.GetTypeFromName(query.ResourceName);
+      if (!ResourceType.HasValue)
+        throw new System.ArgumentNullException(nameof(ResourceType));
 
-      IList<ResourceStore> ResourceStoreList = await IResourceStoreRepository.GetInstanceHistoryListAsync(query.FhirVersion, query.ResourceName, query.ResourceId);
+      IList<ResourceStore> ResourceStoreList = await IResourceStoreRepository.GetInstanceHistoryListAsync(query.FhirVersion, ResourceType.Value, query.ResourceId);
 
       //Construct the History Bundle
       var BundleModel = IHistoryBundleService.GetHistoryBundleModel(ResourceStoreList);

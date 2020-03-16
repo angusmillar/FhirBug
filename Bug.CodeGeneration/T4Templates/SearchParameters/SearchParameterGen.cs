@@ -19,7 +19,8 @@ namespace Bug.CodeGeneration.T4Templates.SearchParameters
     {
       var ResourceNameKeyDictionary = new ResourceNameGen().Dic;
       DateTime Now = DateTime.Now;
-      int IdCounter = 1;
+      int IdCounter = 0;
+      int TargetResourceCounter = 0;
 
       string FhirVersion = "Stu3";
 
@@ -42,11 +43,11 @@ namespace Bug.CodeGeneration.T4Templates.SearchParameters
               {
                 Id = IdCounter,
                 Name = SearchParam.Name,
-                Description = SearchParam.Description.Value.Replace(System.Environment.NewLine, " ").Replace("\r", "").Replace("\n", "").Replace("\"", "'"),
-                FkSearchParamTypeId = SearchParam.Type.Value.ToString(),
+                Description = EscapeForSQL(SearchParam.Description.Value),
+                FkSearchParamTypeId = (int)SearchParam.Type.Value,
                 Url = SearchParam.Url,
-                FhirPath = SearchParam.Expression ?? string.Empty,
-                FkFhirVersionId = "Stu3",
+                FhirPath = EscapeForSQL(SearchParam.Expression),
+                FkFhirVersionId = 3,
                 Created = Now,
                 Updated = Now
               };
@@ -54,10 +55,10 @@ namespace Bug.CodeGeneration.T4Templates.SearchParameters
               //Get the list of Resource this search parameter is for
               if (SearchParam.Base != null && SearchParam.Base.ToList().Count > 0)
               {
-                Param.ResourceNameKeyList = new List<int>();
+                Param.ResourceNameList = new List<string>();
                 foreach (var ResourceName in SearchParam.Base)
                 {
-                  Param.ResourceNameKeyList.Add(ResourceNameKeyDictionary[ResourceName.Value.ToString()]);
+                  Param.ResourceNameList.Add(ResourceName.ToString());
                 }
               }
               else
@@ -70,10 +71,16 @@ namespace Bug.CodeGeneration.T4Templates.SearchParameters
               {
                 if (SearchParam.Target != null && SearchParam.Target.ToList().Count > 0)
                 {
-                  Param.TargetResourceNameKeyList = new List<int>();
+                  Param.TargetResourceNameList = new List<SearchParameterModel.SearchParameterTargetResourceTypeModel>();
+                  
                   foreach (var ResourceName in SearchParam.Target)
                   {
-                    Param.TargetResourceNameKeyList.Add(ResourceNameKeyDictionary[ResourceName.ToString()]);
+                    Param.TargetResourceNameList.Add(new SearchParameterModel.SearchParameterTargetResourceTypeModel()
+                    {
+                      Id = TargetResourceCounter,
+                      FkResourceTypeId = ResourceNameKeyDictionary[ResourceName.ToString()],
+                      FkSearchParameterId = IdCounter
+                    });
                   }
                 }
                 else
@@ -120,11 +127,11 @@ namespace Bug.CodeGeneration.T4Templates.SearchParameters
               {
                 Id = IdCounter,
                 Name = SearchParam.Name,
-                Description = SearchParam.Description.Value.Replace(System.Environment.NewLine, " ").Replace("\r", "").Replace("\n", "").Replace("\"", "'"),
-                FkSearchParamTypeId = SearchParam.Type.Value.ToString(),
+                Description = EscapeForSQL(SearchParam.Description.Value),
+                FkSearchParamTypeId = (int)SearchParam.Type.Value,
                 Url = SearchParam.Url,
-                FhirPath = SearchParam.Expression ?? string.Empty,
-                FkFhirVersionId = "Stu3",
+                FhirPath = EscapeForSQL(SearchParam.Expression),
+                FkFhirVersionId = 4,
                 Created = Now,
                 Updated = Now
               };
@@ -132,10 +139,10 @@ namespace Bug.CodeGeneration.T4Templates.SearchParameters
               //Get the list of Resource this search parameter is for
               if (SearchParam.Base != null && SearchParam.Base.ToList().Count > 0)
               {
-                Param.ResourceNameKeyList = new List<int>();
+                Param.ResourceNameList = new List<string>();
                 foreach (var ResourceName in SearchParam.Base)
                 {
-                  Param.ResourceNameKeyList.Add(ResourceNameKeyDictionary[ResourceName.Value.ToString()]);
+                  Param.ResourceNameList.Add(ResourceName.ToString());
                 }
               }
               else
@@ -148,10 +155,15 @@ namespace Bug.CodeGeneration.T4Templates.SearchParameters
               {
                 if (SearchParam.Target != null && SearchParam.Target.ToList().Count > 0)
                 {
-                  Param.TargetResourceNameKeyList = new List<int>();
+                  Param.TargetResourceNameList = new List<SearchParameterModel.SearchParameterTargetResourceTypeModel>();
                   foreach (var ResourceName in SearchParam.Target)
                   {
-                    Param.TargetResourceNameKeyList.Add(ResourceNameKeyDictionary[ResourceName.ToString()]);
+                    Param.TargetResourceNameList.Add(new SearchParameterModel.SearchParameterTargetResourceTypeModel()
+                    {
+                      Id = TargetResourceCounter,
+                      FkResourceTypeId = ResourceNameKeyDictionary[ResourceName.ToString()],
+                      FkSearchParameterId = IdCounter
+                    });
                   }
                 }
                 else
@@ -183,6 +195,14 @@ namespace Bug.CodeGeneration.T4Templates.SearchParameters
         throw new Exception($"Error in setting the {typeof(SearchParameterModel).Name} from a {FhirVersion} SearchParameter resource in the definitions bundle for FHIR R4. See inner exception for more info ", Exec);
       }
     }
+
+    private string EscapeForSQL(string value)
+    {
+      if (value is null)
+        return string.Empty;
+      else
+        return value.Replace(System.Environment.NewLine, " ").Replace("\r", "").Replace("\n", "").Replace("\"", "'").Replace("'", "''");
+    }
   }
 
   public class SearchParameterModel
@@ -190,21 +210,29 @@ namespace Bug.CodeGeneration.T4Templates.SearchParameters
     public int Id { get; set; }
     public string Name { get; set; }
     public string Description { get; set; }
-    public string FkSearchParamTypeId { get; set; }
+    public int FkSearchParamTypeId { get; set; }
     public string Url { get; set; }
     public string FhirPath { get; set; }
-    public string FkFhirVersionId { get; set; }
+    public int FkFhirVersionId { get; set; }
     public DateTime Created { get; set; }
     public DateTime Updated { get; set; }
-    public List<int> ResourceNameKeyList { get; set; }
-    public List<int> TargetResourceNameKeyList { get; set; }
+    public List<string> ResourceNameList { get; set; }
+    public List<SearchParameterTargetResourceTypeModel> TargetResourceNameList { get; set; }
     public List<ComponentModel> ComponentList { get; set; }
 
+    public class SearchParameterTargetResourceTypeModel
+    {
+      public int Id { get; set; }
+      public int FkSearchParameterId { get; set; }
+      public int FkResourceTypeId { get; set; }
+
+    }
     public class ComponentModel
     {
       public string Definition { get; set; }
       public string Expression { get; set; }
     }
+
   }
 
 }

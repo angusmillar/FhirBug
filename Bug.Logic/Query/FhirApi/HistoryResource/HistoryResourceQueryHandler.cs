@@ -4,7 +4,6 @@ using Bug.Common.Exceptions;
 using Bug.Logic.DomainModel;
 using Bug.Logic.Interfaces.Repository;
 using Bug.Logic.Service;
-using Bug.Logic.Service.TableService;
 using Bug.Logic.Service.ValidatorService;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -21,17 +20,20 @@ namespace Bug.Logic.Query.FhirApi.HistoryResource
     private readonly IResourceStoreRepository IResourceStoreRepository;    
     private readonly IFhirResourceBundleSupport IFhirResourceBundleSupport;
     private readonly IHistoryBundleService IHistoryBundleService;
+    private readonly IResourceTypeSupport IResourceTypeSupport;
 
     public HistoryResourceQueryHandler(
       IValidateQueryService IValidateQueryService,
       IResourceStoreRepository IResourceStoreRepository,
       IFhirResourceBundleSupport IFhirResourceBundleSupport,
-      IHistoryBundleService IHistoryBundleService)
+      IHistoryBundleService IHistoryBundleService,
+      IResourceTypeSupport IResourceTypeSupport)
     {
       this.IValidateQueryService = IValidateQueryService;
       this.IResourceStoreRepository = IResourceStoreRepository;
       this.IFhirResourceBundleSupport = IFhirResourceBundleSupport;
       this.IHistoryBundleService = IHistoryBundleService;
+      this.IResourceTypeSupport = IResourceTypeSupport;
     }
 
     public async Task<FhirApiResult> Handle(HistoryResourceQuery query)
@@ -47,7 +49,11 @@ namespace Bug.Logic.Query.FhirApi.HistoryResource
         };
       }
 
-      IList<ResourceStore> ResourceStoreList = await IResourceStoreRepository.GetResourceHistoryListAsync(query.FhirVersion, query.ResourceName);
+      Bug.Common.Enums.ResourceType? ResourceType = IResourceTypeSupport.GetTypeFromName(query.ResourceName);
+      if (!ResourceType.HasValue)
+        throw new System.ArgumentNullException(nameof(ResourceType));
+
+      IList<ResourceStore> ResourceStoreList = await IResourceStoreRepository.GetResourceHistoryListAsync(query.FhirVersion, ResourceType.Value);
 
       //Construct the History Bundle
       var BundleModel = IHistoryBundleService.GetHistoryBundleModel(ResourceStoreList);      

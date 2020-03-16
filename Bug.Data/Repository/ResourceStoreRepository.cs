@@ -17,16 +17,16 @@ namespace Bug.Data.Repository
     public ResourceStoreRepository(AppDbContext context)
       : base(context) { }
      
-    public async Task<ResourceStore?> GetCurrentAsync(Common.Enums.FhirVersion fhirMajorVersion, string resourceName, string resourceId)
+    public async Task<ResourceStore?> GetCurrentAsync(Common.Enums.FhirVersion fhirMajorVersion, Common.Enums.ResourceType resourceType, string resourceId)
     {
       return await DbSet.SingleOrDefaultAsync(x => 
         x.FkFhirVersionId == fhirMajorVersion & 
-        x.ResourceName.Name == resourceName & 
+        x.FkResourceTypeId == resourceType & 
         x.ResourceId == resourceId & 
         x.IsCurrent == true);
     }
 
-    public async Task<IList<ResourceStore>> GetResourceHistoryListAsync(Common.Enums.FhirVersion fhirMajorVersion, string resourceName)
+    public async Task<IList<ResourceStore>> GetResourceHistoryListAsync(Common.Enums.FhirVersion fhirMajorVersion, Common.Enums.ResourceType resourceType)
     {
       return await DbSet.Select(x => new ResourceStore()
       {
@@ -38,14 +38,14 @@ namespace Bug.Data.Repository
         VersionId = x.VersionId,
         ResourceBlob = x.ResourceBlob,
         FkFhirVersionId = x.FkFhirVersionId,
-        FkResourceNameId = x.FkResourceNameId,
-        ResourceName = x.ResourceName,
+        FkResourceTypeId = x.FkResourceTypeId,
+        ResourceType = x.ResourceType,
         FkMethodId = x.FkMethodId,
         FkHttpStatusCodeId = x.FkHttpStatusCodeId,
         HttpStatusCode = x.HttpStatusCode
       }).Where(y =>
         y.FkFhirVersionId == fhirMajorVersion &
-        y.ResourceName.Name == resourceName).OrderBy(z => z.LastUpdated).ToListAsync();
+        y.FkResourceTypeId == resourceType).OrderBy(z => z.LastUpdated).ToListAsync();
     }
 
     public async Task<IList<ResourceStore>> GetBaseHistoryListAsync(Common.Enums.FhirVersion fhirMajorVersion)
@@ -60,8 +60,8 @@ namespace Bug.Data.Repository
         VersionId = x.VersionId,
         ResourceBlob = x.ResourceBlob,
         FkFhirVersionId = x.FkFhirVersionId,
-        FkResourceNameId = x.FkResourceNameId,
-        ResourceName = x.ResourceName,
+        FkResourceTypeId = x.FkResourceTypeId,
+        ResourceType = x.ResourceType,
         FkMethodId = x.FkMethodId,
         FkHttpStatusCodeId = x.FkHttpStatusCodeId,
         HttpStatusCode = x.HttpStatusCode
@@ -69,16 +69,16 @@ namespace Bug.Data.Repository
         y.FkFhirVersionId == fhirMajorVersion).OrderBy(z => z.LastUpdated).ToListAsync();
     }
 
-    public async Task<ResourceStore?> GetVersionAsync(Common.Enums.FhirVersion fhirMajorVersion, string resourceName, string resourceId, int versionId)
+    public async Task<ResourceStore?> GetVersionAsync(Common.Enums.FhirVersion fhirMajorVersion, Common.Enums.ResourceType resourceType, string resourceId, int versionId)
     {
       return await DbSet.SingleOrDefaultAsync(x =>
         x.FkFhirVersionId == fhirMajorVersion &
-        x.ResourceName.Name == resourceName &
+        x.FkResourceTypeId == resourceType &
         x.ResourceId == resourceId &
         x.VersionId == versionId);
     }
 
-    public async Task<IList<ResourceStore>> GetInstanceHistoryListAsync(Common.Enums.FhirVersion fhirMajorVersion, string resourceName, string resourceId)
+    public async Task<IList<ResourceStore>> GetInstanceHistoryListAsync(Common.Enums.FhirVersion fhirMajorVersion, Common.Enums.ResourceType resourceType, string resourceId)
     {
       return await DbSet.Select(x => new ResourceStore()
       {
@@ -90,14 +90,14 @@ namespace Bug.Data.Repository
         VersionId = x.VersionId,
         ResourceBlob = x.ResourceBlob,
         FkFhirVersionId = x.FkFhirVersionId,
-        FkResourceNameId = x.FkResourceNameId,
-        ResourceName = x.ResourceName,
+        FkResourceTypeId = x.FkResourceTypeId,
+        ResourceType = x.ResourceType,
         FkMethodId = x.FkMethodId,        
         FkHttpStatusCodeId = x.FkHttpStatusCodeId,
         HttpStatusCode = x.HttpStatusCode
       }).Where(y =>
         y.FkFhirVersionId == fhirMajorVersion &
-        y.ResourceName.Name == resourceName &
+        y.FkResourceTypeId == resourceType &
         y.ResourceId == resourceId).OrderBy(z => z.LastUpdated).ToListAsync();
     }
 
@@ -109,7 +109,7 @@ namespace Bug.Data.Repository
 
     
 
-    public async Task<ResourceStore?> GetCurrentMetaAsync(Common.Enums.FhirVersion fhirMajorVersion, string ResourceName, string resourceId)
+    public async Task<ResourceStore?> GetCurrentMetaAsync(Common.Enums.FhirVersion fhirMajorVersion, Common.Enums.ResourceType resourceType, string resourceId)
     {
       return await DbSet.Select(x => new ResourceStore()
       {
@@ -120,11 +120,11 @@ namespace Bug.Data.Repository
         LastUpdated = x.LastUpdated,
         VersionId = x.VersionId,
         FkFhirVersionId = x.FkFhirVersionId,
-        FkResourceNameId = x.FkResourceNameId,
-        ResourceName = x.ResourceName
+        FkResourceTypeId = x.FkResourceTypeId,
+        ResourceType = x.ResourceType
       }).SingleOrDefaultAsync(y => 
         y.FkFhirVersionId == fhirMajorVersion &
-        y.ResourceName.Name == ResourceName & 
+        y.FkResourceTypeId == resourceType & 
         y.ResourceId == resourceId &
         y.IsCurrent == true);
     }

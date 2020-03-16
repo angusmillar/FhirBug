@@ -15,10 +15,18 @@ namespace Bug.Data
 {
   public class AppDbContext : DbContext, IUnitOfWork
   {
-    private const bool GenerateNonStaticSeedData = true;
+    private const bool GenerateNonStaticSeedData = false;
     public virtual DbSet<ResourceStore> ResourceStore { get; set; } = null!;
-    public virtual DbSet<ResourceName> ResourceName { get; set; } = null!;
+    public virtual DbSet<Logic.DomainModel.ResourceType> ResourceType { get; set; } = null!;
     public virtual DbSet<Logic.DomainModel.FhirVersion> FhirVersion { get; set; } = null!;
+    public virtual DbSet<Logic.DomainModel.Method> Method { get; set; } = null!;
+    public virtual DbSet<Logic.DomainModel.HttpStatusCode> HttpStatusCode { get; set; } = null!;
+    public virtual DbSet<Logic.DomainModel.SearchParameterResourceType> SearchParameterResourceType { get; set; } = null!;
+    public virtual DbSet<Logic.DomainModel.SearchParameterTargetResourceType> SearchParameterTargetResourceType { get; set; } = null!;
+    public virtual DbSet<Logic.DomainModel.SearchParameterComponent> SearchParameterComponent { get; set; } = null!;
+    public virtual DbSet<Logic.DomainModel.SearchParamType> SearchParamType { get; set; } = null!;
+    public virtual DbSet<Logic.DomainModel.SearchParameter> SearchParameter { get; set; } = null!;
+
 
     public AppDbContext(DbContextOptions<AppDbContext> options)
       : base(options) { }
@@ -50,14 +58,14 @@ namespace Bug.Data
         entity.Property(e => e.IsDeleted).HasColumnName("is_deleted").IsRequired(true); ;
         entity.Property(e => e.LastUpdated).HasColumnName("last_updated").IsRequired(true);
         entity.Property(e => e.ResourceBlob).HasColumnName("resource_blob").IsRequired(false);
-        entity.Property(e => e.FkResourceNameId).HasColumnName("fk_resourcename_id").IsRequired(true);
+        entity.Property(e => e.FkResourceTypeId).HasColumnName("fk_resourcetype_id").IsRequired(true).HasConversion<int>();
         entity.Property(e => e.FkFhirVersionId).HasColumnName("fk_fhirversion_id").IsRequired(true).HasConversion<int>();
         entity.Property(e => e.FkMethodId).HasColumnName("fk_method_id").IsRequired(true).HasConversion<int>();
         entity.Property(e => e.FkHttpStatusCodeId).HasColumnName("fk_httpstatuscode_id").IsRequired(true);
 
-        entity.HasOne(x => x.ResourceName)
+        entity.HasOne(x => x.ResourceType)
         .WithMany()
-        .HasForeignKey(x => x.FkResourceNameId);
+        .HasForeignKey(x => x.FkResourceTypeId);
 
         entity.HasOne(x => x.FhirVersion)
         .WithMany()
@@ -72,8 +80,8 @@ namespace Bug.Data
         .HasForeignKey(x => x.FkHttpStatusCodeId);
 
         //Ensure that no two resources have the same ResourceId, VersionId, for the same FHIR Version and Resource Name
-        entity.HasIndex(x => new { x.FkFhirVersionId, x.FkResourceNameId, x.ResourceId, x.VersionId, })
-          .HasName("UniqueIx_FhirVer_ResName_ResId_ResVer")
+        entity.HasIndex(x => new { x.FkFhirVersionId, x.FkResourceTypeId, x.ResourceId, x.VersionId, })
+          .HasName("UniqueIx_FhirVer_ResType_ResId_ResVer")
           .IsUnique();
 
         //We often order by LastUpdated
@@ -84,13 +92,16 @@ namespace Bug.Data
 
       //##### ResourceName #################################################
 
-      builder.Entity<ResourceName>(entity =>
+      builder.Entity<Logic.DomainModel.ResourceType>(entity =>
       {
-        SetupBaseIntKeyProperties(entity);
-        entity.Property(x => x.Name).IsRequired(true).HasColumnName("name").HasMaxLength(DatabaseMetaData.FieldLength.ResourceTypeStringMaxLength);
+        entity.HasKey(e => e.Id);
+        entity.Property(e => e.Id).HasColumnName("id").HasConversion<int>();
+        entity.Property(e => e.Created).HasColumnName("created").IsRequired(true);
+        entity.Property(e => e.Updated).HasColumnName("updated").IsRequired(true);
+        entity.Property(x => x.Code).IsRequired(true).HasColumnName("code").HasMaxLength(DatabaseMetaData.FieldLength.ResourceTypeStringMaxLength);
       });
       
-      builder.Entity<Logic.DomainModel.ResourceName>().HasData(Seeding.ResourceNameSeed.GetSeedData(DateTimeNow));
+      //builder.Entity<Logic.DomainModel.ResourceType>().HasData(Seeding.ResourceTypeSeed.GetSeedData(DateTimeNow));
 
       //##### FhirVersion #################################################
 
@@ -104,9 +115,9 @@ namespace Bug.Data
       });
 
       //Seed data
-      builder.Entity<Logic.DomainModel.FhirVersion>().HasData(
-        new Logic.DomainModel.FhirVersion() { Id = Common.Enums.FhirVersion.Stu3, Code = Common.Enums.FhirVersion.Stu3.GetCode(), Created = DateTimeNow, Updated = DateTimeNow },
-        new Logic.DomainModel.FhirVersion() { Id = Common.Enums.FhirVersion.R4, Code = Common.Enums.FhirVersion.R4.GetCode(), Created = DateTimeNow, Updated = DateTimeNow });
+      //builder.Entity<Logic.DomainModel.FhirVersion>().HasData(
+      //  new Logic.DomainModel.FhirVersion() { Id = Common.Enums.FhirVersion.Stu3, Code = Common.Enums.FhirVersion.Stu3.GetCode(), Created = DateTimeNow, Updated = DateTimeNow },
+      //  new Logic.DomainModel.FhirVersion() { Id = Common.Enums.FhirVersion.R4, Code = Common.Enums.FhirVersion.R4.GetCode(), Created = DateTimeNow, Updated = DateTimeNow });
 
       //##### Method #################################################
 
@@ -119,14 +130,14 @@ namespace Bug.Data
         entity.Property(x => x.Code).HasColumnName("code").IsRequired(true).HasMaxLength(DatabaseMetaData.FieldLength.CodeMaxLength); ;
       });
 
-      //Seed data
-      builder.Entity<Method>().HasData(
-        new Method() { Id = HttpVerb.DELETE, Code = HttpVerb.DELETE.GetCode(), Created = DateTimeNow, Updated = DateTimeNow },
-        new Method() { Id = HttpVerb.GET, Code = HttpVerb.GET.GetCode(), Created = DateTimeNow, Updated = DateTimeNow },
-        new Method() { Id = HttpVerb.HEAD, Code = HttpVerb.HEAD.GetCode(), Created = DateTimeNow, Updated = DateTimeNow },
-        new Method() { Id = HttpVerb.PATCH, Code = HttpVerb.PATCH.GetCode(), Created = DateTimeNow, Updated = DateTimeNow },
-        new Method() { Id = HttpVerb.POST, Code = HttpVerb.POST.GetCode(), Created = DateTimeNow, Updated = DateTimeNow },
-        new Method() { Id = HttpVerb.PUT, Code = HttpVerb.PUT.GetCode(), Created = DateTimeNow, Updated = DateTimeNow });
+      ////Seed data
+      //builder.Entity<Method>().HasData(
+      //  new Method() { Id = HttpVerb.DELETE, Code = HttpVerb.DELETE.GetCode(), Created = DateTimeNow, Updated = DateTimeNow },
+      //  new Method() { Id = HttpVerb.GET, Code = HttpVerb.GET.GetCode(), Created = DateTimeNow, Updated = DateTimeNow },
+      //  new Method() { Id = HttpVerb.HEAD, Code = HttpVerb.HEAD.GetCode(), Created = DateTimeNow, Updated = DateTimeNow },
+      //  new Method() { Id = HttpVerb.PATCH, Code = HttpVerb.PATCH.GetCode(), Created = DateTimeNow, Updated = DateTimeNow },
+      //  new Method() { Id = HttpVerb.POST, Code = HttpVerb.POST.GetCode(), Created = DateTimeNow, Updated = DateTimeNow },
+      //  new Method() { Id = HttpVerb.PUT, Code = HttpVerb.PUT.GetCode(), Created = DateTimeNow, Updated = DateTimeNow });
 
       //##### HttpStatusCode #################################################
 
@@ -139,51 +150,52 @@ namespace Bug.Data
         entity.HasIndex(x => new { x.Number, })
         .HasName("Unique_Number")
         .IsUnique();
-
       });
 
       //Seed data
-      builder.Entity<HttpStatusCode>().HasData(GetHttpStatusSeedData(DateTimeNow));
+      //builder.Entity<HttpStatusCode>().HasData(GetHttpStatusSeedData(DateTimeNow));
 
-      //##### SearchParameterResourceName #################################################
+      //##### SearchParameterResourceType #################################################
 
-      builder.Entity<SearchParameterResourceName>(entity =>
+      builder.Entity<SearchParameterResourceType>(entity =>
       {
         SetupBaseIntKeyProperties(entity);
-
+        entity.Property(x => x.FkResourceTypeId).HasColumnName("fk_resourcetype_id").IsRequired(true).HasConversion<int>();
+        
         entity.HasOne(x => x.SearchParameter)
-        .WithMany(y => y.ResourceNameList)
+        .WithMany(y => y.ResourceTypeList)
         .HasForeignKey(x => x.FkSearchParameterId);
 
-        entity.HasOne(x => x.ResourceName)
+        entity.HasOne(x => x.ResourceType)
         .WithMany()
-        .HasForeignKey(x => x.FkResourceNameId);
+        .HasForeignKey(x => x.FkResourceTypeId);
       });
 
       if (GenerateNonStaticSeedData)
       {
-        builder.Entity<SearchParameterResourceName>().HasData(Seeding.SearchParameterResourceNameSeed.GetSeedData(DateTimeNow));
+        //builder.Entity<SearchParameterResourceType>().HasData(Seeding.SearchParameterResourceTypeSeed.GetSeedData(DateTimeNow));
       }
         
 
-      //##### SearchParameterTargetResourceName #################################################
+      //##### SearchParameterTargetResourceType #################################################
 
-      builder.Entity<SearchParameterTargetResourceName>(entity =>
+      builder.Entity<SearchParameterTargetResourceType>(entity =>
       {
         SetupBaseIntKeyProperties(entity);
+        entity.Property(x => x.FkResourceTypeId).HasColumnName("fk_resourcetype_id").IsRequired(true).HasConversion<int>();
 
         entity.HasOne(x => x.SearchParameter)
-        .WithMany(y => y.TargetResourceNameList)
+        .WithMany(y => y.TargetResourceTypeList)
         .HasForeignKey(x => x.FkSearchParameterId);
 
-        entity.HasOne(x => x.ResourceName)
+        entity.HasOne(x => x.ResourceType)
         .WithMany()
-        .HasForeignKey(x => x.FkResourceNameId);
+        .HasForeignKey(x => x.FkResourceTypeId);
       });
 
       if (GenerateNonStaticSeedData)
       {
-        builder.Entity<SearchParameterTargetResourceName>().HasData(Seeding.SearchParameterTargetResourceNameSeed.GetSeedData(DateTimeNow));
+        //builder.Entity<SearchParameterTargetResourceType>().HasData(Seeding.SearchParameterTargetResourceTypeSeed.GetSeedData(DateTimeNow));
       }
 
       //##### SearchParameterComponent #################################################
@@ -202,7 +214,7 @@ namespace Bug.Data
 
       if (GenerateNonStaticSeedData)
       {
-        builder.Entity<SearchParameterComponent>().HasData(Seeding.SearchParameterComponentSeed.GetSeedData(DateTimeNow));
+        //builder.Entity<SearchParameterComponent>().HasData(Seeding.SearchParameterComponentSeed.GetSeedData(DateTimeNow));
       }
       //##### SearchParamType #################################################
 
@@ -215,16 +227,16 @@ namespace Bug.Data
         entity.Property(x => x.Code).HasColumnName("code").IsRequired(true).HasMaxLength(DatabaseMetaData.FieldLength.CodeMaxLength);
       });
 
-      builder.Entity<Bug.Logic.DomainModel.SearchParamType>().HasData(
-        new Bug.Logic.DomainModel.SearchParamType() { Id = Bug.Common.Enums.SearchParamType.Composite, Code = Bug.Common.Enums.SearchParamType.Composite.GetCode(), Created = DateTimeNow, Updated = DateTimeNow },
-        new Bug.Logic.DomainModel.SearchParamType() { Id = Bug.Common.Enums.SearchParamType.Date, Code = Bug.Common.Enums.SearchParamType.Date.GetCode(), Created = DateTimeNow, Updated = DateTimeNow },
-        new Bug.Logic.DomainModel.SearchParamType() { Id = Bug.Common.Enums.SearchParamType.Number, Code = Bug.Common.Enums.SearchParamType.Number.GetCode(), Created = DateTimeNow, Updated = DateTimeNow },
-        new Bug.Logic.DomainModel.SearchParamType() { Id = Bug.Common.Enums.SearchParamType.Quantity, Code = Bug.Common.Enums.SearchParamType.Quantity.GetCode(), Created = DateTimeNow, Updated = DateTimeNow },
-        new Bug.Logic.DomainModel.SearchParamType() { Id = Bug.Common.Enums.SearchParamType.Reference, Code = Bug.Common.Enums.SearchParamType.Reference.GetCode(), Created = DateTimeNow, Updated = DateTimeNow },
-        new Bug.Logic.DomainModel.SearchParamType() { Id = Bug.Common.Enums.SearchParamType.Special, Code = Bug.Common.Enums.SearchParamType.Special.GetCode(), Created = DateTimeNow, Updated = DateTimeNow },
-        new Bug.Logic.DomainModel.SearchParamType() { Id = Bug.Common.Enums.SearchParamType.String, Code = Bug.Common.Enums.SearchParamType.String.GetCode(), Created = DateTimeNow, Updated = DateTimeNow },
-        new Bug.Logic.DomainModel.SearchParamType() { Id = Bug.Common.Enums.SearchParamType.Token, Code = Bug.Common.Enums.SearchParamType.Token.GetCode(), Created = DateTimeNow, Updated = DateTimeNow },
-        new Bug.Logic.DomainModel.SearchParamType() { Id = Bug.Common.Enums.SearchParamType.Uri, Code = Bug.Common.Enums.SearchParamType.Uri.GetCode(), Created = DateTimeNow, Updated = DateTimeNow });
+      //builder.Entity<Bug.Logic.DomainModel.SearchParamType>().HasData(
+      //  new Bug.Logic.DomainModel.SearchParamType() { Id = Bug.Common.Enums.SearchParamType.Composite, Code = Bug.Common.Enums.SearchParamType.Composite.GetCode(), Created = DateTimeNow, Updated = DateTimeNow },
+      //  new Bug.Logic.DomainModel.SearchParamType() { Id = Bug.Common.Enums.SearchParamType.Date, Code = Bug.Common.Enums.SearchParamType.Date.GetCode(), Created = DateTimeNow, Updated = DateTimeNow },
+      //  new Bug.Logic.DomainModel.SearchParamType() { Id = Bug.Common.Enums.SearchParamType.Number, Code = Bug.Common.Enums.SearchParamType.Number.GetCode(), Created = DateTimeNow, Updated = DateTimeNow },
+      //  new Bug.Logic.DomainModel.SearchParamType() { Id = Bug.Common.Enums.SearchParamType.Quantity, Code = Bug.Common.Enums.SearchParamType.Quantity.GetCode(), Created = DateTimeNow, Updated = DateTimeNow },
+      //  new Bug.Logic.DomainModel.SearchParamType() { Id = Bug.Common.Enums.SearchParamType.Reference, Code = Bug.Common.Enums.SearchParamType.Reference.GetCode(), Created = DateTimeNow, Updated = DateTimeNow },
+      //  new Bug.Logic.DomainModel.SearchParamType() { Id = Bug.Common.Enums.SearchParamType.Special, Code = Bug.Common.Enums.SearchParamType.Special.GetCode(), Created = DateTimeNow, Updated = DateTimeNow },
+      //  new Bug.Logic.DomainModel.SearchParamType() { Id = Bug.Common.Enums.SearchParamType.String, Code = Bug.Common.Enums.SearchParamType.String.GetCode(), Created = DateTimeNow, Updated = DateTimeNow },
+      //  new Bug.Logic.DomainModel.SearchParamType() { Id = Bug.Common.Enums.SearchParamType.Token, Code = Bug.Common.Enums.SearchParamType.Token.GetCode(), Created = DateTimeNow, Updated = DateTimeNow },
+      //  new Bug.Logic.DomainModel.SearchParamType() { Id = Bug.Common.Enums.SearchParamType.Uri, Code = Bug.Common.Enums.SearchParamType.Uri.GetCode(), Created = DateTimeNow, Updated = DateTimeNow });
 
 
       //##### SearchParameter #################################################
@@ -240,11 +252,11 @@ namespace Bug.Data
         entity.Property(x => x.FhirPath).HasColumnName("fhir_path").IsRequired(false);
         entity.Property(x => x.FkFhirVersionId).HasColumnName("fk_fhirversion_id").IsRequired(true).HasConversion<int>();
 
-        entity.HasMany(x => x.ResourceNameList)
+        entity.HasMany(x => x.ResourceTypeList)
         .WithOne(y => y.SearchParameter)
         .HasForeignKey(x => x.FkSearchParameterId);
 
-        entity.HasMany(x => x.TargetResourceNameList)
+        entity.HasMany(x => x.TargetResourceTypeList)
         .WithOne(y => y.SearchParameter)
         .HasForeignKey(x => x.FkSearchParameterId);
 
@@ -263,14 +275,14 @@ namespace Bug.Data
 
       if (GenerateNonStaticSeedData)
       {
-        builder.Entity<SearchParameter>().HasData(Bug.Data.Seeding.SearchParameterSeed.GetSeedData(DateTimeNow));
+        //builder.Entity<SearchParameter>().HasData(Bug.Data.Seeding.SearchParameterSeed.GetSeedData(DateTimeNow));
       }
     }
 
     private static void SetupBaseIntKeyProperties<T>(EntityTypeBuilder<T> entity) where T :BaseIntKey
     {
       entity.HasKey(e => e.Id);
-      entity.Property(e => e.Id).HasColumnName("id").HasConversion<int>();
+      entity.Property(e => e.Id).HasColumnName("id");
       entity.Property(e => e.Created).HasColumnName("created");
       entity.Property(e => e.Updated).HasColumnName("updated");
     }

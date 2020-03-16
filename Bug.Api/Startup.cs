@@ -141,8 +141,11 @@ namespace Bug.Api
       container.Register<Bug.Common.Compression.IGZipper, Bug.Common.Compression.GZipper>(Lifestyle.Singleton);
       container.Register<Bug.Common.FhirTools.IResourceVersionIdSupport, Bug.Common.FhirTools.ResourceVersionIdSupport>(Lifestyle.Singleton);      
       container.Register<Bug.Stu3Fhir.ResourceSupport.IStu3ValidateResourceName, Bug.Stu3Fhir.ResourceSupport.ValidateResourceName>(Lifestyle.Singleton);
-      container.Register<Bug.R4Fhir.ResourceSupport.IR4ValidateResourceName, Bug.R4Fhir.ResourceSupport.ValidateResourceName>(Lifestyle.Singleton);      
+      container.Register<Bug.R4Fhir.ResourceSupport.IR4ValidateResourceName, Bug.R4Fhir.ResourceSupport.ValidateResourceName>(Lifestyle.Singleton);
+      container.Register<Common.FhirTools.IResourceTypeSupport, Common.FhirTools.ResourceTypeSupport>(Lifestyle.Singleton);
+
       
+
 
       //############## Scoped ###############################################################################
 
@@ -225,20 +228,14 @@ namespace Bug.Api
       container.Register<Logic.Service.IFhirResourceBundleSupport, Logic.Service.FhirResourceBundleSupport>(Lifestyle.Scoped);
       container.Register<Logic.Service.FhirResourceService.IHistoryBundleService, Logic.Service.FhirResourceService.HistoryBundleService>(Lifestyle.Scoped);
       
-      //-- Cache Services ---------------      
-      container.Register<Logic.CacheService.IResourceNameCache, Logic.CacheService.ResourceNameCache>(Lifestyle.Scoped);
+      //-- Cache Services ---------------            
       container.Register<Logic.CacheService.IFhirVersionCache, Logic.CacheService.FhirVersionCache>(Lifestyle.Scoped);
       container.Register<Logic.CacheService.IMethodCache, Logic.CacheService.MethodCache>(Lifestyle.Scoped);
       container.Register<Logic.CacheService.IHttpStatusCodeCache, Logic.CacheService.HttpStatusCodeCache>(Lifestyle.Scoped);
-
-      
-      //Table Service
-      container.Register<Logic.Service.TableService.IResourceNameTableService, Logic.Service.TableService.ResourceNameTableService>(Lifestyle.Scoped);
       
       //-- Repositories ---------------
       container.Register<IUnitOfWork, Bug.Data.AppDbContext>(Lifestyle.Scoped);
       container.Register<IResourceStoreRepository, Bug.Data.Repository.ResourceStoreRepository>(Lifestyle.Scoped);
-      container.Register<IResourceNameRepository, Bug.Data.Repository.ResourceNameRepository>(Lifestyle.Scoped);
       container.Register<IFhirVersionRepository, Bug.Data.Repository.FhirVersionRepository>(Lifestyle.Scoped);
       container.Register<IMethodRepository, Bug.Data.Repository.MethodRepository>(Lifestyle.Scoped);
       container.Register<IHttpStatusCodeRepository, Bug.Data.Repository.HttpStatusCodeRepository>(Lifestyle.Scoped);

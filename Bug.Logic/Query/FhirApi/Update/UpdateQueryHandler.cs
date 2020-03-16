@@ -6,7 +6,6 @@ using Bug.Logic.CacheService;
 using Bug.Logic.DomainModel;
 using Bug.Logic.Interfaces.Repository;
 using Bug.Logic.Service;
-using Bug.Logic.Service.TableService;
 using Bug.Logic.Service.ValidatorService;
 using System;
 using System.Threading.Tasks;
@@ -17,7 +16,7 @@ namespace Bug.Logic.Query.FhirApi.Update
   {
     private readonly IValidateQueryService IValidateQueryService;
     private readonly IResourceStoreRepository IResourceStoreRepository;    
-    private readonly IResourceNameTableService IResourceNameTableService;
+    private readonly IResourceTypeSupport IResourceTypeSupport;
     private readonly IHttpStatusCodeCache IHttpStatusCodeCache;    
     private readonly IUpdateResourceService IUpdateResourceService;
     private readonly IServerDateTimeSupport IServerDefaultDateTimeOffSet;
@@ -26,8 +25,8 @@ namespace Bug.Logic.Query.FhirApi.Update
 
     public UpdateQueryHandler(
       IValidateQueryService IValidateQueryService,
-      IResourceStoreRepository IResourceStoreRepository,      
-      IResourceNameTableService IResourceNameTableService,
+      IResourceStoreRepository IResourceStoreRepository,
+      IResourceTypeSupport IResourceTypeSupport,
       IHttpStatusCodeCache IHttpStatusCodeCache,      
       IUpdateResourceService IUpdateResourceService,
       IServerDateTimeSupport IServerDefaultDateTimeOffSet,
@@ -36,7 +35,7 @@ namespace Bug.Logic.Query.FhirApi.Update
     {
       this.IValidateQueryService = IValidateQueryService;
       this.IResourceStoreRepository = IResourceStoreRepository;      
-      this.IResourceNameTableService = IResourceNameTableService;
+      this.IResourceTypeSupport = IResourceTypeSupport;
       this.IHttpStatusCodeCache = IHttpStatusCodeCache;      
       this.IUpdateResourceService = IUpdateResourceService;
       this.IServerDefaultDateTimeOffSet = IServerDefaultDateTimeOffSet;
@@ -61,9 +60,12 @@ namespace Bug.Logic.Query.FhirApi.Update
 
       System.Net.HttpStatusCode FinalyHttpStatusCode = System.Net.HttpStatusCode.Created;      
       int NewVersionId = 1;
-      ResourceName ResourceName = await IResourceNameTableService.GetSetResourceName(query.ResourceName);
+     
+      Bug.Common.Enums.ResourceType? ResourceType = IResourceTypeSupport.GetTypeFromName(query.ResourceName);
+      if (!ResourceType.HasValue)
+        throw new ArgumentNullException(nameof(ResourceType));  
 
-      ResourceStore? PreviousResourseStore = await IResourceStoreRepository.GetCurrentMetaAsync(query.FhirResource.FhirMajorVersion, query.ResourceName, query.ResourceId);
+      ResourceStore? PreviousResourseStore = await IResourceStoreRepository.GetCurrentMetaAsync(query.FhirResource.FhirMajorVersion, ResourceType.Value, query.ResourceId);
       if (PreviousResourseStore is object)
       {
         FinalyHttpStatusCode = System.Net.HttpStatusCode.OK;
@@ -93,7 +95,7 @@ namespace Bug.Logic.Query.FhirApi.Update
         VersionId = NewVersionId,
         LastUpdated = NewLastUpdated.ToZulu(),
         ResourceBlob = IGZipper.Compress(IFhirResourceJsonSerializationService.SerializeToJsonBytes(UpdatedFhirResource)),
-        FkResourceNameId = ResourceName.Id,
+        FkResourceTypeId = ResourceType.Value,
         FkFhirVersionId = query.FhirVersion,
         FkHttpStatusCodeId = HttpStatusCode.Id,
         FkMethodId = query.Method

@@ -1,0 +1,41 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="DeploymentScripts\20200316080756_000_First.sql" />
+    <None Remove="DeploymentScripts\20200316080756_001_FhirVersionSeed.sql" />
+    <None Remove="DeploymentScripts\20200316080756_002_HttpStatusCodeSeed.sql" />
+    <None Remove="DeploymentScripts\20200316080756_003_MethodSeed.sql" />
+    <None Remove="DeploymentScripts\20200316080756_004_SearchParamTypeSeed.sql" />
+    <None Remove="DeploymentScripts\20200316080756_005_ResourceTypeSeed.sql" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="DeploymentScripts\20200316080756_000_First.sql" />
+    <EmbeddedResource Include="DeploymentScripts\20200316080756_001_FhirVersionSeed.sql" />
+    <EmbeddedResource Include="DeploymentScripts\20200316080756_002_HttpStatusCodeSeed.sql" />
+    <EmbeddedResource Include="DeploymentScripts\20200316080756_003_MethodSeed.sql" />
+    <EmbeddedResource Include="DeploymentScripts\20200316080756_004_SearchParamTypeSeed.sql" />
+    <EmbeddedResource Include="DeploymentScripts\20200316080756_005_ResourceTypeSeed.sql" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="dbup-core" Version="4.3.1" />
+    <PackageReference Include="dbup-postgresql" Version="4.3.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="BeforeDeploymentScripts\" />
+    <Folder Include="PostDeploymentScripts\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="..\Bug.CodeGeneration\T4Templates\SearchParameters\20200316080756_006_SearchParameterSeed.sql" Link="DeploymentScripts\20200316080756_006_SearchParameterSeed.sql" />
+    <None Include="..\Bug.CodeGeneration\T4Templates\SearchParameterTargetResourceType\20200316080756_010_SearchParameterTargetResourceTypeSeed.sql" Link="DeploymentScripts\20200316080756_010_SearchParameterTargetResourceTypeSeed.sql" />
+  </ItemGroup>
+
+</Project>

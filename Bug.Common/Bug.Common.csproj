@@ -6,6 +6,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="..\Bug.CodeGeneration\T4Templates\ResourceNameSupport\ResourceNameSupport.cs" Link="FhirTools\ResourceNameSupport.cs" />
+    <Compile Include="..\Bug.CodeGeneration\T4Templates\ResourceTypeEnum\ResourceType.cs" Link="Enums\ResourceType.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Hl7.Fhir.R4" Version="1.5.0" />
     <PackageReference Include="Hl7.Fhir.STU3" Version="1.5.0" />
   </ItemGroup>

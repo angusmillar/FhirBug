@@ -40,7 +40,7 @@ namespace Bug.Logic.Service.FhirResourceService
           entry.Resource = IFhirResourceParseJsonService.ParseJson(ResourceStore.FkFhirVersionId, IGZipper.Decompress(ResourceStore.ResourceBlob));
         }
 
-        string RequestUrl = ResourceStore.ResourceName.Name;
+        string RequestUrl = ResourceStore.FkResourceTypeId.GetCode();
         if (ResourceStore.FkMethodId == HttpVerb.PUT || ResourceStore.FkMethodId == HttpVerb.DELETE)
         {
           RequestUrl = $"{RequestUrl}/{ResourceStore.ResourceId}";

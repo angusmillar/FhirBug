@@ -4,7 +4,6 @@ using Bug.Common.FhirTools;
 using Bug.Logic.DomainModel;
 using Bug.Logic.Interfaces.Repository;
 using Bug.Logic.Service;
-using Bug.Logic.Service.TableService;
 using Bug.Logic.Service.ValidatorService;
 using System.Threading.Tasks;
 
@@ -15,17 +14,20 @@ namespace Bug.Logic.Query.FhirApi.Read
     private readonly IValidateQueryService IValidateQueryService;
     private readonly IResourceStoreRepository IResourceStoreRepository;
     private readonly IFhirResourceParseJsonService IFhirResourceParseJsonService;
+    private readonly IResourceTypeSupport IResourceTypeSupport;
     private readonly IGZipper IGZipper;
 
     public ReadQueryHandler(
       IValidateQueryService IValidateQueryService,
       IResourceStoreRepository IResourceStoreRepository,
       IFhirResourceParseJsonService IFhirResourceParseJsonService,
+      IResourceTypeSupport IResourceTypeSupport,
       IGZipper IGZipper)
     {
       this.IValidateQueryService = IValidateQueryService;
       this.IResourceStoreRepository = IResourceStoreRepository;
       this.IFhirResourceParseJsonService = IFhirResourceParseJsonService;
+      this.IResourceTypeSupport = IResourceTypeSupport;
       this.IGZipper = IGZipper;
     }
 
@@ -42,7 +44,11 @@ namespace Bug.Logic.Query.FhirApi.Read
         };
       }
 
-      ResourceStore? ResourceStore = await IResourceStoreRepository.GetCurrentAsync(query.FhirVersion, query.ResourceName, query.ResourceId);
+      Bug.Common.Enums.ResourceType? ResourceType = IResourceTypeSupport.GetTypeFromName(query.ResourceName);
+      if (!ResourceType.HasValue)
+        throw new System.ArgumentNullException(nameof(ResourceType));
+
+      ResourceStore? ResourceStore = await IResourceStoreRepository.GetCurrentAsync(query.FhirVersion, ResourceType.Value, query.ResourceId);
 
       if (ResourceStore is object)
       {

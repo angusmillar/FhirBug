@@ -14,8 +14,8 @@ namespace Bug.Logic.DomainModel
     public bool IsCurrent { get; set; }
     public DateTime LastUpdated { get; set; }
     public byte[]? ResourceBlob { get; set; }
-    public int FkResourceNameId { get; set; }
-    public ResourceName ResourceName { get; set; }
+    public Common.Enums.ResourceType FkResourceTypeId { get; set; }
+    public ResourceType ResourceType { get; set; }
     public Common.Enums.FhirVersion FkFhirVersionId { get; set; }
     public FhirVersion FhirVersion { get; set; }
     public HttpVerb FkMethodId { get; set; }

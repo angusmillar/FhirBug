@@ -4,7 +4,6 @@ using Bug.Common.Exceptions;
 using Bug.Logic.DomainModel;
 using Bug.Logic.Interfaces.Repository;
 using Bug.Logic.Service;
-using Bug.Logic.Service.TableService;
 using Bug.Logic.Service.ValidatorService;
 using System.Collections.Generic;
 using System.Threading.Tasks;

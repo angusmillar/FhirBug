@@ -113,59 +113,77 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="R4\R4CodeGen.cs" />
     <Compile Include="R4\SearchParametersBundleLoader.cs" />
-    <Compile Include="T4Templates\ResourceName\ResourceNameGen.cs" />
-    <None Include="T4Templates\ResourceName\ResourceNameSeed.cs">
+    <None Include="T4Templates\ResourceNameSupport\ResourceNameSupport.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
-      <DependentUpon>ResourceNameSeed.tt</DependentUpon>
+      <DependentUpon>ResourceNameSupport.tt</DependentUpon>
     </None>
-    <None Include="T4Templates\SearchParameterResourceName\SearchParameterResourceNameSeed.cs">
+    <Compile Include="T4Templates\ResourceName\ResourceNameGen.cs" />
+    <None Include="T4Templates\ResourceName\ResourceTypeSeed.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
-      <DependentUpon>SearchParameterResourceNameSeed.tt</DependentUpon>
+      <DependentUpon>ResourceTypeSeed.tt</DependentUpon>
+    </None>
+    <None Include="T4Templates\SearchParameterResourceType\SearchParameterResourceTypeSeed.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>SearchParameterResourceTypeSeed.tt</DependentUpon>
     </None>
     <None Include="T4Templates\SearchParameterComponent\SearchParameterComponentSeed.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>SearchParameterComponentSeed.tt</DependentUpon>
     </None>
-    <Compile Include="T4Templates\SearchParameters\SearchParameterGen.cs" />
-    <None Include="T4Templates\SearchParameters\SearchParameterSeed.cs">
+    <None Include="T4Templates\ResourceTypeEnum\ResourceType.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
-      <DependentUpon>SearchParameterSeed.tt</DependentUpon>
+      <DependentUpon>ResourceType.tt</DependentUpon>
     </None>
+    <Compile Include="T4Templates\SearchParameters\SearchParameterGen.cs" />
     <Compile Include="Stu3\SearchParametersBundleLoader.cs" />
     <Compile Include="Stu3\Stu3CodeGen.cs" />
-    <None Include="T4Templates\SearchParameterTargetResourceName\SearchParameterTargetResourceNameSeed.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>SearchParameterTargetResourceNameSeed.tt</DependentUpon>
-    </None>
     <Compile Include="T4Templates\SearchParameters\R4SearchParameterBugFixes.cs" />
     <Compile Include="T4Templates\SearchParameters\Stu3SearchParameterBugFixes.cs" />
     <Compile Include="Zip\ZipFileJsonLoader.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="T4Templates\ResourceName\ResourceNameSeed.tt">
+    <Content Include="T4Templates\ResourceNameSupport\ResourceNameSupport.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>ResourceNameSeed.cs</LastGenOutput>
+      <LastGenOutput>ResourceNameSupport.cs</LastGenOutput>
+    </Content>
+    <Content Include="T4Templates\ResourceName\ResourceTypeSeed.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>ResourceTypeSeed.cs</LastGenOutput>
+    </Content>
+    <Content Include="T4Templates\ResourceTypeEnum\ResourceType.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>ResourceType.cs</LastGenOutput>
     </Content>
     <Content Include="T4Templates\SearchParameterComponent\SearchParameterComponentSeed.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>SearchParameterComponentSeed.cs</LastGenOutput>
     </Content>
-    <Content Include="T4Templates\SearchParameterResourceName\SearchParameterResourceNameSeed.tt">
+    <Content Include="T4Templates\SearchParameterResourceType\SearchParameterResourceTypeSeed.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>SearchParameterResourceNameSeed.cs</LastGenOutput>
+      <LastGenOutput>SearchParameterResourceTypeSeed.cs</LastGenOutput>
     </Content>
-    <Content Include="T4Templates\SearchParameters\SearchParameterSeed.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>SearchParameterSeed.cs</LastGenOutput>
+    <Content Include="T4Templates\SearchParameters\20200316080756_006_SearchParameterSeed.sql">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>20200316080756_006_SearchParameterSeed.tt</DependentUpon>
     </Content>
-    <Content Include="T4Templates\SearchParameterTargetResourceName\SearchParameterTargetResourceNameSeed.tt">
+    <Content Include="T4Templates\SearchParameters\20200316080756_006_SearchParameterSeed.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>SearchParameterTargetResourceNameSeed.cs</LastGenOutput>
+      <LastGenOutput>20200316080756_006_SearchParameterSeed.sql</LastGenOutput>
+    </Content>
+    <Content Include="T4Templates\SearchParameterTargetResourceType\20200316080756_010_SearchParameterTargetResourceTypeSeed.sql">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>20200316080756_010_SearchParameterTargetResourceTypeSeed.tt</DependentUpon>
+    </Content>
+    <Content Include="T4Templates\SearchParameterTargetResourceType\20200316080756_010_SearchParameterTargetResourceTypeSeed.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>20200316080756_010_SearchParameterTargetResourceTypeSeed.sql</LastGenOutput>
     </Content>
   </ItemGroup>
   <ItemGroup>

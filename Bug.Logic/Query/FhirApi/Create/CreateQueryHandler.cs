@@ -5,7 +5,6 @@ using Bug.Logic.CacheService;
 using Bug.Logic.DomainModel;
 using Bug.Logic.Interfaces.Repository;
 using Bug.Logic.Service;
-using Bug.Logic.Service.TableService;
 using Bug.Logic.Service.ValidatorService;
 using System;
 using System.Threading.Tasks;
@@ -17,7 +16,7 @@ namespace Bug.Logic.Query.FhirApi.Create
     
     private readonly IValidateQueryService IValidateQueryService;
     private readonly IResourceStoreRepository IResourceStoreRepository;
-    private readonly IResourceNameTableService IResourceNameTableService;
+    private readonly IResourceTypeSupport IResourceTypeSupport;
     private readonly IHttpStatusCodeCache IHttpStatusCodeCache;    
     private readonly IFhirResourceJsonSerializationService IFhirResourceJsonSerializationService;
     private readonly IUpdateResourceService IUpdateResourceService;
@@ -27,7 +26,7 @@ namespace Bug.Logic.Query.FhirApi.Create
     public CreateQueryHandler(
       IValidateQueryService IValidateQueryService,
       IResourceStoreRepository IResourceStoreRepository,
-      IResourceNameTableService IResourceNameTableService,      
+      IResourceTypeSupport IResourceTypeSupport,      
       IHttpStatusCodeCache IHttpStatusCodeCache,      
       IFhirResourceJsonSerializationService IFhirResourceJsonSerializationService,     
       IUpdateResourceService IUpdateResourceService,
@@ -36,7 +35,7 @@ namespace Bug.Logic.Query.FhirApi.Create
     {
       this.IValidateQueryService = IValidateQueryService;
       this.IResourceStoreRepository = IResourceStoreRepository;
-      this.IResourceNameTableService = IResourceNameTableService;      
+      this.IResourceTypeSupport = IResourceTypeSupport;      
       this.IHttpStatusCodeCache = IHttpStatusCodeCache;
       this.IFhirResourceJsonSerializationService = IFhirResourceJsonSerializationService;      
       this.IUpdateResourceService = IUpdateResourceService;
@@ -69,7 +68,10 @@ namespace Bug.Logic.Query.FhirApi.Create
       FhirResource UpdatedFhirResource = IUpdateResourceService.Process(UpdateResource);
       byte[] ResourceBytes = IFhirResourceJsonSerializationService.SerializeToJsonBytes(UpdatedFhirResource);
 
-      ResourceName ResourceName = await IResourceNameTableService.GetSetResourceName(query.ResourceName);      
+      Bug.Common.Enums.ResourceType? ResourceType = IResourceTypeSupport.GetTypeFromName(query.ResourceName);
+      if (!ResourceType.HasValue)
+        throw new ArgumentNullException(nameof(ResourceType));
+
       HttpStatusCode? HttpStatusCode = await IHttpStatusCodeCache.GetAsync(System.Net.HttpStatusCode.Created);
       if (HttpStatusCode is null)
         throw new ArgumentNullException(nameof(HttpStatusCode));
@@ -82,7 +84,7 @@ namespace Bug.Logic.Query.FhirApi.Create
         VersionId = UpdateResource.VersionId.Value,
         LastUpdated = UpdateResource.LastUpdated.Value.ToZulu(),
         ResourceBlob = IGZipper.Compress(ResourceBytes),        
-        FkResourceNameId = ResourceName.Id,
+        FkResourceTypeId = ResourceType.Value,
         FkFhirVersionId = UpdatedFhirResource.FhirMajorVersion,
         FkMethodId = query.Method,
         FkHttpStatusCodeId = HttpStatusCode.Id

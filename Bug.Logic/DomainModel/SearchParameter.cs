@@ -14,8 +14,8 @@ namespace Bug.Logic.DomainModel
     public Bug.Common.Enums.SearchParamType FkSearchParamTypeId { get; set; }
     public string Url { get; set; }
     public string FhirPath { get; set; }
-    public ICollection<SearchParameterResourceName> ResourceNameList { get; set; }
-    public ICollection<SearchParameterTargetResourceName> TargetResourceNameList { get; set; }
+    public ICollection<SearchParameterResourceType> ResourceTypeList { get; set; }
+    public ICollection<SearchParameterTargetResourceType> TargetResourceTypeList { get; set; }
     public ICollection<SearchParameterComponent> ComponentList { get; set; }
     public Common.Enums.FhirVersion FkFhirVersionId { get; set; }
     public FhirVersion FhirVersion { get; set; }
