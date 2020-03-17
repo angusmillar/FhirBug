@@ -7,6 +7,7 @@ using Bug.Logic.Interfaces.Repository;
 using Bug.Logic.Service;
 using Bug.Logic.Service.ValidatorService;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Bug.Logic.Query.FhirApi.Create
@@ -21,7 +22,8 @@ namespace Bug.Logic.Query.FhirApi.Create
     private readonly IFhirResourceJsonSerializationService IFhirResourceJsonSerializationService;
     private readonly IUpdateResourceService IUpdateResourceService;
     private readonly IServerDateTimeSupport IServerDefaultDateTimeOffSet;
-    private readonly IGZipper IGZipper;        
+    private readonly IGZipper IGZipper;
+    private readonly ISearchParameterCache ISearchParameterCache;
 
     public CreateQueryHandler(
       IValidateQueryService IValidateQueryService,
@@ -31,7 +33,8 @@ namespace Bug.Logic.Query.FhirApi.Create
       IFhirResourceJsonSerializationService IFhirResourceJsonSerializationService,     
       IUpdateResourceService IUpdateResourceService,
       IServerDateTimeSupport IServerDefaultDateTimeOffSet,
-      IGZipper IGZipper)
+      IGZipper IGZipper,
+      ISearchParameterCache ISearchParameterCache)
     {
       this.IValidateQueryService = IValidateQueryService;
       this.IResourceStoreRepository = IResourceStoreRepository;
@@ -40,7 +43,8 @@ namespace Bug.Logic.Query.FhirApi.Create
       this.IFhirResourceJsonSerializationService = IFhirResourceJsonSerializationService;      
       this.IUpdateResourceService = IUpdateResourceService;
       this.IServerDefaultDateTimeOffSet = IServerDefaultDateTimeOffSet;
-      this.IGZipper = IGZipper;            
+      this.IGZipper = IGZipper;
+      this.ISearchParameterCache = ISearchParameterCache;
     }
 
     public async Task<FhirApiResult> Handle(CreateQuery query)
@@ -58,6 +62,13 @@ namespace Bug.Logic.Query.FhirApi.Create
         };
       }
 
+      Bug.Common.Enums.ResourceType? ResourceType = IResourceTypeSupport.GetTypeFromName(query.ResourceName);
+      if (!ResourceType.HasValue)
+        throw new ArgumentNullException(nameof(ResourceType));
+
+      //List<SearchParameter> SearchParameterList = await ISearchParameterCache.GetForIndexingAsync(query.FhirVersion, ResourceType.Value);
+
+
       var UpdateResource = new UpdateResource(query.FhirResource)
       {
         ResourceId = FhirGuidSupport.NewFhirGuid(),
@@ -68,9 +79,7 @@ namespace Bug.Logic.Query.FhirApi.Create
       FhirResource UpdatedFhirResource = IUpdateResourceService.Process(UpdateResource);
       byte[] ResourceBytes = IFhirResourceJsonSerializationService.SerializeToJsonBytes(UpdatedFhirResource);
 
-      Bug.Common.Enums.ResourceType? ResourceType = IResourceTypeSupport.GetTypeFromName(query.ResourceName);
-      if (!ResourceType.HasValue)
-        throw new ArgumentNullException(nameof(ResourceType));
+      
 
       HttpStatusCode? HttpStatusCode = await IHttpStatusCodeCache.GetAsync(System.Net.HttpStatusCode.Created);
       if (HttpStatusCode is null)
