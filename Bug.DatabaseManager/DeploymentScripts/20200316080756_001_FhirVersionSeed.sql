@@ -1,4 +1,0 @@
-﻿INSERT INTO "FhirVersion" (id, code, created, updated)
-VALUES (3, 'Stu3', TIMESTAMP '2020-03-16 07:45:45.778133', TIMESTAMP '2020-03-16 07:45:45.778133');
-INSERT INTO "FhirVersion" (id, code, created, updated)
-VALUES (4, 'R4', TIMESTAMP '2020-03-16 07:45:45.778133', TIMESTAMP '2020-03-16 07:45:45.778133');

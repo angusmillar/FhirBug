@@ -306,6 +306,7 @@ namespace Bug.Data.Migrations
                         .HasColumnType("text");
 
                     b.Property<int>("FkSearchParameterId")
+                        .HasColumnName("fk_searchparameter_id")
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("Updated")
@@ -336,6 +337,7 @@ namespace Bug.Data.Migrations
                         .HasColumnType("integer");
 
                     b.Property<int>("FkSearchParameterId")
+                        .HasColumnName("fk_searchparameter_id")
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("Updated")
@@ -368,6 +370,7 @@ namespace Bug.Data.Migrations
                         .HasColumnType("integer");
 
                     b.Property<int>("FkSearchParameterId")
+                        .HasColumnName("fk_searchparameter_id")
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("Updated")

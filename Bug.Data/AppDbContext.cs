@@ -160,6 +160,7 @@ namespace Bug.Data
       builder.Entity<SearchParameterResourceType>(entity =>
       {
         SetupBaseIntKeyProperties(entity);
+        entity.Property(x => x.FkSearchParameterId).HasColumnName("fk_searchparameter_id");
         entity.Property(x => x.FkResourceTypeId).HasColumnName("fk_resourcetype_id").IsRequired(true).HasConversion<int>();
         
         entity.HasOne(x => x.SearchParameter)
@@ -183,6 +184,7 @@ namespace Bug.Data
       {
         SetupBaseIntKeyProperties(entity);
         entity.Property(x => x.FkResourceTypeId).HasColumnName("fk_resourcetype_id").IsRequired(true).HasConversion<int>();
+        entity.Property(x => x.FkSearchParameterId).HasColumnName("fk_searchparameter_id");
 
         entity.HasOne(x => x.SearchParameter)
         .WithMany(y => y.TargetResourceTypeList)
@@ -204,6 +206,7 @@ namespace Bug.Data
       {
         SetupBaseIntKeyProperties(entity);
 
+        entity.Property(x => x.FkSearchParameterId).HasColumnName("fk_searchparameter_id");
         entity.Property(e => e.Definition).HasColumnName("definition").IsRequired(true).HasMaxLength(DatabaseMetaData.FieldLength.StringMaxLength);
         entity.Property(e => e.Expression).HasColumnName("expression").IsRequired(true);
 

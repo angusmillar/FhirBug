@@ -19,8 +19,10 @@ namespace Bug.CodeGeneration.T4Templates.SearchParameters
     {
       var ResourceNameKeyDictionary = new ResourceNameGen().Dic;
       DateTime Now = DateTime.Now;
-      int IdCounter = 0;
+      int SearchParameterIdCounter = 0;
       int TargetResourceCounter = 0;
+      int ResourceCounter = 0;
+      int ComponentModelCounter = 0;
 
       string FhirVersion = "Stu3";
 
@@ -41,24 +43,32 @@ namespace Bug.CodeGeneration.T4Templates.SearchParameters
 
               var Param = new SearchParameterModel()
               {
-                Id = IdCounter,
+                Id = SearchParameterIdCounter,
                 Name = SearchParam.Name,
                 Description = EscapeForSQL(SearchParam.Description.Value),
                 FkSearchParamTypeId = (int)SearchParam.Type.Value,
                 Url = SearchParam.Url,
                 FhirPath = EscapeForSQL(SearchParam.Expression),
                 FkFhirVersionId = 3,
-                Created = Now,
-                Updated = Now
+                Created = GetSQLDateFormat(Now),
+                Updated = GetSQLDateFormat(Now)
               };
 
               //Get the list of Resource this search parameter is for
               if (SearchParam.Base != null && SearchParam.Base.ToList().Count > 0)
               {
-                Param.ResourceNameList = new List<string>();
+                Param.ResourceTypeList = new List<SearchParameterModel.SearchParameterResourceTypeModel>();
                 foreach (var ResourceName in SearchParam.Base)
                 {
-                  Param.ResourceNameList.Add(ResourceName.ToString());
+                  Param.ResourceTypeList.Add(new SearchParameterModel.SearchParameterResourceTypeModel()
+                  {
+                    Id = ResourceCounter,
+                    FkSearchParameterId = SearchParameterIdCounter,
+                    FkResourceTypeId = ResourceNameKeyDictionary[ResourceName.ToString()],
+                    Updated = GetSQLDateFormat(Now),
+                    Created = GetSQLDateFormat(Now)
+                  });
+                  ResourceCounter++;
                 }
               }
               else
@@ -78,9 +88,12 @@ namespace Bug.CodeGeneration.T4Templates.SearchParameters
                     Param.TargetResourceNameList.Add(new SearchParameterModel.SearchParameterTargetResourceTypeModel()
                     {
                       Id = TargetResourceCounter,
+                      FkSearchParameterId = SearchParameterIdCounter,
                       FkResourceTypeId = ResourceNameKeyDictionary[ResourceName.ToString()],
-                      FkSearchParameterId = IdCounter
+                      Updated = GetSQLDateFormat(Now),
+                      Created = GetSQLDateFormat(Now)
                     });
+                    TargetResourceCounter++;
                   }
                 }
                 else
@@ -97,13 +110,22 @@ namespace Bug.CodeGeneration.T4Templates.SearchParameters
                 Param.ComponentList = new List<SearchParameterModel.ComponentModel>();
                 foreach (var Component in SearchParam.Component)
                 {
-                  Param.ComponentList.Add(new SearchParameterModel.ComponentModel() { Definition = Component.Definition.Reference, Expression = Component.Expression });
+                  Param.ComponentList.Add(new SearchParameterModel.ComponentModel()
+                  {
+                    Id = ComponentModelCounter,
+                    FkSearchParameterId = SearchParameterIdCounter,
+                    Definition = EscapeForSQL(Component.Definition.Reference),
+                    Expression = EscapeForSQL(Component.Expression),
+                    Updated = GetSQLDateFormat(Now),
+                    Created = GetSQLDateFormat(Now)
+                  });
+                  ComponentModelCounter++;
                 }
               }
 
               SearchParameterModelList.Add(Param);
             }
-            IdCounter++;
+            SearchParameterIdCounter++;
           }
         }
       }
@@ -125,24 +147,32 @@ namespace Bug.CodeGeneration.T4Templates.SearchParameters
             {
               var Param = new SearchParameterModel()
               {
-                Id = IdCounter,
+                Id = SearchParameterIdCounter,
                 Name = SearchParam.Name,
                 Description = EscapeForSQL(SearchParam.Description.Value),
                 FkSearchParamTypeId = (int)SearchParam.Type.Value,
                 Url = SearchParam.Url,
                 FhirPath = EscapeForSQL(SearchParam.Expression),
                 FkFhirVersionId = 4,
-                Created = Now,
-                Updated = Now
+                Updated = GetSQLDateFormat(Now),
+                Created = GetSQLDateFormat(Now)
               };
 
               //Get the list of Resource this search parameter is for
               if (SearchParam.Base != null && SearchParam.Base.ToList().Count > 0)
               {
-                Param.ResourceNameList = new List<string>();
+                Param.ResourceTypeList = new List<SearchParameterModel.SearchParameterResourceTypeModel>();
                 foreach (var ResourceName in SearchParam.Base)
                 {
-                  Param.ResourceNameList.Add(ResourceName.ToString());
+                  Param.ResourceTypeList.Add(new SearchParameterModel.SearchParameterResourceTypeModel()
+                  {
+                    Id = ResourceCounter,
+                    FkSearchParameterId = SearchParameterIdCounter,
+                    FkResourceTypeId = ResourceNameKeyDictionary[ResourceName.ToString()],
+                    Updated = GetSQLDateFormat(Now),
+                    Created = GetSQLDateFormat(Now)
+                  });
+                  ResourceCounter++;
                 }
               }
               else
@@ -162,8 +192,11 @@ namespace Bug.CodeGeneration.T4Templates.SearchParameters
                     {
                       Id = TargetResourceCounter,
                       FkResourceTypeId = ResourceNameKeyDictionary[ResourceName.ToString()],
-                      FkSearchParameterId = IdCounter
+                      FkSearchParameterId = SearchParameterIdCounter,
+                      Updated = GetSQLDateFormat(Now),
+                      Created = GetSQLDateFormat(Now)
                     });
+                    TargetResourceCounter++;
                   }
                 }
                 else
@@ -180,13 +213,21 @@ namespace Bug.CodeGeneration.T4Templates.SearchParameters
                 Param.ComponentList = new List<SearchParameterModel.ComponentModel>();
                 foreach (var Component in SearchParam.Component)
                 {
-                  Param.ComponentList.Add(new SearchParameterModel.ComponentModel() { Definition = Component.Definition, Expression = Component.Expression });
-                }
+                  Param.ComponentList.Add(new SearchParameterModel.ComponentModel()
+                  {
+                    Id = ComponentModelCounter,
+                    FkSearchParameterId = SearchParameterIdCounter,
+                    Definition = EscapeForSQL(Component.Definition),
+                    Expression = EscapeForSQL(Component.Expression),
+                    Updated = GetSQLDateFormat(Now),
+                    Created = GetSQLDateFormat(Now)
+                  });
+                  ComponentModelCounter++;
+                }               
               }
-
               SearchParameterModelList.Add(Param);
             }
-            IdCounter++;
+            SearchParameterIdCounter++;
           }
         }
       }
@@ -203,6 +244,13 @@ namespace Bug.CodeGeneration.T4Templates.SearchParameters
       else
         return value.Replace(System.Environment.NewLine, " ").Replace("\r", "").Replace("\n", "").Replace("\"", "'").Replace("'", "''");
     }
+
+    private string GetSQLDateFormat(DateTime value)
+    {      
+        return value.ToString("yyyy-MM-dd HH:mm:ss.fff");
+    }
+
+
   }
 
   public class SearchParameterModel
@@ -214,23 +262,37 @@ namespace Bug.CodeGeneration.T4Templates.SearchParameters
     public string Url { get; set; }
     public string FhirPath { get; set; }
     public int FkFhirVersionId { get; set; }
-    public DateTime Created { get; set; }
-    public DateTime Updated { get; set; }
-    public List<string> ResourceNameList { get; set; }
+    public string Created { get; set; }
+    public string Updated { get; set; }
+    public List<SearchParameterResourceTypeModel> ResourceTypeList { get; set; }
     public List<SearchParameterTargetResourceTypeModel> TargetResourceNameList { get; set; }
     public List<ComponentModel> ComponentList { get; set; }
 
+    public class SearchParameterResourceTypeModel
+    {
+      public int Id { get; set; }
+      public int FkSearchParameterId { get; set; }
+      public int FkResourceTypeId { get; set; }
+      public string  Updated { get; set; }
+      public string Created { get; set; }
+
+    }
     public class SearchParameterTargetResourceTypeModel
     {
       public int Id { get; set; }
       public int FkSearchParameterId { get; set; }
       public int FkResourceTypeId { get; set; }
-
+      public string Updated { get; set; }
+      public string Created { get; set; }
     }
     public class ComponentModel
     {
+      public int Id { get; set; }
+      public int FkSearchParameterId { get; set; }
       public string Definition { get; set; }
       public string Expression { get; set; }
+      public string Updated { get; set; }
+      public string Created { get; set; }
     }
 
   }

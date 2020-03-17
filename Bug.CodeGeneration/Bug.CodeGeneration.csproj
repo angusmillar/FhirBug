@@ -124,16 +124,6 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>ResourceTypeSeed.tt</DependentUpon>
     </None>
-    <None Include="T4Templates\SearchParameterResourceType\SearchParameterResourceTypeSeed.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>SearchParameterResourceTypeSeed.tt</DependentUpon>
-    </None>
-    <None Include="T4Templates\SearchParameterComponent\SearchParameterComponentSeed.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>SearchParameterComponentSeed.tt</DependentUpon>
-    </None>
     <None Include="T4Templates\ResourceTypeEnum\ResourceType.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -159,31 +149,41 @@
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>ResourceType.cs</LastGenOutput>
     </Content>
-    <Content Include="T4Templates\SearchParameterComponent\SearchParameterComponentSeed.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>SearchParameterComponentSeed.cs</LastGenOutput>
-    </Content>
-    <Content Include="T4Templates\SearchParameterResourceType\SearchParameterResourceTypeSeed.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>SearchParameterResourceTypeSeed.cs</LastGenOutput>
-    </Content>
-    <Content Include="T4Templates\SearchParameters\20200316080756_006_SearchParameterSeed.sql">
+    <Content Include="T4Templates\SearchParameterComponent\0008_SearchParameterComponentSeed.sql">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
-      <DependentUpon>20200316080756_006_SearchParameterSeed.tt</DependentUpon>
+      <DependentUpon>0008_SearchParameterComponentSeed.tt</DependentUpon>
     </Content>
-    <Content Include="T4Templates\SearchParameters\20200316080756_006_SearchParameterSeed.tt">
+    <Content Include="T4Templates\SearchParameterComponent\0008_SearchParameterComponentSeed.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>20200316080756_006_SearchParameterSeed.sql</LastGenOutput>
+      <LastGenOutput>0008_SearchParameterComponentSeed.sql</LastGenOutput>
     </Content>
-    <Content Include="T4Templates\SearchParameterTargetResourceType\20200316080756_010_SearchParameterTargetResourceTypeSeed.sql">
+    <Content Include="T4Templates\SearchParameterResourceType\0007_SearchParameterResourceTypeSeed.sql">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
-      <DependentUpon>20200316080756_010_SearchParameterTargetResourceTypeSeed.tt</DependentUpon>
+      <DependentUpon>0007_SearchParameterResourceTypeSeed.tt</DependentUpon>
     </Content>
-    <Content Include="T4Templates\SearchParameterTargetResourceType\20200316080756_010_SearchParameterTargetResourceTypeSeed.tt">
+    <Content Include="T4Templates\SearchParameterResourceType\0007_SearchParameterResourceTypeSeed.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>20200316080756_010_SearchParameterTargetResourceTypeSeed.sql</LastGenOutput>
+      <LastGenOutput>0007_SearchParameterResourceTypeSeed.sql</LastGenOutput>
+    </Content>
+    <Content Include="T4Templates\SearchParameters\0006_SearchParameterSeed.sql">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>0006_SearchParameterSeed.tt</DependentUpon>
+    </Content>
+    <Content Include="T4Templates\SearchParameters\0006_SearchParameterSeed.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>0006_SearchParameterSeed.sql</LastGenOutput>
+    </Content>
+    <Content Include="T4Templates\SearchParameterTargetResourceType\0009_SearchParameterTargetResourceTypeSeed.sql">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>0009_SearchParameterTargetResourceTypeSeed.tt</DependentUpon>
+    </Content>
+    <Content Include="T4Templates\SearchParameterTargetResourceType\0009_SearchParameterTargetResourceTypeSeed.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>0009_SearchParameterTargetResourceTypeSeed.sql</LastGenOutput>
     </Content>
   </ItemGroup>
   <ItemGroup>
