@@ -10,7 +10,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Bug.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20200317005406_First")]
+    [Migration("20200318063132_First")]
     partial class First
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -76,9 +76,301 @@ namespace Bug.Data.Migrations
 
                     b.HasIndex("Number")
                         .IsUnique()
-                        .HasName("Unique_Number");
+                        .HasName("UniqueIx_HttpStatusCode_number");
 
                     b.ToTable("HttpStatusCode");
+                });
+
+            modelBuilder.Entity("Bug.Logic.DomainModel.IndexDateTime", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnName("id")
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<int>("FkResourceStoreId")
+                        .HasColumnName("fk_resourcestore_id")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("FkSearchParameterId")
+                        .HasColumnName("fk_searchparameter_id")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("High")
+                        .HasColumnName("high")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<DateTime?>("Low")
+                        .HasColumnName("low")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FkResourceStoreId");
+
+                    b.HasIndex("FkSearchParameterId");
+
+                    b.HasIndex("High")
+                        .HasName("Ix_IndexDateTime_High");
+
+                    b.HasIndex("Low")
+                        .HasName("Ix_IndexDateTime_Low");
+
+                    b.ToTable("IndexDateTime");
+                });
+
+            modelBuilder.Entity("Bug.Logic.DomainModel.IndexQuantity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnName("id")
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<string>("Code")
+                        .HasColumnName("code")
+                        .HasColumnType("character varying(128)")
+                        .HasMaxLength(128);
+
+                    b.Property<string>("CodeHigh")
+                        .HasColumnName("code_high")
+                        .HasColumnType("character varying(128)")
+                        .HasMaxLength(128);
+
+                    b.Property<int?>("Comparator")
+                        .HasColumnName("comparator")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("ComparatorHigh")
+                        .HasColumnName("comparator_high")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("FkResourceStoreId")
+                        .HasColumnName("fk_resourcestore_id")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("FkSearchParameterId")
+                        .HasColumnName("fk_searchparameter_id")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal?>("Quantity")
+                        .HasColumnName("quantity")
+                        .HasColumnType("numeric");
+
+                    b.Property<decimal?>("QuantityHigh")
+                        .HasColumnName("quantity_high")
+                        .HasColumnType("numeric");
+
+                    b.Property<string>("System")
+                        .HasColumnName("system")
+                        .HasColumnType("character varying(450)")
+                        .HasMaxLength(450);
+
+                    b.Property<string>("SystemHigh")
+                        .HasColumnName("system_high")
+                        .HasColumnType("character varying(450)")
+                        .HasMaxLength(450);
+
+                    b.Property<string>("Unit")
+                        .HasColumnName("unit")
+                        .HasColumnType("character varying(450)")
+                        .HasMaxLength(450);
+
+                    b.Property<string>("UnitHigh")
+                        .HasColumnName("unit_high")
+                        .HasColumnType("character varying(450)")
+                        .HasMaxLength(450);
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Code")
+                        .HasName("Ix_IndexQuantity_Low");
+
+                    b.HasIndex("CodeHigh")
+                        .HasName("Ix_IndexQuantity_CodeHigh");
+
+                    b.HasIndex("FkResourceStoreId");
+
+                    b.HasIndex("FkSearchParameterId");
+
+                    b.HasIndex("Quantity")
+                        .HasName("Ix_IndexQuantity_Quantity");
+
+                    b.HasIndex("QuantityHigh")
+                        .HasName("Ix_IndexQuantity_QuantityHigh");
+
+                    b.HasIndex("System")
+                        .HasName("Ix_IndexQuantity_System");
+
+                    b.HasIndex("SystemHigh")
+                        .HasName("Ix_IndexQuantity_SystemHigh");
+
+                    b.ToTable("IndexQuantity");
+                });
+
+            modelBuilder.Entity("Bug.Logic.DomainModel.IndexReference", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnName("id")
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<int>("FkResourceStoreId")
+                        .HasColumnName("fk_resourcestore_id")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("FkResourceTypeId")
+                        .HasColumnName("fk_resourcetype_id")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("FkSearchParameterId")
+                        .HasColumnName("fk_searchparameter_id")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("FkServiceBaseUrlId")
+                        .IsRequired()
+                        .HasColumnName("fk_servicebaseurl_id")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ResourceId")
+                        .IsRequired()
+                        .HasColumnName("resource_id")
+                        .HasColumnType("text");
+
+                    b.Property<int>("ResourceTypeId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("VersionId")
+                        .HasColumnName("version_id")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FkResourceStoreId");
+
+                    b.HasIndex("FkSearchParameterId");
+
+                    b.HasIndex("FkServiceBaseUrlId");
+
+                    b.HasIndex("ResourceId")
+                        .HasName("Ix_IndexReference_ResourceId");
+
+                    b.HasIndex("ResourceTypeId");
+
+                    b.HasIndex("VersionId")
+                        .HasName("Ix_IndexReference_VersionId");
+
+                    b.ToTable("IndexReference");
+                });
+
+            modelBuilder.Entity("Bug.Logic.DomainModel.IndexString", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnName("id")
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<int>("FkResourceStoreId")
+                        .HasColumnName("fk_resourcestore_id")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("FkSearchParameterId")
+                        .HasColumnName("fk_searchparameter_id")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("String")
+                        .HasColumnName("string")
+                        .HasColumnType("character varying(450)")
+                        .HasMaxLength(450);
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FkResourceStoreId");
+
+                    b.HasIndex("FkSearchParameterId");
+
+                    b.HasIndex("String")
+                        .HasName("Ix_IndexString_String");
+
+                    b.ToTable("IndexString");
+                });
+
+            modelBuilder.Entity("Bug.Logic.DomainModel.IndexToken", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnName("id")
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<string>("Code")
+                        .HasColumnName("code")
+                        .HasColumnType("character varying(128)")
+                        .HasMaxLength(128);
+
+                    b.Property<int>("FkResourceStoreId")
+                        .HasColumnName("fk_resourcestore_id")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("FkSearchParameterId")
+                        .HasColumnName("fk_searchparameter_id")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("System")
+                        .HasColumnName("system")
+                        .HasColumnType("character varying(450)")
+                        .HasMaxLength(450);
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Code")
+                        .HasName("Ix_IndexToken_Code");
+
+                    b.HasIndex("FkResourceStoreId");
+
+                    b.HasIndex("FkSearchParameterId");
+
+                    b.HasIndex("System")
+                        .HasName("Ix_IndexToken_System");
+
+                    b.ToTable("IndexToken");
+                });
+
+            modelBuilder.Entity("Bug.Logic.DomainModel.IndexUri", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnName("id")
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<int>("FkResourceStoreId")
+                        .HasColumnName("fk_resourcestore_id")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("FkSearchParameterId")
+                        .HasColumnName("fk_searchparameter_id")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Uri")
+                        .IsRequired()
+                        .HasColumnName("uri")
+                        .HasColumnType("character varying(450)")
+                        .HasMaxLength(450);
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FkResourceStoreId");
+
+                    b.HasIndex("FkSearchParameterId");
+
+                    b.HasIndex("Uri")
+                        .HasName("Ix_IndexUri_Uri");
+
+                    b.ToTable("IndexUri");
                 });
 
             modelBuilder.Entity("Bug.Logic.DomainModel.Method", b =>
@@ -173,11 +465,11 @@ namespace Bug.Data.Migrations
                     b.HasIndex("FkResourceTypeId");
 
                     b.HasIndex("LastUpdated")
-                        .HasName("Ix_LastUpdated");
+                        .HasName("Ix_ResourceStore_LastUpdated");
 
                     b.HasIndex("FkFhirVersionId", "FkResourceTypeId", "ResourceId", "VersionId")
                         .IsUnique()
-                        .HasName("UniqueIx_FhirVer_ResType_ResId_ResVer");
+                        .HasName("UniqueIx_ResourceStore_FhirVer_ResType_ResId_ResVer");
 
                     b.ToTable("ResourceStore");
                 });
@@ -280,6 +572,9 @@ namespace Bug.Data.Migrations
                     b.HasIndex("FkFhirVersionId");
 
                     b.HasIndex("FkSearchParamTypeId");
+
+                    b.HasIndex("Name")
+                        .HasName("Ix_SearchParameter_Url");
 
                     b.ToTable("SearchParameter");
                 });
@@ -386,6 +681,143 @@ namespace Bug.Data.Migrations
                     b.HasIndex("FkSearchParameterId");
 
                     b.ToTable("SearchParameterTargetResourceType");
+                });
+
+            modelBuilder.Entity("Bug.Logic.DomainModel.ServiceBaseUrl", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnName("id")
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnName("created")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<bool>("IsPrimary")
+                        .HasColumnName("is_primary")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime>("Updated")
+                        .HasColumnName("updated")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("Url")
+                        .IsRequired()
+                        .HasColumnName("url")
+                        .HasColumnType("character varying(450)")
+                        .HasMaxLength(450);
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Url")
+                        .IsUnique()
+                        .HasName("Ix_ServiceBaseUrl_Url");
+
+                    b.ToTable("ServiceBaseUrl");
+                });
+
+            modelBuilder.Entity("Bug.Logic.DomainModel.IndexDateTime", b =>
+                {
+                    b.HasOne("Bug.Logic.DomainModel.ResourceStore", "ResourceStore")
+                        .WithMany()
+                        .HasForeignKey("FkResourceStoreId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Bug.Logic.DomainModel.SearchParameter", "SearchParameter")
+                        .WithMany()
+                        .HasForeignKey("FkSearchParameterId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Bug.Logic.DomainModel.IndexQuantity", b =>
+                {
+                    b.HasOne("Bug.Logic.DomainModel.ResourceStore", "ResourceStore")
+                        .WithMany()
+                        .HasForeignKey("FkResourceStoreId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Bug.Logic.DomainModel.SearchParameter", "SearchParameter")
+                        .WithMany()
+                        .HasForeignKey("FkSearchParameterId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Bug.Logic.DomainModel.IndexReference", b =>
+                {
+                    b.HasOne("Bug.Logic.DomainModel.ResourceStore", "ResourceStore")
+                        .WithMany()
+                        .HasForeignKey("FkResourceStoreId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Bug.Logic.DomainModel.SearchParameter", "SearchParameter")
+                        .WithMany()
+                        .HasForeignKey("FkSearchParameterId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Bug.Logic.DomainModel.ServiceBaseUrl", "ServiceBaseUrl")
+                        .WithMany()
+                        .HasForeignKey("FkServiceBaseUrlId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Bug.Logic.DomainModel.ResourceType", "ResourceType")
+                        .WithMany()
+                        .HasForeignKey("ResourceTypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Bug.Logic.DomainModel.IndexString", b =>
+                {
+                    b.HasOne("Bug.Logic.DomainModel.ResourceStore", "ResourceStore")
+                        .WithMany()
+                        .HasForeignKey("FkResourceStoreId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Bug.Logic.DomainModel.SearchParameter", "SearchParameter")
+                        .WithMany()
+                        .HasForeignKey("FkSearchParameterId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Bug.Logic.DomainModel.IndexToken", b =>
+                {
+                    b.HasOne("Bug.Logic.DomainModel.ResourceStore", "ResourceStore")
+                        .WithMany()
+                        .HasForeignKey("FkResourceStoreId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Bug.Logic.DomainModel.SearchParameter", "SearchParameter")
+                        .WithMany()
+                        .HasForeignKey("FkSearchParameterId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Bug.Logic.DomainModel.IndexUri", b =>
+                {
+                    b.HasOne("Bug.Logic.DomainModel.ResourceStore", "ResourceStore")
+                        .WithMany()
+                        .HasForeignKey("FkResourceStoreId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Bug.Logic.DomainModel.SearchParameter", "SearchParameter")
+                        .WithMany()
+                        .HasForeignKey("FkSearchParameterId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Bug.Logic.DomainModel.ResourceStore", b =>

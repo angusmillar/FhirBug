@@ -26,7 +26,13 @@ namespace Bug.Data
     public virtual DbSet<Logic.DomainModel.SearchParameterComponent> SearchParameterComponent { get; set; } = null!;
     public virtual DbSet<Logic.DomainModel.SearchParamType> SearchParamType { get; set; } = null!;
     public virtual DbSet<Logic.DomainModel.SearchParameter> SearchParameter { get; set; } = null!;
-
+    public virtual DbSet<Logic.DomainModel.ServiceBaseUrl> ServiceBaseUrl { get; set; } = null!;
+    public virtual DbSet<Logic.DomainModel.IndexDateTime> IndexDateTime { get; set; } = null!;
+    public virtual DbSet<Logic.DomainModel.IndexQuantity> IndexQuantity { get; set; } = null!;
+    public virtual DbSet<Logic.DomainModel.IndexReference> IndexReference { get; set; } = null!;
+    public virtual DbSet<Logic.DomainModel.IndexString> IndexString { get; set; } = null!;
+    public virtual DbSet<Logic.DomainModel.IndexToken> IndexToken { get; set; } = null!;
+    public virtual DbSet<Logic.DomainModel.IndexUri> IndexUri { get; set; } = null!;
 
     public AppDbContext(DbContextOptions<AppDbContext> options)
       : base(options) { }
@@ -81,12 +87,12 @@ namespace Bug.Data
 
         //Ensure that no two resources have the same ResourceId, VersionId, for the same FHIR Version and Resource Name
         entity.HasIndex(x => new { x.FkFhirVersionId, x.FkResourceTypeId, x.ResourceId, x.VersionId, })
-          .HasName("UniqueIx_FhirVer_ResType_ResId_ResVer")
+          .HasName("UniqueIx_ResourceStore_FhirVer_ResType_ResId_ResVer")
           .IsUnique();
 
         //We often order by LastUpdated
         entity.HasIndex(x => new { x.LastUpdated })
-          .HasName("Ix_LastUpdated");
+          .HasName("Ix_ResourceStore_LastUpdated");
 
       });
 
@@ -100,7 +106,7 @@ namespace Bug.Data
         entity.Property(e => e.Updated).HasColumnName("updated").IsRequired(true);
         entity.Property(x => x.Code).IsRequired(true).HasColumnName("code").HasMaxLength(DatabaseMetaData.FieldLength.ResourceTypeStringMaxLength);
       });
-      
+
       //builder.Entity<Logic.DomainModel.ResourceType>().HasData(Seeding.ResourceTypeSeed.GetSeedData(DateTimeNow));
 
       //##### FhirVersion #################################################
@@ -144,11 +150,11 @@ namespace Bug.Data
       builder.Entity<HttpStatusCode>(entity =>
       {
         SetupBaseIntKeyProperties(entity);
-        entity.Property(x => x.Code).HasColumnName("code").IsRequired(true).HasMaxLength(DatabaseMetaData.FieldLength.CodeMaxLength); 
+        entity.Property(x => x.Code).HasColumnName("code").IsRequired(true).HasMaxLength(DatabaseMetaData.FieldLength.CodeMaxLength);
         entity.Property(x => x.Number).HasColumnName("number").IsRequired(true).HasConversion<int>();
 
-        entity.HasIndex(x => new { x.Number, })
-        .HasName("Unique_Number")
+        entity.HasIndex(x => x.Number)
+        .HasName("UniqueIx_HttpStatusCode_number")
         .IsUnique();
       });
 
@@ -162,7 +168,7 @@ namespace Bug.Data
         SetupBaseIntKeyProperties(entity);
         entity.Property(x => x.FkSearchParameterId).HasColumnName("fk_searchparameter_id");
         entity.Property(x => x.FkResourceTypeId).HasColumnName("fk_resourcetype_id").IsRequired(true).HasConversion<int>();
-        
+
         entity.HasOne(x => x.SearchParameter)
         .WithMany(y => y.ResourceTypeList)
         .HasForeignKey(x => x.FkSearchParameterId);
@@ -176,7 +182,7 @@ namespace Bug.Data
       {
         //builder.Entity<SearchParameterResourceType>().HasData(Seeding.SearchParameterResourceTypeSeed.GetSeedData(DateTimeNow));
       }
-        
+
 
       //##### SearchParameterTargetResourceType #################################################
 
@@ -212,7 +218,7 @@ namespace Bug.Data
 
         entity.HasOne(x => x.SearchParameter)
         .WithMany(y => y.ComponentList)
-        .HasForeignKey(x => x.FkSearchParameterId);
+        .HasForeignKey(x => x.FkSearchParameterId);       
       });
 
       if (GenerateNonStaticSeedData)
@@ -274,15 +280,161 @@ namespace Bug.Data
         entity.HasOne(x => x.FhirVersion)
         .WithMany()
         .HasForeignKey(x => x.FkFhirVersionId);
+
+        entity.HasIndex(x => x.Name)
+          .HasName("Ix_SearchParameter_Url").IsUnique(false);
+
       });
 
       if (GenerateNonStaticSeedData)
       {
         //builder.Entity<SearchParameter>().HasData(Bug.Data.Seeding.SearchParameterSeed.GetSeedData(DateTimeNow));
       }
+
+      //##### ServiceBaseUrl #################################################
+      builder.Entity<Bug.Logic.DomainModel.ServiceBaseUrl>(entity =>
+      {
+        SetupBaseIntKeyProperties(entity);
+        entity.Property(x => x.Url).HasColumnName("url").IsRequired(true).HasMaxLength(DatabaseMetaData.FieldLength.StringMaxLength);        
+        entity.Property(x => x.IsPrimary).HasColumnName("is_primary").IsRequired(true);
+
+        entity.HasIndex(x => x.Url)
+          .HasName("Ix_ServiceBaseUrl_Url").IsUnique(true);
+      });
+
+      //##### IndexReference #################################################
+      builder.Entity<Bug.Logic.DomainModel.IndexReference>(entity =>
+      {
+        SetupIndexBase(entity);
+
+        entity.Property(e => e.FkServiceBaseUrlId).HasColumnName("fk_servicebaseurl_id").IsRequired(true);
+        entity.Property(e => e.FkResourceTypeId).HasColumnName("fk_resourcetype_id").IsRequired(true).HasConversion<int>();
+        entity.Property(e => e.ResourceId).HasColumnName("resource_id").IsRequired(true);
+        entity.Property(e => e.VersionId).HasColumnName("version_id").IsRequired(false);
+
+        entity.HasOne(x => x.ServiceBaseUrl)
+        .WithMany()
+        .HasForeignKey(x => x.FkServiceBaseUrlId);
+
+        entity.HasIndex(x => x.ResourceId)
+          .HasName("Ix_IndexReference_ResourceId");
+
+        entity.HasIndex(x => x.VersionId)
+          .HasName("Ix_IndexReference_VersionId");
+      });
+
+      //##### IndexDateTime #################################################
+      builder.Entity<Bug.Logic.DomainModel.IndexDateTime>(entity =>
+      {
+        SetupIndexBase(entity);
+
+        entity.Property(e => e.Low).HasColumnName("low").IsRequired(false);
+        entity.Property(e => e.High).HasColumnName("high").IsRequired(false);
+
+        entity.HasIndex(x => x.Low)
+          .HasName("Ix_IndexDateTime_Low");
+
+        entity.HasIndex(x => x.High)
+          .HasName("Ix_IndexDateTime_High");
+      });
+
+
+
+      //##### IndexQuantity #################################################
+      builder.Entity<Bug.Logic.DomainModel.IndexQuantity>(entity =>
+      {
+        SetupIndexBase(entity);
+
+        entity.Property(e => e.System).HasColumnName("system").IsRequired(false).HasMaxLength(DatabaseMetaData.FieldLength.StringMaxLength);
+        entity.Property(e => e.Code).HasColumnName("code").IsRequired(false).HasMaxLength(DatabaseMetaData.FieldLength.CodeMaxLength);
+        entity.Property(e => e.Comparator).HasColumnName("comparator").IsRequired(false);
+        //entity.Property(e => e.Quantity).HasColumnType($"DECIMAL ({DatabaseMetaData.FieldLength.QuantityPrecision}, {DatabaseMetaData.FieldLength.QuantityScale})");
+        entity.Property(e => e.Quantity).HasColumnName("quantity").IsRequired(false);
+        entity.Property(e => e.Unit).HasColumnName("unit").IsRequired(false).HasMaxLength(DatabaseMetaData.FieldLength.StringMaxLength);
+
+        entity.Property(e => e.SystemHigh).HasColumnName("system_high").IsRequired(false).HasMaxLength(DatabaseMetaData.FieldLength.StringMaxLength);
+        entity.Property(e => e.CodeHigh).HasColumnName("code_high").IsRequired(false).HasMaxLength(DatabaseMetaData.FieldLength.CodeMaxLength);
+        entity.Property(e => e.ComparatorHigh).HasColumnName("comparator_high").IsRequired(false);
+        //entity.Property(e => e.Quantity).HasColumnType($"DECIMAL ({DatabaseMetaData.FieldLength.QuantityPrecision}, {DatabaseMetaData.FieldLength.QuantityScale})");
+        entity.Property(e => e.QuantityHigh).HasColumnName("quantity_high").IsRequired(false);
+        entity.Property(e => e.UnitHigh).HasColumnName("unit_high").IsRequired(false).HasMaxLength(DatabaseMetaData.FieldLength.StringMaxLength);
+
+
+        entity.HasIndex(x => x.Code)
+          .HasName("Ix_IndexQuantity_Low");
+
+        entity.HasIndex(x => x.System)
+          .HasName("Ix_IndexQuantity_System");
+
+        entity.HasIndex(x => x.Quantity)
+          .HasName("Ix_IndexQuantity_Quantity");
+
+        entity.HasIndex(x => x.CodeHigh)
+          .HasName("Ix_IndexQuantity_CodeHigh");
+
+        entity.HasIndex(x => x.SystemHigh)
+          .HasName("Ix_IndexQuantity_SystemHigh");
+
+        entity.HasIndex(x => x.QuantityHigh)
+          .HasName("Ix_IndexQuantity_QuantityHigh");
+      });
+
+      //##### IndexQuantity #################################################
+      builder.Entity<Bug.Logic.DomainModel.IndexString>(entity =>
+      {
+        SetupIndexBase(entity);
+
+        entity.Property(e => e.String).HasColumnName("string").IsRequired(false).HasMaxLength(DatabaseMetaData.FieldLength.StringMaxLength);
+
+        entity.HasIndex(x => x.String)
+              .HasName("Ix_IndexString_String");
+
+      });
+
+      //##### IndexToken #################################################
+      builder.Entity<Bug.Logic.DomainModel.IndexToken>(entity =>
+      {
+        SetupIndexBase(entity);
+
+        entity.Property(e => e.System).HasColumnName("system").IsRequired(false).HasMaxLength(DatabaseMetaData.FieldLength.StringMaxLength);
+        entity.Property(e => e.Code).HasColumnName("code").IsRequired(false).HasMaxLength(DatabaseMetaData.FieldLength.CodeMaxLength);
+
+        entity.HasIndex(x => x.System)
+              .HasName("Ix_IndexToken_System");
+
+        entity.HasIndex(x => x.Code)
+              .HasName("Ix_IndexToken_Code");
+      });
+
+      //##### IndexUri #################################################
+      builder.Entity<Bug.Logic.DomainModel.IndexUri>(entity =>
+      {
+        SetupIndexBase(entity);
+
+        entity.Property(e => e.Uri).HasColumnName("uri").IsRequired(true).HasMaxLength(DatabaseMetaData.FieldLength.StringMaxLength);      
+
+        entity.HasIndex(x => x.Uri)
+              .HasName("Ix_IndexUri_Uri");
+      });
     }
 
-    private static void SetupBaseIntKeyProperties<T>(EntityTypeBuilder<T> entity) where T :BaseIntKey
+    private static void SetupIndexBase<T>(EntityTypeBuilder<T> entity) where T : IndexBase
+    {
+      entity.HasKey(e => e.Id);
+      entity.Property(e => e.Id).HasColumnName("id");
+      entity.Property(e => e.FkResourceStoreId).HasColumnName("fk_resourcestore_id").IsRequired(true);
+      entity.Property(e => e.FkSearchParameterId).HasColumnName("fk_searchparameter_id").IsRequired(true);
+
+      entity.HasOne(x => x.ResourceStore)
+      .WithMany()
+      .HasForeignKey(x => x.FkResourceStoreId);
+
+      entity.HasOne(x => x.SearchParameter)
+      .WithMany()
+      .HasForeignKey(x => x.FkSearchParameterId);
+    }
+
+    private static void SetupBaseIntKeyProperties<T>(EntityTypeBuilder<T> entity) where T : BaseIntKey
     {
       entity.HasKey(e => e.Id);
       entity.Property(e => e.Id).HasColumnName("id");
@@ -324,4 +476,4 @@ namespace Bug.Data
     }
 
   }
-  }
+}

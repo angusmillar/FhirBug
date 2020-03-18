@@ -3,7 +3,7 @@
 #pragma warning disable CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
 namespace Bug.Logic.DomainModel
 {
-  public abstract class BaseDateStamp
+  public abstract class BaseDateStamp : DomainModelBase
   {    
     public DateTime Created { get; set; }
     public DateTime Updated { get; set; }

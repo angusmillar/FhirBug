@@ -1,5 +1,7 @@
 ﻿using DbUp;
+using Microsoft.Extensions.Configuration;
 using System;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 
@@ -8,14 +10,15 @@ namespace Bug.DatabaseManager
   class Program
   {
     static int Main(string[] args)
-    {
-      string ProjectName = "Bug.DatabaseManager";
-      var connectionString =
-          args.FirstOrDefault()
-          ?? "Host=localhost;Port=5432;Database=BugDb;Username=angusbmillar;Password=3agepufa";
+    {      
+      string AppsettingsFilePath = Directory.GetCurrentDirectory().Replace(@"Bug.DatabaseManager\bin\Debug\netcoreapp3.1", @"Bug.Api\appsettings.json");      
+      IConfigurationRoot config = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory()).AddJsonFile(AppsettingsFilePath).Build();      
+      var DevelopmentConnectionString = config.GetConnectionString("MigrationDatabaseConnection");      
+      var connectionString = args.FirstOrDefault() ?? DevelopmentConnectionString;
 
       EnsureDatabase.For.PostgresqlDatabase(connectionString);
 
+      string ProjectName = "Bug.DatabaseManager";
       var upgrader =
           DeployChanges.To
               .PostgresqlDatabase(connectionString)
@@ -30,8 +33,8 @@ namespace Bug.DatabaseManager
               .WithTransactionPerScript()
               .WithExecutionTimeout(TimeSpan.FromHours(1))
               .LogToConsole()
-              .Build();      
-
+              .Build();
+      
       var result = upgrader.PerformUpgrade();
 
       if (!result.Successful)
