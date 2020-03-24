@@ -1,6 +1,7 @@
 ﻿using Bug.Common.ApplicationConfig;
 using Bug.Common.Enums;
 using Bug.Common.FhirTools;
+using Bug.Common.Interfaces;
 using Bug.Common.StringTools;
 using Bug.Logic.Interfaces.CompositionRoot;
 using System;
@@ -8,8 +9,6 @@ using System.Linq;
 
 namespace Bug.Logic.UriSupport
 {
-  public enum UrnType { uuid, oid };
-
   public class FhirUri : IFhirUri
   {
     public FhirUri(FhirVersion fhirVersion, Uri PrimaryServiceRootServers)

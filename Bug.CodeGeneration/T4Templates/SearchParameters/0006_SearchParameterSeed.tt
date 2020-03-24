@@ -17,7 +17,7 @@
       foreach (var Item in SerachParameterGen.SearchParameterModelList)
       {
 #>
-INSERT INTO "SearchParameter" (id, name, description, url, fhir_path, fk_fhirversion_id, fk_searchparamtype_id, created, updated )
+INSERT INTO "SearchParameter" (id, name, description, url, fhir_path, fhirversion_id, searchparamtype_id, created, updated )
 VALUES (<#= Item.Id #>, '<#= Item.Name #>', '<#= Item.Description #>', '<#= Item.Url #>', '<#= Item.FhirPath #>', <#= Item.FkFhirVersionId #>, <#= Item.FkSearchParamTypeId #>, TIMESTAMP '<#= Item.Created #>', TIMESTAMP '<#= Item.Updated #>');
 
 <#

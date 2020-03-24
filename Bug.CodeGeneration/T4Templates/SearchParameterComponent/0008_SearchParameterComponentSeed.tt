@@ -20,7 +20,7 @@
           foreach (var ComponentItem in SearchParameterMode.ComponentList)
           {
 #>
-INSERT INTO "SearchParameterComponent" (id, fk_searchparameter_id, definition, expression, created, updated)
+INSERT INTO "SearchParameterComponent" (id, searchparameter_id, definition, expression, created, updated)
   VALUES (<#= ComponentItem.Id.ToString() #>, <#= ComponentItem.FkSearchParameterId.ToString() #>, '<#= ComponentItem.Definition #>', '<#= ComponentItem.Expression #>', TIMESTAMP '<#= ComponentItem.Created #>', TIMESTAMP '<#= ComponentItem.Updated #>');
        
 <#

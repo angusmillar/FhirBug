@@ -63,18 +63,21 @@ namespace Bug.Logic.Query.FhirApi.Delete
         NewVersionId = PreviousResourseStore.VersionId + 1;
         IResourceStoreRepository.UpdateIsCurrent(PreviousResourseStore);
 
+        DateTime Now = DateTimeOffset.Now.ToZulu();
         var ResourceStore = new ResourceStore()
         {
           ResourceId = query.ResourceId,
           IsCurrent = true,
           IsDeleted = true,
           VersionId = NewVersionId.Value,
-          LastUpdated = DateTimeOffset.Now.ToZulu(),
+          LastUpdated = Now,
           ResourceBlob = null,
-          FkResourceTypeId = PreviousResourseStore.FkResourceTypeId,
-          FkFhirVersionId = query.FhirVersion,
-          FkHttpStatusCodeId = HttpStatusCode.Id,
-          FkMethodId = query.Method
+          ResourceTypeId = PreviousResourseStore.ResourceTypeId,
+          FhirVersionId = query.FhirVersion,
+          HttpStatusCodeId = HttpStatusCode.Id,
+          MethodId = query.Method,
+          Created = Now,
+          Updated = Now
         };
 
         IResourceStoreRepository.Add(ResourceStore);

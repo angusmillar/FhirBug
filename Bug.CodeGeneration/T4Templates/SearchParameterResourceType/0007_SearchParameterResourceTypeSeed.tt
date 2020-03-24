@@ -20,7 +20,7 @@
           foreach (var ResourceItem in SearchParameterMode.ResourceTypeList)
           {
 #>
-INSERT INTO "SearchParameterResourceType" (id, fk_searchparameter_Id, fk_resourcetype_Id, created, updated)
+INSERT INTO "SearchParameterResourceType" (id, searchparameter_Id, resourcetype_Id, created, updated)
   VALUES (<#= ResourceItem.Id.ToString() #>, <#= ResourceItem.FkSearchParameterId #>, <#= ResourceItem.FkResourceTypeId #>, TIMESTAMP '<#= ResourceItem.Created #>', TIMESTAMP '<#= ResourceItem.Updated #>');
       
 <#

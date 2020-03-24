@@ -19,25 +19,25 @@ namespace Bug.Data.Repository
 
     public async Task<SearchParameter> GetByAsync(Common.Enums.FhirVersion fhirVersion, Common.Enums.ResourceType resourceType, string name)
     {
-      return await DbSet.SingleOrDefaultAsync(x => x.FkFhirVersionId == fhirVersion & x.Name == name & x.ResourceTypeList.Any(y => y.FkResourceTypeId == resourceType));
+      return await DbSet.SingleOrDefaultAsync(x => x.FhirVersionId == fhirVersion & x.Name == name & x.ResourceTypeList.Any(y => y.ResourceTypeId == resourceType));
     }
 
     public async Task<List<SearchParameter>> GetByAsync(Common.Enums.FhirVersion fhirVersion, Common.Enums.ResourceType resourceType)
     {
-      return await DbSet.Where(x => x.FkFhirVersionId == fhirVersion & x.ResourceTypeList.Any(y => y.FkResourceTypeId == resourceType)).ToListAsync();
+      return await DbSet.Where(x => x.FhirVersionId == fhirVersion & x.ResourceTypeList.Any(y => y.ResourceTypeId == resourceType)).ToListAsync();
     }
 
     public async Task<List<SearchParameter>> GetForIndexingAsync(Common.Enums.FhirVersion fhirVersion, Common.Enums.ResourceType resourceType)
     {
       return await DbSet
       .Include(d => d.TargetResourceTypeList)
-      .Where(y => y.FkFhirVersionId == fhirVersion & y.ResourceTypeList.Any(z => z.FkResourceTypeId == resourceType))
+      .Where(y => y.FhirVersionId == fhirVersion & y.ResourceTypeList.Any(z => z.ResourceTypeId == resourceType))
       .Select(x => new SearchParameter()
       { 
         Id = x.Id,
         Name = x.Name,
         FhirPath = x.FhirPath,
-        FkSearchParamTypeId = x.FkSearchParamTypeId,        
+        SearchParamTypeId = x.SearchParamTypeId,        
         TargetResourceTypeList = x.TargetResourceTypeList,        
       }).ToListAsync();
     }

@@ -1,10 +1,12 @@
-﻿using Bug.Common.Compression;
+﻿using AutoMapper;
+using Bug.Common.Compression;
 using Bug.Common.DateTimeTools;
 using Bug.Common.FhirTools;
 using Bug.Logic.CacheService;
 using Bug.Logic.DomainModel;
 using Bug.Logic.Interfaces.Repository;
 using Bug.Logic.Service;
+using Bug.Logic.Service.Indexing;
 using Bug.Logic.Service.ValidatorService;
 using System;
 using System.Collections.Generic;
@@ -23,7 +25,8 @@ namespace Bug.Logic.Query.FhirApi.Create
     private readonly IUpdateResourceService IUpdateResourceService;
     private readonly IServerDateTimeSupport IServerDefaultDateTimeOffSet;
     private readonly IGZipper IGZipper;
-    private readonly ISearchParameterCache ISearchParameterCache;
+    private readonly IIndexer IIndexer;
+    private readonly IMapper IMapper;
 
     public CreateQueryHandler(
       IValidateQueryService IValidateQueryService,
@@ -34,7 +37,8 @@ namespace Bug.Logic.Query.FhirApi.Create
       IUpdateResourceService IUpdateResourceService,
       IServerDateTimeSupport IServerDefaultDateTimeOffSet,
       IGZipper IGZipper,
-      ISearchParameterCache ISearchParameterCache)
+      IIndexer IIndexer,
+      IMapper IMapper)
     {
       this.IValidateQueryService = IValidateQueryService;
       this.IResourceStoreRepository = IResourceStoreRepository;
@@ -44,7 +48,8 @@ namespace Bug.Logic.Query.FhirApi.Create
       this.IUpdateResourceService = IUpdateResourceService;
       this.IServerDefaultDateTimeOffSet = IServerDefaultDateTimeOffSet;
       this.IGZipper = IGZipper;
-      this.ISearchParameterCache = ISearchParameterCache;
+      this.IIndexer = IIndexer;
+      this.IMapper = IMapper;
     }
 
     public async Task<FhirApiResult> Handle(CreateQuery query)
@@ -66,7 +71,8 @@ namespace Bug.Logic.Query.FhirApi.Create
       if (!ResourceType.HasValue)
         throw new ArgumentNullException(nameof(ResourceType));
 
-      //List<SearchParameter> SearchParameterList = await ISearchParameterCache.GetForIndexingAsync(query.FhirVersion, ResourceType.Value);
+      
+      
 
 
       var UpdateResource = new UpdateResource(query.FhirResource)
@@ -85,6 +91,11 @@ namespace Bug.Logic.Query.FhirApi.Create
       if (HttpStatusCode is null)
         throw new ArgumentNullException(nameof(HttpStatusCode));
 
+      var x = await IIndexer.Process(query.FhirResource, ResourceType.Value);
+
+      //var DateTimeList = new List<IndexDateTime>();
+      //IMapper.Map(x.DateTimeIndexList, DateTimeList);
+
       var ResourceStore = new ResourceStore()
       {
         ResourceId = UpdateResource.ResourceId,
@@ -92,13 +103,16 @@ namespace Bug.Logic.Query.FhirApi.Create
         IsDeleted = false,
         VersionId = UpdateResource.VersionId.Value,
         LastUpdated = UpdateResource.LastUpdated.Value.ToZulu(),
-        ResourceBlob = IGZipper.Compress(ResourceBytes),        
-        FkResourceTypeId = ResourceType.Value,
-        FkFhirVersionId = UpdatedFhirResource.FhirMajorVersion,
-        FkMethodId = query.Method,
-        FkHttpStatusCodeId = HttpStatusCode.Id
-      };     
-      
+        ResourceBlob = IGZipper.Compress(ResourceBytes),
+        ResourceTypeId = ResourceType.Value,
+        FhirVersionId = UpdatedFhirResource.FhirMajorVersion,
+        MethodId = query.Method,
+        HttpStatusCodeId = HttpStatusCode.Id,  
+        Created = UpdateResource.LastUpdated.Value.ToZulu(),
+        Updated = UpdateResource.LastUpdated.Value.ToZulu()
+      };
+      //ResourceStore.DateTimeIndexList = new List<IndexDateTime>() { new IndexDateTime() { Low = DateTime.Now, High = DateTime.Now, ResourceStore = ResourceStore, SearchParameterId = DateTimeList[0].SearchParameterId } };
+      IMapper.Map(x, ResourceStore);
 
       IResourceStoreRepository.Add(ResourceStore);
       await IResourceStoreRepository.SaveChangesAsync();

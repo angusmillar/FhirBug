@@ -8,9 +8,9 @@ namespace Bug.Logic.DomainModel
   public abstract class IndexBase : DomainModelBase
   {
     public int Id { get; set; }
-    public int FkResourceStoreId { get; set; }
+    public int ResourceStoreId { get; set; }
     public ResourceStore ResourceStore { get; set; }
-    public int FkSearchParameterId { get; set; }
+    public int SearchParameterId { get; set; }
     public SearchParameter SearchParameter { get; set; }
   }
 }

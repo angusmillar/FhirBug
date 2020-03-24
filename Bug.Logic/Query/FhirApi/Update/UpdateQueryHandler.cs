@@ -63,18 +63,21 @@ namespace Bug.Logic.Query.FhirApi.Update
      
       Bug.Common.Enums.ResourceType? ResourceType = IResourceTypeSupport.GetTypeFromName(query.ResourceName);
       if (!ResourceType.HasValue)
-        throw new ArgumentNullException(nameof(ResourceType));  
+        throw new ArgumentNullException(nameof(ResourceType));
+
+      DateTimeOffset NewLastUpdated = IServerDefaultDateTimeOffSet.Now();
 
       ResourceStore? PreviousResourseStore = await IResourceStoreRepository.GetCurrentMetaAsync(query.FhirResource.FhirMajorVersion, ResourceType.Value, query.ResourceId);
       if (PreviousResourseStore is object)
       {
         FinalyHttpStatusCode = System.Net.HttpStatusCode.OK;
         PreviousResourseStore.IsCurrent = false;
-        NewVersionId = PreviousResourseStore.VersionId + 1;
+        PreviousResourseStore.Updated = NewLastUpdated.ToZulu();
+        NewVersionId = PreviousResourseStore.VersionId + 1;        
         IResourceStoreRepository.UpdateIsCurrent(PreviousResourseStore);
       }
 
-      DateTimeOffset NewLastUpdated = IServerDefaultDateTimeOffSet.Now();
+      
       FhirResource UpdatedFhirResource = IUpdateResourceService.Process(
         new UpdateResource(query.FhirResource)
         {          
@@ -87,6 +90,7 @@ namespace Bug.Logic.Query.FhirApi.Update
       if (HttpStatusCode is null)
         throw new ArgumentNullException($"Unable to locate {nameof(HttpStatusCode)} of type {FinalyHttpStatusCode.ToString()} in the database.");
 
+      DateTime Now = DateTimeOffset.Now.ToZulu();
       var ResourceStore = new ResourceStore()
       {
         ResourceId = query.ResourceId,
@@ -95,10 +99,12 @@ namespace Bug.Logic.Query.FhirApi.Update
         VersionId = NewVersionId,
         LastUpdated = NewLastUpdated.ToZulu(),
         ResourceBlob = IGZipper.Compress(IFhirResourceJsonSerializationService.SerializeToJsonBytes(UpdatedFhirResource)),
-        FkResourceTypeId = ResourceType.Value,
-        FkFhirVersionId = query.FhirVersion,
-        FkHttpStatusCodeId = HttpStatusCode.Id,
-        FkMethodId = query.Method
+        ResourceTypeId = ResourceType.Value,
+        FhirVersionId = query.FhirVersion,
+        HttpStatusCodeId = HttpStatusCode.Id,
+        MethodId = query.Method,
+        Created = NewLastUpdated.ToZulu(),
+        Updated = NewLastUpdated.ToZulu(),
       };
 
       IResourceStoreRepository.Add(ResourceStore);

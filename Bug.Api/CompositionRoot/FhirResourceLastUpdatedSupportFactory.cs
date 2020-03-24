@@ -14,9 +14,9 @@ namespace Bug.Api.CompositionRoot
     {
       return (Bug.Stu3Fhir.ResourceSupport.IStu3FhirResourceLastUpdatedSupport)_container.GetInstance(typeof(Bug.Stu3Fhir.ResourceSupport.IStu3FhirResourceLastUpdatedSupport));
     }
-    public Bug.R4Fhir.ResourceSupport.IStu3FhirResourceLastUpdatedSupport GetR4()
+    public Bug.R4Fhir.ResourceSupport.IR4FhirResourceLastUpdatedSupport GetR4()
     {
-      return (Bug.R4Fhir.ResourceSupport.IStu3FhirResourceLastUpdatedSupport)_container.GetInstance(typeof(Bug.R4Fhir.ResourceSupport.IStu3FhirResourceLastUpdatedSupport));
+      return (Bug.R4Fhir.ResourceSupport.IR4FhirResourceLastUpdatedSupport)_container.GetInstance(typeof(Bug.R4Fhir.ResourceSupport.IR4FhirResourceLastUpdatedSupport));
     }
   }
 }

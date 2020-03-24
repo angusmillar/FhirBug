@@ -87,14 +87,6 @@ namespace Bug.Data.Migrations
                         .HasColumnType("integer")
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
-                    b.Property<int>("FkResourceStoreId")
-                        .HasColumnName("fk_resourcestore_id")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("FkSearchParameterId")
-                        .HasColumnName("fk_searchparameter_id")
-                        .HasColumnType("integer");
-
                     b.Property<DateTime?>("High")
                         .HasColumnName("high")
                         .HasColumnType("timestamp without time zone");
@@ -103,17 +95,25 @@ namespace Bug.Data.Migrations
                         .HasColumnName("low")
                         .HasColumnType("timestamp without time zone");
 
+                    b.Property<int>("ResourceStoreId")
+                        .HasColumnName("resourcestore_id")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("SearchParameterId")
+                        .HasColumnName("searchparameter_id")
+                        .HasColumnType("integer");
+
                     b.HasKey("Id");
-
-                    b.HasIndex("FkResourceStoreId");
-
-                    b.HasIndex("FkSearchParameterId");
 
                     b.HasIndex("High")
                         .HasName("Ix_IndexDateTime_High");
 
                     b.HasIndex("Low")
                         .HasName("Ix_IndexDateTime_Low");
+
+                    b.HasIndex("ResourceStoreId");
+
+                    b.HasIndex("SearchParameterId");
 
                     b.ToTable("IndexDateTime");
                 });
@@ -144,14 +144,6 @@ namespace Bug.Data.Migrations
                         .HasColumnName("comparator_high")
                         .HasColumnType("integer");
 
-                    b.Property<int>("FkResourceStoreId")
-                        .HasColumnName("fk_resourcestore_id")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("FkSearchParameterId")
-                        .HasColumnName("fk_searchparameter_id")
-                        .HasColumnType("integer");
-
                     b.Property<decimal?>("Quantity")
                         .HasColumnName("quantity")
                         .HasColumnType("numeric");
@@ -159,6 +151,14 @@ namespace Bug.Data.Migrations
                     b.Property<decimal?>("QuantityHigh")
                         .HasColumnName("quantity_high")
                         .HasColumnType("numeric");
+
+                    b.Property<int>("ResourceStoreId")
+                        .HasColumnName("resourcestore_id")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("SearchParameterId")
+                        .HasColumnName("searchparameter_id")
+                        .HasColumnType("integer");
 
                     b.Property<string>("System")
                         .HasColumnName("system")
@@ -188,15 +188,15 @@ namespace Bug.Data.Migrations
                     b.HasIndex("CodeHigh")
                         .HasName("Ix_IndexQuantity_CodeHigh");
 
-                    b.HasIndex("FkResourceStoreId");
-
-                    b.HasIndex("FkSearchParameterId");
-
                     b.HasIndex("Quantity")
                         .HasName("Ix_IndexQuantity_Quantity");
 
                     b.HasIndex("QuantityHigh")
                         .HasName("Ix_IndexQuantity_QuantityHigh");
+
+                    b.HasIndex("ResourceStoreId");
+
+                    b.HasIndex("SearchParameterId");
 
                     b.HasIndex("System")
                         .HasName("Ix_IndexQuantity_System");
@@ -215,29 +215,26 @@ namespace Bug.Data.Migrations
                         .HasColumnType("integer")
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
-                    b.Property<int>("FkResourceStoreId")
-                        .HasColumnName("fk_resourcestore_id")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("FkResourceTypeId")
-                        .HasColumnName("fk_resourcetype_id")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("FkSearchParameterId")
-                        .HasColumnName("fk_searchparameter_id")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("FkServiceBaseUrlId")
-                        .IsRequired()
-                        .HasColumnName("fk_servicebaseurl_id")
-                        .HasColumnType("integer");
-
                     b.Property<string>("ResourceId")
                         .IsRequired()
                         .HasColumnName("resource_id")
                         .HasColumnType("text");
 
+                    b.Property<int>("ResourceStoreId")
+                        .HasColumnName("resourcestore_id")
+                        .HasColumnType("integer");
+
                     b.Property<int>("ResourceTypeId")
+                        .HasColumnName("resourcetype_id")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("SearchParameterId")
+                        .HasColumnName("searchparameter_id")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("ServiceBaseUrlId")
+                        .IsRequired()
+                        .HasColumnName("servicebaseurl_id")
                         .HasColumnType("integer");
 
                     b.Property<string>("VersionId")
@@ -246,16 +243,16 @@ namespace Bug.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("FkResourceStoreId");
-
-                    b.HasIndex("FkSearchParameterId");
-
-                    b.HasIndex("FkServiceBaseUrlId");
-
                     b.HasIndex("ResourceId")
                         .HasName("Ix_IndexReference_ResourceId");
 
+                    b.HasIndex("ResourceStoreId");
+
                     b.HasIndex("ResourceTypeId");
+
+                    b.HasIndex("SearchParameterId");
+
+                    b.HasIndex("ServiceBaseUrlId");
 
                     b.HasIndex("VersionId")
                         .HasName("Ix_IndexReference_VersionId");
@@ -271,12 +268,12 @@ namespace Bug.Data.Migrations
                         .HasColumnType("integer")
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
-                    b.Property<int>("FkResourceStoreId")
-                        .HasColumnName("fk_resourcestore_id")
+                    b.Property<int>("ResourceStoreId")
+                        .HasColumnName("resourcestore_id")
                         .HasColumnType("integer");
 
-                    b.Property<int>("FkSearchParameterId")
-                        .HasColumnName("fk_searchparameter_id")
+                    b.Property<int>("SearchParameterId")
+                        .HasColumnName("searchparameter_id")
                         .HasColumnType("integer");
 
                     b.Property<string>("String")
@@ -286,9 +283,9 @@ namespace Bug.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("FkResourceStoreId");
+                    b.HasIndex("ResourceStoreId");
 
-                    b.HasIndex("FkSearchParameterId");
+                    b.HasIndex("SearchParameterId");
 
                     b.HasIndex("String")
                         .HasName("Ix_IndexString_String");
@@ -309,12 +306,12 @@ namespace Bug.Data.Migrations
                         .HasColumnType("character varying(128)")
                         .HasMaxLength(128);
 
-                    b.Property<int>("FkResourceStoreId")
-                        .HasColumnName("fk_resourcestore_id")
+                    b.Property<int>("ResourceStoreId")
+                        .HasColumnName("resourcestore_id")
                         .HasColumnType("integer");
 
-                    b.Property<int>("FkSearchParameterId")
-                        .HasColumnName("fk_searchparameter_id")
+                    b.Property<int>("SearchParameterId")
+                        .HasColumnName("searchparameter_id")
                         .HasColumnType("integer");
 
                     b.Property<string>("System")
@@ -327,9 +324,9 @@ namespace Bug.Data.Migrations
                     b.HasIndex("Code")
                         .HasName("Ix_IndexToken_Code");
 
-                    b.HasIndex("FkResourceStoreId");
+                    b.HasIndex("ResourceStoreId");
 
-                    b.HasIndex("FkSearchParameterId");
+                    b.HasIndex("SearchParameterId");
 
                     b.HasIndex("System")
                         .HasName("Ix_IndexToken_System");
@@ -345,12 +342,12 @@ namespace Bug.Data.Migrations
                         .HasColumnType("integer")
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
-                    b.Property<int>("FkResourceStoreId")
-                        .HasColumnName("fk_resourcestore_id")
+                    b.Property<int>("ResourceStoreId")
+                        .HasColumnName("resourcestore_id")
                         .HasColumnType("integer");
 
-                    b.Property<int>("FkSearchParameterId")
-                        .HasColumnName("fk_searchparameter_id")
+                    b.Property<int>("SearchParameterId")
+                        .HasColumnName("searchparameter_id")
                         .HasColumnType("integer");
 
                     b.Property<string>("Uri")
@@ -361,9 +358,9 @@ namespace Bug.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("FkResourceStoreId");
+                    b.HasIndex("ResourceStoreId");
 
-                    b.HasIndex("FkSearchParameterId");
+                    b.HasIndex("SearchParameterId");
 
                     b.HasIndex("Uri")
                         .HasName("Ix_IndexUri_Uri");
@@ -408,20 +405,12 @@ namespace Bug.Data.Migrations
                         .HasColumnName("created")
                         .HasColumnType("timestamp without time zone");
 
-                    b.Property<int>("FkFhirVersionId")
-                        .HasColumnName("fk_fhirversion_id")
+                    b.Property<int>("FhirVersionId")
+                        .HasColumnName("fhirversion_id")
                         .HasColumnType("integer");
 
-                    b.Property<int>("FkHttpStatusCodeId")
-                        .HasColumnName("fk_httpstatuscode_id")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("FkMethodId")
-                        .HasColumnName("fk_method_id")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("FkResourceTypeId")
-                        .HasColumnName("fk_resourcetype_id")
+                    b.Property<int>("HttpStatusCodeId")
+                        .HasColumnName("httpstatuscode_id")
                         .HasColumnType("integer");
 
                     b.Property<bool>("IsCurrent")
@@ -436,6 +425,10 @@ namespace Bug.Data.Migrations
                         .HasColumnName("last_updated")
                         .HasColumnType("timestamp without time zone");
 
+                    b.Property<int>("MethodId")
+                        .HasColumnName("method_id")
+                        .HasColumnType("integer");
+
                     b.Property<byte[]>("ResourceBlob")
                         .HasColumnName("resource_blob")
                         .HasColumnType("bytea");
@@ -445,6 +438,10 @@ namespace Bug.Data.Migrations
                         .HasColumnName("resource_id")
                         .HasColumnType("character varying(128)")
                         .HasMaxLength(128);
+
+                    b.Property<int>("ResourceTypeId")
+                        .HasColumnName("resourcetype_id")
+                        .HasColumnType("integer");
 
                     b.Property<DateTime>("Updated")
                         .HasColumnName("updated")
@@ -456,16 +453,16 @@ namespace Bug.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("FkHttpStatusCodeId");
-
-                    b.HasIndex("FkMethodId");
-
-                    b.HasIndex("FkResourceTypeId");
+                    b.HasIndex("HttpStatusCodeId");
 
                     b.HasIndex("LastUpdated")
                         .HasName("Ix_ResourceStore_LastUpdated");
 
-                    b.HasIndex("FkFhirVersionId", "FkResourceTypeId", "ResourceId", "VersionId")
+                    b.HasIndex("MethodId");
+
+                    b.HasIndex("ResourceTypeId");
+
+                    b.HasIndex("FhirVersionId", "ResourceTypeId", "ResourceId", "VersionId")
                         .IsUnique()
                         .HasName("UniqueIx_ResourceStore_FhirVer_ResType_ResId_ResVer");
 
@@ -542,12 +539,8 @@ namespace Bug.Data.Migrations
                         .HasColumnName("fhir_path")
                         .HasColumnType("text");
 
-                    b.Property<int>("FkFhirVersionId")
-                        .HasColumnName("fk_fhirversion_id")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("FkSearchParamTypeId")
-                        .HasColumnName("fk_searchparamtype_id")
+                    b.Property<int>("FhirVersionId")
+                        .HasColumnName("fhirversion_id")
                         .HasColumnType("integer");
 
                     b.Property<string>("Name")
@@ -555,6 +548,10 @@ namespace Bug.Data.Migrations
                         .HasColumnName("name")
                         .HasColumnType("character varying(128)")
                         .HasMaxLength(128);
+
+                    b.Property<int>("SearchParamTypeId")
+                        .HasColumnName("searchparamtype_id")
+                        .HasColumnType("integer");
 
                     b.Property<DateTime>("Updated")
                         .HasColumnName("updated")
@@ -567,12 +564,12 @@ namespace Bug.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("FkFhirVersionId");
-
-                    b.HasIndex("FkSearchParamTypeId");
+                    b.HasIndex("FhirVersionId");
 
                     b.HasIndex("Name")
                         .HasName("Ix_SearchParameter_Url");
+
+                    b.HasIndex("SearchParamTypeId");
 
                     b.ToTable("SearchParameter");
                 });
@@ -600,8 +597,8 @@ namespace Bug.Data.Migrations
                         .HasColumnName("expression")
                         .HasColumnType("text");
 
-                    b.Property<int>("FkSearchParameterId")
-                        .HasColumnName("fk_searchparameter_id")
+                    b.Property<int>("SearchParameterId")
+                        .HasColumnName("searchparameter_id")
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("Updated")
@@ -610,7 +607,7 @@ namespace Bug.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("FkSearchParameterId");
+                    b.HasIndex("SearchParameterId");
 
                     b.ToTable("SearchParameterComponent");
                 });
@@ -627,12 +624,12 @@ namespace Bug.Data.Migrations
                         .HasColumnName("created")
                         .HasColumnType("timestamp without time zone");
 
-                    b.Property<int>("FkResourceTypeId")
-                        .HasColumnName("fk_resourcetype_id")
+                    b.Property<int>("ResourceTypeId")
+                        .HasColumnName("resourcetype_id")
                         .HasColumnType("integer");
 
-                    b.Property<int>("FkSearchParameterId")
-                        .HasColumnName("fk_searchparameter_id")
+                    b.Property<int>("SearchParameterId")
+                        .HasColumnName("searchparameter_id")
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("Updated")
@@ -641,9 +638,9 @@ namespace Bug.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("FkResourceTypeId");
+                    b.HasIndex("ResourceTypeId");
 
-                    b.HasIndex("FkSearchParameterId");
+                    b.HasIndex("SearchParameterId");
 
                     b.ToTable("SearchParameterResourceType");
                 });
@@ -660,12 +657,12 @@ namespace Bug.Data.Migrations
                         .HasColumnName("created")
                         .HasColumnType("timestamp without time zone");
 
-                    b.Property<int>("FkResourceTypeId")
-                        .HasColumnName("fk_resourcetype_id")
+                    b.Property<int>("ResourceTypeId")
+                        .HasColumnName("resourcetype_id")
                         .HasColumnType("integer");
 
-                    b.Property<int>("FkSearchParameterId")
-                        .HasColumnName("fk_searchparameter_id")
+                    b.Property<int>("SearchParameterId")
+                        .HasColumnName("searchparameter_id")
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("Updated")
@@ -674,9 +671,9 @@ namespace Bug.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("FkResourceTypeId");
+                    b.HasIndex("ResourceTypeId");
 
-                    b.HasIndex("FkSearchParameterId");
+                    b.HasIndex("SearchParameterId");
 
                     b.ToTable("SearchParameterTargetResourceType");
                 });
@@ -719,14 +716,14 @@ namespace Bug.Data.Migrations
             modelBuilder.Entity("Bug.Logic.DomainModel.IndexDateTime", b =>
                 {
                     b.HasOne("Bug.Logic.DomainModel.ResourceStore", "ResourceStore")
-                        .WithMany()
-                        .HasForeignKey("FkResourceStoreId")
+                        .WithMany("DateTimeIndexList")
+                        .HasForeignKey("ResourceStoreId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Bug.Logic.DomainModel.SearchParameter", "SearchParameter")
                         .WithMany()
-                        .HasForeignKey("FkSearchParameterId")
+                        .HasForeignKey("SearchParameterId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -734,14 +731,14 @@ namespace Bug.Data.Migrations
             modelBuilder.Entity("Bug.Logic.DomainModel.IndexQuantity", b =>
                 {
                     b.HasOne("Bug.Logic.DomainModel.ResourceStore", "ResourceStore")
-                        .WithMany()
-                        .HasForeignKey("FkResourceStoreId")
+                        .WithMany("QuantityIndexList")
+                        .HasForeignKey("ResourceStoreId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Bug.Logic.DomainModel.SearchParameter", "SearchParameter")
                         .WithMany()
-                        .HasForeignKey("FkSearchParameterId")
+                        .HasForeignKey("SearchParameterId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -749,20 +746,92 @@ namespace Bug.Data.Migrations
             modelBuilder.Entity("Bug.Logic.DomainModel.IndexReference", b =>
                 {
                     b.HasOne("Bug.Logic.DomainModel.ResourceStore", "ResourceStore")
+                        .WithMany("ReferenceIndexList")
+                        .HasForeignKey("ResourceStoreId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Bug.Logic.DomainModel.ResourceType", "ResourceType")
                         .WithMany()
-                        .HasForeignKey("FkResourceStoreId")
+                        .HasForeignKey("ResourceTypeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Bug.Logic.DomainModel.SearchParameter", "SearchParameter")
                         .WithMany()
-                        .HasForeignKey("FkSearchParameterId")
+                        .HasForeignKey("SearchParameterId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Bug.Logic.DomainModel.ServiceBaseUrl", "ServiceBaseUrl")
                         .WithMany()
-                        .HasForeignKey("FkServiceBaseUrlId")
+                        .HasForeignKey("ServiceBaseUrlId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Bug.Logic.DomainModel.IndexString", b =>
+                {
+                    b.HasOne("Bug.Logic.DomainModel.ResourceStore", "ResourceStore")
+                        .WithMany("StringIndexList")
+                        .HasForeignKey("ResourceStoreId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Bug.Logic.DomainModel.SearchParameter", "SearchParameter")
+                        .WithMany()
+                        .HasForeignKey("SearchParameterId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Bug.Logic.DomainModel.IndexToken", b =>
+                {
+                    b.HasOne("Bug.Logic.DomainModel.ResourceStore", "ResourceStore")
+                        .WithMany("TokenIndexList")
+                        .HasForeignKey("ResourceStoreId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Bug.Logic.DomainModel.SearchParameter", "SearchParameter")
+                        .WithMany()
+                        .HasForeignKey("SearchParameterId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Bug.Logic.DomainModel.IndexUri", b =>
+                {
+                    b.HasOne("Bug.Logic.DomainModel.ResourceStore", "ResourceStore")
+                        .WithMany("UriIndexList")
+                        .HasForeignKey("ResourceStoreId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Bug.Logic.DomainModel.SearchParameter", "SearchParameter")
+                        .WithMany()
+                        .HasForeignKey("SearchParameterId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Bug.Logic.DomainModel.ResourceStore", b =>
+                {
+                    b.HasOne("Bug.Logic.DomainModel.FhirVersion", "FhirVersion")
+                        .WithMany()
+                        .HasForeignKey("FhirVersionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Bug.Logic.DomainModel.HttpStatusCode", "HttpStatusCode")
+                        .WithMany()
+                        .HasForeignKey("HttpStatusCodeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Bug.Logic.DomainModel.Method", "Method")
+                        .WithMany()
+                        .HasForeignKey("MethodId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -773,89 +842,17 @@ namespace Bug.Data.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Bug.Logic.DomainModel.IndexString", b =>
-                {
-                    b.HasOne("Bug.Logic.DomainModel.ResourceStore", "ResourceStore")
-                        .WithMany()
-                        .HasForeignKey("FkResourceStoreId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Bug.Logic.DomainModel.SearchParameter", "SearchParameter")
-                        .WithMany()
-                        .HasForeignKey("FkSearchParameterId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Bug.Logic.DomainModel.IndexToken", b =>
-                {
-                    b.HasOne("Bug.Logic.DomainModel.ResourceStore", "ResourceStore")
-                        .WithMany()
-                        .HasForeignKey("FkResourceStoreId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Bug.Logic.DomainModel.SearchParameter", "SearchParameter")
-                        .WithMany()
-                        .HasForeignKey("FkSearchParameterId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Bug.Logic.DomainModel.IndexUri", b =>
-                {
-                    b.HasOne("Bug.Logic.DomainModel.ResourceStore", "ResourceStore")
-                        .WithMany()
-                        .HasForeignKey("FkResourceStoreId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Bug.Logic.DomainModel.SearchParameter", "SearchParameter")
-                        .WithMany()
-                        .HasForeignKey("FkSearchParameterId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Bug.Logic.DomainModel.ResourceStore", b =>
-                {
-                    b.HasOne("Bug.Logic.DomainModel.FhirVersion", "FhirVersion")
-                        .WithMany()
-                        .HasForeignKey("FkFhirVersionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Bug.Logic.DomainModel.HttpStatusCode", "HttpStatusCode")
-                        .WithMany()
-                        .HasForeignKey("FkHttpStatusCodeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Bug.Logic.DomainModel.Method", "Method")
-                        .WithMany()
-                        .HasForeignKey("FkMethodId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Bug.Logic.DomainModel.ResourceType", "ResourceType")
-                        .WithMany()
-                        .HasForeignKey("FkResourceTypeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("Bug.Logic.DomainModel.SearchParameter", b =>
                 {
                     b.HasOne("Bug.Logic.DomainModel.FhirVersion", "FhirVersion")
                         .WithMany()
-                        .HasForeignKey("FkFhirVersionId")
+                        .HasForeignKey("FhirVersionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Bug.Logic.DomainModel.SearchParamType", "SearchParamType")
                         .WithMany()
-                        .HasForeignKey("FkSearchParamTypeId")
+                        .HasForeignKey("SearchParamTypeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -864,7 +861,7 @@ namespace Bug.Data.Migrations
                 {
                     b.HasOne("Bug.Logic.DomainModel.SearchParameter", "SearchParameter")
                         .WithMany("ComponentList")
-                        .HasForeignKey("FkSearchParameterId")
+                        .HasForeignKey("SearchParameterId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -873,13 +870,13 @@ namespace Bug.Data.Migrations
                 {
                     b.HasOne("Bug.Logic.DomainModel.ResourceType", "ResourceType")
                         .WithMany()
-                        .HasForeignKey("FkResourceTypeId")
+                        .HasForeignKey("ResourceTypeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Bug.Logic.DomainModel.SearchParameter", "SearchParameter")
                         .WithMany("ResourceTypeList")
-                        .HasForeignKey("FkSearchParameterId")
+                        .HasForeignKey("SearchParameterId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -888,13 +885,13 @@ namespace Bug.Data.Migrations
                 {
                     b.HasOne("Bug.Logic.DomainModel.ResourceType", "ResourceType")
                         .WithMany()
-                        .HasForeignKey("FkResourceTypeId")
+                        .HasForeignKey("ResourceTypeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Bug.Logic.DomainModel.SearchParameter", "SearchParameter")
                         .WithMany("TargetResourceTypeList")
-                        .HasForeignKey("FkSearchParameterId")
+                        .HasForeignKey("SearchParameterId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

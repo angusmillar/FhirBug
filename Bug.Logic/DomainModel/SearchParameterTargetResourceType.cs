@@ -7,9 +7,9 @@ namespace Bug.Logic.DomainModel
 {  
   public class SearchParameterTargetResourceType : BaseIntKey
   {
-    public int FkSearchParameterId { get; set; }
+    public int SearchParameterId { get; set; }
     public SearchParameter SearchParameter { get; set; }
-    public Bug.Common.Enums.ResourceType FkResourceTypeId { get; set; }
+    public Bug.Common.Enums.ResourceType ResourceTypeId { get; set; }
     public ResourceType ResourceType { get; set; }
   }
 }

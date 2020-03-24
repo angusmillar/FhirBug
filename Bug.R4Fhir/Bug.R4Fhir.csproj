@@ -13,21 +13,6 @@
     <ProjectReference Include="..\Bug.Common\Bug.Common.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Compile Update="ProjectResources.Designer.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>ProjectResources.resx</DependentUpon>
-    </Compile>
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Update="ProjectResources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>ProjectResources.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-  </ItemGroup>
-
   <Target Name="ChangeAliasesOfStrongNameAssemblies" BeforeTargets="FindReferenceAssembliesForReferences;ResolveReferences">
     <!--<ItemGroup>
       <ReferencePath Condition="'%(FileName)' == 'Hl7.Fhir.DSTU2.Core'">

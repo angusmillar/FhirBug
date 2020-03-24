@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Bug.Common.DateTimeTools;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-//using Bug.Data.Seeding;
+using Bug.Common.DatabaseTools;
 
 namespace Bug.Data
 {
@@ -64,29 +64,25 @@ namespace Bug.Data
         entity.Property(e => e.IsDeleted).HasColumnName("is_deleted").IsRequired(true); ;
         entity.Property(e => e.LastUpdated).HasColumnName("last_updated").IsRequired(true);
         entity.Property(e => e.ResourceBlob).HasColumnName("resource_blob").IsRequired(false);
-        entity.Property(e => e.FkResourceTypeId).HasColumnName("fk_resourcetype_id").IsRequired(true).HasConversion<int>();
-        entity.Property(e => e.FkFhirVersionId).HasColumnName("fk_fhirversion_id").IsRequired(true).HasConversion<int>();
-        entity.Property(e => e.FkMethodId).HasColumnName("fk_method_id").IsRequired(true).HasConversion<int>();
-        entity.Property(e => e.FkHttpStatusCodeId).HasColumnName("fk_httpstatuscode_id").IsRequired(true);
+        entity.Property(e => e.ResourceTypeId).HasColumnName("resourcetype_id").IsRequired(true).HasConversion<int>();
+        entity.Property(e => e.FhirVersionId).HasColumnName("fhirversion_id").IsRequired(true).HasConversion<int>();
+        entity.Property(e => e.MethodId).HasColumnName("method_id").IsRequired(true).HasConversion<int>();
+        entity.Property(e => e.HttpStatusCodeId).HasColumnName("httpstatuscode_id").IsRequired(true);
 
-        entity.HasOne(x => x.ResourceType)
-        .WithMany()
-        .HasForeignKey(x => x.FkResourceTypeId);
+        entity.HasOne(x => x.ResourceType).WithMany().HasForeignKey(x => x.ResourceTypeId);
+        entity.HasOne(x => x.FhirVersion).WithMany().HasForeignKey(x => x.FhirVersionId);
+        entity.HasOne(x => x.Method).WithMany().HasForeignKey(x => x.MethodId);
+        entity.HasOne(x => x.HttpStatusCode).WithMany().HasForeignKey(x => x.HttpStatusCodeId);
 
-        entity.HasOne(x => x.FhirVersion)
-        .WithMany()
-        .HasForeignKey(x => x.FkFhirVersionId);
-
-        entity.HasOne(x => x.Method)
-        .WithMany()
-        .HasForeignKey(x => x.FkMethodId);
-
-        entity.HasOne(x => x.HttpStatusCode)
-        .WithMany()
-        .HasForeignKey(x => x.FkHttpStatusCodeId);
+        entity.HasMany(x => x.DateTimeIndexList).WithOne(v => v.ResourceStore).HasForeignKey(x => x.ResourceStoreId);
+        entity.HasMany(x => x.QuantityIndexList).WithOne(v => v.ResourceStore).HasForeignKey(x => x.ResourceStoreId);
+        entity.HasMany(x => x.ReferenceIndexList).WithOne(v => v.ResourceStore).HasForeignKey(x => x.ResourceStoreId);
+        entity.HasMany(x => x.StringIndexList).WithOne(v => v.ResourceStore).HasForeignKey(x => x.ResourceStoreId);
+        entity.HasMany(x => x.TokenIndexList).WithOne(v => v.ResourceStore).HasForeignKey(x => x.ResourceStoreId);
+        entity.HasMany(x => x.UriIndexList).WithOne(v => v.ResourceStore).HasForeignKey(x => x.ResourceStoreId);
 
         //Ensure that no two resources have the same ResourceId, VersionId, for the same FHIR Version and Resource Name
-        entity.HasIndex(x => new { x.FkFhirVersionId, x.FkResourceTypeId, x.ResourceId, x.VersionId, })
+        entity.HasIndex(x => new { x.FhirVersionId, x.ResourceTypeId, x.ResourceId, x.VersionId, })
           .HasName("UniqueIx_ResourceStore_FhirVer_ResType_ResId_ResVer")
           .IsUnique();
 
@@ -166,16 +162,16 @@ namespace Bug.Data
       builder.Entity<SearchParameterResourceType>(entity =>
       {
         SetupBaseIntKeyProperties(entity);
-        entity.Property(x => x.FkSearchParameterId).HasColumnName("fk_searchparameter_id");
-        entity.Property(x => x.FkResourceTypeId).HasColumnName("fk_resourcetype_id").IsRequired(true).HasConversion<int>();
+        entity.Property(x => x.SearchParameterId).HasColumnName("searchparameter_id");
+        entity.Property(x => x.ResourceTypeId).HasColumnName("resourcetype_id").IsRequired(true).HasConversion<int>();
 
         entity.HasOne(x => x.SearchParameter)
         .WithMany(y => y.ResourceTypeList)
-        .HasForeignKey(x => x.FkSearchParameterId);
+        .HasForeignKey(x => x.SearchParameterId);
 
         entity.HasOne(x => x.ResourceType)
         .WithMany()
-        .HasForeignKey(x => x.FkResourceTypeId);
+        .HasForeignKey(x => x.ResourceTypeId);
       });
 
       if (GenerateNonStaticSeedData)
@@ -189,16 +185,16 @@ namespace Bug.Data
       builder.Entity<SearchParameterTargetResourceType>(entity =>
       {
         SetupBaseIntKeyProperties(entity);
-        entity.Property(x => x.FkResourceTypeId).HasColumnName("fk_resourcetype_id").IsRequired(true).HasConversion<int>();
-        entity.Property(x => x.FkSearchParameterId).HasColumnName("fk_searchparameter_id");
+        entity.Property(x => x.ResourceTypeId).HasColumnName("resourcetype_id").IsRequired(true).HasConversion<int>();
+        entity.Property(x => x.SearchParameterId).HasColumnName("searchparameter_id");
 
         entity.HasOne(x => x.SearchParameter)
         .WithMany(y => y.TargetResourceTypeList)
-        .HasForeignKey(x => x.FkSearchParameterId);
+        .HasForeignKey(x => x.SearchParameterId);
 
         entity.HasOne(x => x.ResourceType)
         .WithMany()
-        .HasForeignKey(x => x.FkResourceTypeId);
+        .HasForeignKey(x => x.ResourceTypeId);
       });
 
       if (GenerateNonStaticSeedData)
@@ -212,13 +208,13 @@ namespace Bug.Data
       {
         SetupBaseIntKeyProperties(entity);
 
-        entity.Property(x => x.FkSearchParameterId).HasColumnName("fk_searchparameter_id");
+        entity.Property(x => x.SearchParameterId).HasColumnName("searchparameter_id");
         entity.Property(e => e.Definition).HasColumnName("definition").IsRequired(true).HasMaxLength(DatabaseMetaData.FieldLength.StringMaxLength);
         entity.Property(e => e.Expression).HasColumnName("expression").IsRequired(true);
 
         entity.HasOne(x => x.SearchParameter)
         .WithMany(y => y.ComponentList)
-        .HasForeignKey(x => x.FkSearchParameterId);       
+        .HasForeignKey(x => x.SearchParameterId);       
       });
 
       if (GenerateNonStaticSeedData)
@@ -256,30 +252,30 @@ namespace Bug.Data
 
         entity.Property(x => x.Name).HasColumnName("name").IsRequired(true).HasMaxLength(DatabaseMetaData.FieldLength.NameMaxLength);
         entity.Property(x => x.Description).HasColumnName("description").IsRequired(false);
-        entity.Property(x => x.FkSearchParamTypeId).HasColumnName("fk_searchparamtype_id").IsRequired(true).HasConversion<int>();
+        entity.Property(x => x.SearchParamTypeId).HasColumnName("searchparamtype_id").IsRequired(true).HasConversion<int>();
         entity.Property(x => x.Url).HasColumnName("url").IsRequired(false).HasMaxLength(DatabaseMetaData.FieldLength.StringMaxLength);
         entity.Property(x => x.FhirPath).HasColumnName("fhir_path").IsRequired(false);
-        entity.Property(x => x.FkFhirVersionId).HasColumnName("fk_fhirversion_id").IsRequired(true).HasConversion<int>();
+        entity.Property(x => x.FhirVersionId).HasColumnName("fhirversion_id").IsRequired(true).HasConversion<int>();
 
         entity.HasMany(x => x.ResourceTypeList)
         .WithOne(y => y.SearchParameter)
-        .HasForeignKey(x => x.FkSearchParameterId);
+        .HasForeignKey(x => x.SearchParameterId);
 
         entity.HasMany(x => x.TargetResourceTypeList)
         .WithOne(y => y.SearchParameter)
-        .HasForeignKey(x => x.FkSearchParameterId);
+        .HasForeignKey(x => x.SearchParameterId);
 
         entity.HasOne(x => x.SearchParamType)
         .WithMany()
-        .HasForeignKey(x => x.FkSearchParamTypeId);
+        .HasForeignKey(x => x.SearchParamTypeId);
 
         entity.HasMany(x => x.ComponentList)
         .WithOne(y => y.SearchParameter)
-        .HasForeignKey(x => x.FkSearchParameterId);
+        .HasForeignKey(x => x.SearchParameterId);
 
         entity.HasOne(x => x.FhirVersion)
         .WithMany()
-        .HasForeignKey(x => x.FkFhirVersionId);
+        .HasForeignKey(x => x.FhirVersionId);
 
         entity.HasIndex(x => x.Name)
           .HasName("Ix_SearchParameter_Url").IsUnique(false);
@@ -307,14 +303,18 @@ namespace Bug.Data
       {
         SetupIndexBase(entity);
 
-        entity.Property(e => e.FkServiceBaseUrlId).HasColumnName("fk_servicebaseurl_id").IsRequired(true);
-        entity.Property(e => e.FkResourceTypeId).HasColumnName("fk_resourcetype_id").IsRequired(true).HasConversion<int>();
+        entity.HasOne(x => x.ResourceStore)
+          .WithMany(z => z.ReferenceIndexList)
+          .HasForeignKey(x => x.ResourceStoreId);
+
+        entity.Property(e => e.ServiceBaseUrlId).HasColumnName("servicebaseurl_id").IsRequired(true);
+        entity.Property(e => e.ResourceTypeId).HasColumnName("resourcetype_id").IsRequired(true).HasConversion<int>();
         entity.Property(e => e.ResourceId).HasColumnName("resource_id").IsRequired(true);
         entity.Property(e => e.VersionId).HasColumnName("version_id").IsRequired(false);
 
         entity.HasOne(x => x.ServiceBaseUrl)
         .WithMany()
-        .HasForeignKey(x => x.FkServiceBaseUrlId);
+        .HasForeignKey(x => x.ServiceBaseUrlId);
 
         entity.HasIndex(x => x.ResourceId)
           .HasName("Ix_IndexReference_ResourceId");
@@ -327,6 +327,10 @@ namespace Bug.Data
       builder.Entity<Bug.Logic.DomainModel.IndexDateTime>(entity =>
       {
         SetupIndexBase(entity);
+
+        entity.HasOne(x => x.ResourceStore)
+         .WithMany(z => z.DateTimeIndexList)
+         .HasForeignKey(x => x.ResourceStoreId);
 
         entity.Property(e => e.Low).HasColumnName("low").IsRequired(false);
         entity.Property(e => e.High).HasColumnName("high").IsRequired(false);
@@ -344,6 +348,10 @@ namespace Bug.Data
       builder.Entity<Bug.Logic.DomainModel.IndexQuantity>(entity =>
       {
         SetupIndexBase(entity);
+
+        entity.HasOne(x => x.ResourceStore)
+          .WithMany(z => z.QuantityIndexList)
+          .HasForeignKey(x => x.ResourceStoreId);
 
         entity.Property(e => e.System).HasColumnName("system").IsRequired(false).HasMaxLength(DatabaseMetaData.FieldLength.StringMaxLength);
         entity.Property(e => e.Code).HasColumnName("code").IsRequired(false).HasMaxLength(DatabaseMetaData.FieldLength.CodeMaxLength);
@@ -384,6 +392,10 @@ namespace Bug.Data
       {
         SetupIndexBase(entity);
 
+        entity.HasOne(x => x.ResourceStore)
+          .WithMany(z => z.StringIndexList)
+          .HasForeignKey(x => x.ResourceStoreId);
+
         entity.Property(e => e.String).HasColumnName("string").IsRequired(false).HasMaxLength(DatabaseMetaData.FieldLength.StringMaxLength);
 
         entity.HasIndex(x => x.String)
@@ -395,6 +407,10 @@ namespace Bug.Data
       builder.Entity<Bug.Logic.DomainModel.IndexToken>(entity =>
       {
         SetupIndexBase(entity);
+
+        entity.HasOne(x => x.ResourceStore)
+          .WithMany(z => z.TokenIndexList)
+          .HasForeignKey(x => x.ResourceStoreId);
 
         entity.Property(e => e.System).HasColumnName("system").IsRequired(false).HasMaxLength(DatabaseMetaData.FieldLength.StringMaxLength);
         entity.Property(e => e.Code).HasColumnName("code").IsRequired(false).HasMaxLength(DatabaseMetaData.FieldLength.CodeMaxLength);
@@ -411,6 +427,10 @@ namespace Bug.Data
       {
         SetupIndexBase(entity);
 
+        entity.HasOne(x => x.ResourceStore)
+          .WithMany(z => z.UriIndexList)
+          .HasForeignKey(x => x.ResourceStoreId);
+
         entity.Property(e => e.Uri).HasColumnName("uri").IsRequired(true).HasMaxLength(DatabaseMetaData.FieldLength.StringMaxLength);      
 
         entity.HasIndex(x => x.Uri)
@@ -422,16 +442,12 @@ namespace Bug.Data
     {
       entity.HasKey(e => e.Id);
       entity.Property(e => e.Id).HasColumnName("id");
-      entity.Property(e => e.FkResourceStoreId).HasColumnName("fk_resourcestore_id").IsRequired(true);
-      entity.Property(e => e.FkSearchParameterId).HasColumnName("fk_searchparameter_id").IsRequired(true);
-
-      entity.HasOne(x => x.ResourceStore)
-      .WithMany()
-      .HasForeignKey(x => x.FkResourceStoreId);
+      entity.Property(e => e.ResourceStoreId).HasColumnName("resourcestore_id").IsRequired(true);
+      entity.Property(e => e.SearchParameterId).HasColumnName("searchparameter_id").IsRequired(true);
 
       entity.HasOne(x => x.SearchParameter)
       .WithMany()
-      .HasForeignKey(x => x.FkSearchParameterId);
+      .HasForeignKey(x => x.SearchParameterId);
     }
 
     private static void SetupBaseIntKeyProperties<T>(EntityTypeBuilder<T> entity) where T : BaseIntKey

@@ -7,7 +7,7 @@ using System.Text;
 
 namespace Bug.R4Fhir.ResourceSupport
 {
-  public class FhirResourceSupport : IStu3FhirResourceIdSupport, IR4FhirResourceVersionSupport, IStu3FhirResourceLastUpdatedSupport, IR4FhirResourceNameSupport
+  public class FhirResourceSupport : IR4FhirResourceIdSupport, IR4FhirResourceVersionSupport, IR4FhirResourceLastUpdatedSupport, IR4FhirResourceNameSupport
   {
     public void SetLastUpdated(DateTimeOffset dateTimeOffset, IFhirResourceR4 fhirResource)
     {

@@ -37,15 +37,15 @@ namespace Bug.Logic.Service.FhirResourceService
         BundleModel.Entry.Add(entry);
         if (ResourceStore.ResourceBlob is object)
         {
-          entry.Resource = IFhirResourceParseJsonService.ParseJson(ResourceStore.FkFhirVersionId, IGZipper.Decompress(ResourceStore.ResourceBlob));
+          entry.Resource = IFhirResourceParseJsonService.ParseJson(ResourceStore.FhirVersionId, IGZipper.Decompress(ResourceStore.ResourceBlob));
         }
 
-        string RequestUrl = ResourceStore.FkResourceTypeId.GetCode();
-        if (ResourceStore.FkMethodId == HttpVerb.PUT || ResourceStore.FkMethodId == HttpVerb.DELETE)
+        string RequestUrl = ResourceStore.ResourceTypeId.GetCode();
+        if (ResourceStore.MethodId == HttpVerb.PUT || ResourceStore.MethodId == HttpVerb.DELETE)
         {
           RequestUrl = $"{RequestUrl}/{ResourceStore.ResourceId}";
         }
-        entry.Request = new BundleModel.RequestComponent(ResourceStore.FkMethodId, RequestUrl);
+        entry.Request = new BundleModel.RequestComponent(ResourceStore.MethodId, RequestUrl);
         entry.Response = new BundleModel.ResponseComponent($"{ResourceStore.HttpStatusCode.Code.ToString()} - {((int)ResourceStore.HttpStatusCode.Number).ToString()}")
         {
           LastModified = IServerDateTimeSupport.ZuluToServerTimeZone(ResourceStore.LastUpdated)

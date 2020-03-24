@@ -1,11 +1,11 @@
 ﻿using Bug.Common.ApplicationConfig;
 using Bug.Common.Enums;
 using Bug.Common.FhirTools;
+using Bug.Common.Interfaces;
 using Bug.Common.StringTools;
 using Bug.Logic.Interfaces.CompositionRoot;
 using System;
 using System.Linq;
-
 
 namespace Bug.Logic.UriSupport
 {
@@ -158,7 +158,7 @@ namespace Bug.Logic.UriSupport
         fhirUri.IsUrn = true;
         if (RequestUri.ToLower().StartsWith($"{_UrnName}:{_uuidName}:"))
         {
-          fhirUri.UrnType = UriSupport.UrnType.uuid;
+          fhirUri.UrnType = UrnType.uuid;
           fhirUri.Urn = RequestUri;
           if (!UuidSupport.IsValidValue(fhirUri.Urn))
           {
@@ -169,7 +169,7 @@ namespace Bug.Logic.UriSupport
         }
         if (RequestUri.ToLower().StartsWith($"{_UrnName}:{_OidName}:"))
         {
-          fhirUri.UrnType = UriSupport.UrnType.oid;
+          fhirUri.UrnType = UrnType.oid;
           fhirUri.Urn = RequestUri;
           if (!OidSupport.IsValidValue(fhirUri.Urn))
           {

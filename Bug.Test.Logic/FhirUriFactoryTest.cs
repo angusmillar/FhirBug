@@ -10,6 +10,7 @@ using Bug.Logic.Interfaces.CompositionRoot;
 using Bug.R4Fhir.ResourceSupport;
 using Bug.Stu3Fhir.ResourceSupport;
 using Bug.Test.Logic.MockSupport;
+using Bug.Common.Interfaces;
 
 namespace Bug.Test.Logic
 {
@@ -34,7 +35,7 @@ namespace Bug.Test.Logic
       // Prepare
       FhirUriFactory FhirUriFactory = GetFhirUriFactory(serversBase, new string[] { resourceName });
 
-      string RequestUrl = string.Empty;
+      string RequestUrl;
       if (!string.IsNullOrWhiteSpace(versionId))
       {
         RequestUrl = $"{resourceName}/{resourceId}/_history/{versionId}";
@@ -264,7 +265,7 @@ namespace Bug.Test.Logic
       // Prepare
       FhirUriFactory FhirUriFactory = GetFhirUriFactory(serversBase, new string[] { resourceName });
 
-      string RequestUrl = string.Empty;
+      string RequestUrl;
       if (!string.IsNullOrWhiteSpace(resourceName))
       {
         RequestUrl = $"{resourceName}/{resourceId}";
@@ -361,7 +362,7 @@ namespace Bug.Test.Logic
 
       FhirUriFactory FhirUriFactory = new FhirUriFactory(IServiceBaseUrlMock.Object, IValidateResourceNameFactoryMock.Object);
 
-      string RequestUrl = string.Empty;
+      string RequestUrl;
       if (fhirVersion == FhirVersion.Stu3)
       {
         RequestUrl = $"{resourceNameStu3}/{resourceId}";
@@ -623,9 +624,16 @@ namespace Bug.Test.Logic
       string RequestUrl = $"{requestBase}/{resourceName}/10/Rubbish";
 
       //Act
-      bool Success = FhirUriFactory.TryParse(RequestUrl, fhirVersion, out IFhirUri? IFhirUri, out string ErrorMessage);
-      Assert.False(Success);
-      Assert.True(!string.IsNullOrWhiteSpace(ErrorMessage));
+      if (FhirUriFactory.TryParse(RequestUrl, fhirVersion, out IFhirUri? IFhirUri, out string ErrorMessage))
+      {
+        Assert.False(true);
+      }
+      else
+      {
+        Assert.True(!string.IsNullOrWhiteSpace(ErrorMessage));
+        Assert.Null(IFhirUri);
+      }
+      
     }
 
     [Theory]
@@ -735,9 +743,17 @@ namespace Bug.Test.Logic
       string RequestUrl = uuid;
 
       //Act
-      bool Success = FhirUriFactory.TryParse(RequestUrl, fhirVersion, out IFhirUri? IFhirUri, out string ErrorMessage);
-      Assert.False(Success);
-      Assert.True(!string.IsNullOrWhiteSpace(ErrorMessage));
+      if (FhirUriFactory.TryParse(RequestUrl, fhirVersion, out IFhirUri? IFhirUri, out string ErrorMessage))
+      {
+        Assert.False(true);        
+      }
+      else
+      {        
+        Assert.True(!string.IsNullOrWhiteSpace(ErrorMessage));
+        Assert.Null(IFhirUri);
+      }
+      
+      
     }
 
     [Theory]
@@ -751,9 +767,16 @@ namespace Bug.Test.Logic
       string RequestUrl = uuid;
 
       //Act
-      bool Success = FhirUriFactory.TryParse(RequestUrl, fhirVersion, out IFhirUri? IFhirUri, out string ErrorMessage);
-      Assert.False(Success);
-      Assert.True(!string.IsNullOrWhiteSpace(ErrorMessage));
+      if (FhirUriFactory.TryParse(RequestUrl, fhirVersion, out IFhirUri? IFhirUri, out string ErrorMessage))
+      {
+        Assert.False(true);
+      }
+      else
+      {
+        Assert.True(!string.IsNullOrWhiteSpace(ErrorMessage));
+        Assert.Null(IFhirUri);
+      }
+     
     }
 
     [Theory]

@@ -1,5 +1,6 @@
 ﻿using Bug.Common.Enums;
 using Bug.Common.FhirTools;
+using Bug.Common.Interfaces;
 using Bug.Logic.Query.FhirApi;
 using Bug.Logic.Query.FhirApi.Create;
 using Bug.Logic.Query.FhirApi.Update;

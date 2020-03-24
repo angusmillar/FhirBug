@@ -12,14 +12,15 @@ namespace Bug.Api.CompositionRoot
     {
       this._container = container;
     }
+    public IStu3BundleSupport GetStu3()
+    {
+      return (IStu3BundleSupport)_container.GetInstance(typeof(IStu3BundleSupport));
+    }
     public IR4BundleSupport GetR4()
     {
       return (IR4BundleSupport)_container.GetInstance(typeof(IR4BundleSupport));
     }
 
-    public IStu3BundleSupport GetStu3()
-    {
-      return (IStu3BundleSupport)_container.GetInstance(typeof(IStu3BundleSupport));
-    }
+
   }
 }
