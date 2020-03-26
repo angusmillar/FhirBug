@@ -85,17 +85,10 @@ namespace Bug.Logic.Query.FhirApi.Create
       FhirResource UpdatedFhirResource = IUpdateResourceService.Process(UpdateResource);
       byte[] ResourceBytes = IFhirResourceJsonSerializationService.SerializeToJsonBytes(UpdatedFhirResource);
 
-      
-
       HttpStatusCode? HttpStatusCode = await IHttpStatusCodeCache.GetAsync(System.Net.HttpStatusCode.Created);
       if (HttpStatusCode is null)
         throw new ArgumentNullException(nameof(HttpStatusCode));
-
-      var x = await IIndexer.Process(query.FhirResource, ResourceType.Value);
-
-      //var DateTimeList = new List<IndexDateTime>();
-      //IMapper.Map(x.DateTimeIndexList, DateTimeList);
-
+      
       var ResourceStore = new ResourceStore()
       {
         ResourceId = UpdateResource.ResourceId,
@@ -111,8 +104,13 @@ namespace Bug.Logic.Query.FhirApi.Create
         Created = UpdateResource.LastUpdated.Value.ToZulu(),
         Updated = UpdateResource.LastUpdated.Value.ToZulu()
       };
-      //ResourceStore.DateTimeIndexList = new List<IndexDateTime>() { new IndexDateTime() { Low = DateTime.Now, High = DateTime.Now, ResourceStore = ResourceStore, SearchParameterId = DateTimeList[0].SearchParameterId } };
-      IMapper.Map(x, ResourceStore);
+
+      IndexerOutcome IndexerOutcome = await IIndexer.Process(query.FhirResource, ResourceType.Value);
+
+      //ToDo: Add a resource reference integrity check service here
+      //IndexerOutcome.ReferenceIndexList()
+
+      IMapper.Map(IndexerOutcome, ResourceStore);
 
       IResourceStoreRepository.Add(ResourceStore);
       await IResourceStoreRepository.SaveChangesAsync();

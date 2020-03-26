@@ -7,7 +7,7 @@ namespace Bug.R4Fhir.ResourceSupport
 {
   public interface IR4FhirResourceIdSupport
   {
-    string GetFhirId(IFhirResourceR4 fhirResource);
+    string? GetFhirId(IFhirResourceR4 fhirResource);
     string SetFhirId(string id, IFhirResourceR4 fhirResource);
 
   }

@@ -84,7 +84,7 @@ namespace Bug.Stu3Fhir.ResourceSupport
       }
     }
 
-    public string GetFhirId(IFhirResourceStu3 fhirResource)
+    public string? GetFhirId(IFhirResourceStu3 fhirResource)
     {
       NullCheck(fhirResource.Stu3, "resource");
       return fhirResource.Stu3.Id;

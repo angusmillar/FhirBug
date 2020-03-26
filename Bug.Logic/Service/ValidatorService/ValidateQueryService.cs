@@ -118,6 +118,15 @@ namespace Bug.Logic.Service.ValidatorService
           throw new Bug.Common.Exceptions.FhirFatalException(System.Net.HttpStatusCode.InternalServerError, message);
         }
 
+        //Check that the Create resource has no resourceId
+        string? ResourceResourceId = IFhirResourceIdSupport.GetResourceId(createQuery.FhirResource);
+        if (!string.IsNullOrWhiteSpace(ResourceResourceId))
+        {
+          string message = $"The Create ({createQuery.Method.GetCode()}) interaction creates a new resource in a server-assigned location with a server assigned resource id. If the client wishes to have control over the id of a newly submitted resource, it should use the update ({HttpVerb.PUT.GetCode()}) interaction instead. The resource provide was found to contain the id: {ResourceResourceId}";
+          OperationOutCome = IOperationOutcomeSupport.GetError(createQuery.FhirResource.FhirMajorVersion, new string[] { message });
+          return false;
+        }
+
 
       }
 

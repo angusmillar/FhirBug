@@ -3,33 +3,44 @@ using Hl7.Fhir.ElementModel;
 using Hl7.Fhir.Model;
 using System.Collections.Generic;
 using Bug.Common.Interfaces;
-using Bug.Common.ApplicationConfig;
 using Bug.Common.Dto.Indexing;
 using Hl7.Fhir.Utility;
 using Bug.Common.Enums;
 using Bug.Common.FhirTools;
+using Bug.Common.Interfaces.CacheService;
+using Bug.Common.Interfaces.DomainModel;
+using Bug.Common.Interfaces.Repository;
+using Bug.Common.StringTools;
 
 namespace Bug.Stu3Fhir.Indexing.Setter
 {
   public class Stu3ReferenceSetter : IStu3ReferenceSetter
   {
-    private readonly IServiceBaseUrl IPrimaryServiceRootCache;
+    private readonly Bug.Common.ApplicationConfig.IServiceBaseUrl IPrimaryServiceRootCache;
     private readonly IFhirUriFactory IFhirUriFactory;
     private readonly IResourceTypeSupport IResourceTypeSupport;
+    private readonly IServiceBaseUrlCache IServiceBaseUrlCache;
+    private readonly IServiceBaseUrlRepository IServiceBaseUrlRepository;
 
     private ITypedElement? TypedElement;
     private Bug.Common.Enums.ResourceType ResourceType;
     private int SearchParameterId;
     private string? SearchParameterName;
 
-    public Stu3ReferenceSetter(IFhirUriFactory IFhirUriFactory, IServiceBaseUrl IPrimaryServiceRootCache, IResourceTypeSupport IResourceTypeSupport)
+    public Stu3ReferenceSetter(IFhirUriFactory IFhirUriFactory, 
+      Bug.Common.ApplicationConfig.IServiceBaseUrl IPrimaryServiceRootCache, 
+      IResourceTypeSupport IResourceTypeSupport,
+      IServiceBaseUrlCache IServiceBaseUrlCache,
+      IServiceBaseUrlRepository IServiceBaseUrlRepository)
     {
       this.IFhirUriFactory = IFhirUriFactory;
       this.IPrimaryServiceRootCache = IPrimaryServiceRootCache;
       this.IResourceTypeSupport = IResourceTypeSupport;
+      this.IServiceBaseUrlCache = IServiceBaseUrlCache;
+      this.IServiceBaseUrlRepository = IServiceBaseUrlRepository;
     }
 
-    public IList<IndexReference> Set(ITypedElement typedElement, Bug.Common.Enums.ResourceType resourceType, int searchParameterId, string searchParameterName)
+    public async System.Threading.Tasks.Task<IList<IndexReference>> SetAsync(ITypedElement typedElement, Bug.Common.Enums.ResourceType resourceType, int searchParameterId, string searchParameterName)
     {
       this.TypedElement = typedElement;
       this.ResourceType = resourceType;
@@ -43,11 +54,11 @@ namespace Bug.Stu3Fhir.Indexing.Setter
       {
         if (FhirValueProvider.FhirValue is FhirUri FhirUri)
         {
-          SetFhirUri(FhirUri, ResourceIndexList);
+          await SetFhirUri(FhirUri, ResourceIndexList);
         }
         else if (FhirValueProvider.FhirValue is ResourceReference ResourceReference)
         {
-          SetResourcereference(ResourceReference, ResourceIndexList);
+          await SetResourcereference(ResourceReference, ResourceIndexList);
         }
         else if (FhirValueProvider.FhirValue is Resource Resource)
         {
@@ -55,11 +66,11 @@ namespace Bug.Stu3Fhir.Indexing.Setter
         }
         else if (FhirValueProvider.FhirValue is Attachment Attachment)
         {
-          SetUri(Attachment, ResourceIndexList);
+          await SetUri(Attachment, ResourceIndexList);
         }
         else if (FhirValueProvider.FhirValue is Identifier Identifier)
         {
-          SetIdentifier(Identifier, ResourceIndexList);
+          await SetIdentifier(Identifier, ResourceIndexList);
         }
         else
         {
@@ -74,12 +85,12 @@ namespace Bug.Stu3Fhir.Indexing.Setter
       }
     }
 
-    private void SetIdentifier(Identifier Identifier, IList<IndexReference> ResourceIndexList)
+    private async System.Threading.Tasks.Task SetIdentifier(Identifier Identifier, IList<IndexReference> ResourceIndexList)
     {
       if (Identifier != null && !string.IsNullOrWhiteSpace(Identifier.System) && !string.IsNullOrWhiteSpace(Identifier.Value))
       {
         string TempUrl = $"{Identifier.System}/{Identifier.Value}";
-        SetReferance(TempUrl, ResourceIndexList);
+        await SetReferance(TempUrl, ResourceIndexList);
       }
     }
 
@@ -103,35 +114,35 @@ namespace Bug.Stu3Fhir.Indexing.Setter
       }
     }
 
-    private void SetResourcereference(ResourceReference ResourceReference, IList<IndexReference> ResourceIndexList)
+    private async System.Threading.Tasks.Task SetResourcereference(ResourceReference ResourceReference, IList<IndexReference> ResourceIndexList)
     {
       //Check the Uri is actual a Fhir resource reference 
       if (Hl7.Fhir.Rest.HttpUtil.IsRestResourceIdentity(ResourceReference.Reference))
       {
         if (!ResourceReference.IsContainedReference && ResourceReference.Url != null)
         {
-          SetReferance(ResourceReference.Url.OriginalString, ResourceIndexList);
+          await SetReferance(ResourceReference.Url.OriginalString, ResourceIndexList);
         }
       }
     }
 
-    private void SetUri(Attachment Attachment, IList<IndexReference> ResourceIndexList)
+    private async System.Threading.Tasks.Task SetUri(Attachment Attachment, IList<IndexReference> ResourceIndexList)
     {
       if (Attachment != null && string.IsNullOrWhiteSpace(Attachment.Url))
       {
-        SetReferance(Attachment.Url, ResourceIndexList);
+        await SetReferance(Attachment.Url, ResourceIndexList);
       }
     }
 
-    private void SetFhirUri(FhirUri FhirUri, IList<IndexReference> ResourceIndexList)
+    private async System.Threading.Tasks.Task SetFhirUri(FhirUri FhirUri, IList<IndexReference> ResourceIndexList)
     {
       if (!string.IsNullOrWhiteSpace(FhirUri.Value))
       {
-        SetReferance(FhirUri.Value, ResourceIndexList);
+        await SetReferance(FhirUri.Value, ResourceIndexList);
       }
     }
 
-    private void SetReferance(string UriString, IList<IndexReference> ResourceIndexList)
+    private async System.Threading.Tasks.Task SetReferance(string UriString, IList<IndexReference> ResourceIndexList)
     {
       //Check the Uri is actual a Fhir resource reference         
       if (Hl7.Fhir.Rest.HttpUtil.IsRestResourceIdentity(UriString))
@@ -143,7 +154,7 @@ namespace Bug.Stu3Fhir.Indexing.Setter
             if (ReferanceUri is object)
             {
               var ResourceIndex = new IndexReference(this.SearchParameterId);
-              SetResourceIndentityElements(ResourceIndex, ReferanceUri);
+              await SetResourceIndentityElements(ResourceIndex, ReferanceUri);
               ResourceIndexList.Add(ResourceIndex);
             }
           }
@@ -151,12 +162,26 @@ namespace Bug.Stu3Fhir.Indexing.Setter
       }
     }
 
-    private void SetResourceIndentityElements(IndexReference ResourceIndex, IFhirUri FhirRequestUri)
+    private async System.Threading.Tasks.Task SetResourceIndentityElements(IndexReference ResourceIndex, IFhirUri FhirRequestUri)
     {
-      ResourceIndex.FkResourceTypeId = IResourceTypeSupport.GetTypeFromName(FhirRequestUri.ResourseName);
+      ResourceIndex.ResourceTypeId = IResourceTypeSupport.GetTypeFromName(FhirRequestUri.ResourseName);
       ResourceIndex.VersionId = FhirRequestUri.VersionId;
       ResourceIndex.ResourceId = FhirRequestUri.ResourceId;
-      ResourceIndex.ServiceBaseUrl.IsPrimary = FhirRequestUri.IsRelativeToServer;
+
+      IServiceBaseUrl? ServiceBaseUrl;
+      ServiceBaseUrl = await IServiceBaseUrlCache.GetAsync(StringSupport.StripHttp(FhirRequestUri.UriPrimaryServiceRoot!.OriginalString));
+      if (ServiceBaseUrl is null)
+      {
+        ServiceBaseUrl = await IServiceBaseUrlRepository.GetBy(StringSupport.StripHttp(FhirRequestUri.UriPrimaryServiceRoot!.OriginalString));
+        if (ServiceBaseUrl is null)
+        {
+          ServiceBaseUrl = IServiceBaseUrlRepository.Add(StringSupport.StripHttp(FhirRequestUri.UriPrimaryServiceRoot.OriginalString), FhirRequestUri.IsRelativeToServer);
+          await IServiceBaseUrlRepository.SaveChangesAsync();
+        }
+      }
+      ResourceIndex.ServiceBaseUrlId = ServiceBaseUrl.Id;
     }
+
+
   }
 }

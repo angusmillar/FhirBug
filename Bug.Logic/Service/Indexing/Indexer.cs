@@ -97,7 +97,7 @@ namespace Bug.Logic.Service.Indexing
                     IndexerOutcome.TokenIndexList.AddRange(ITokenSetterSupport.Set(fhirResource.FhirMajorVersion, TypedElement, resourceType, SearchParameter.Id, SearchParameter.Name));
                     break;
                   case Common.Enums.SearchParamType.Reference:
-                    IndexerOutcome.ReferenceIndexList.AddRange(IReferenceSetterSupport.Set(fhirResource.FhirMajorVersion, TypedElement, resourceType, SearchParameter.Id, SearchParameter.Name));
+                    IndexerOutcome.ReferenceIndexList.AddRange(await IReferenceSetterSupport.SetAsync(fhirResource.FhirMajorVersion, TypedElement, resourceType, SearchParameter.Id, SearchParameter.Name));
                     break;
                   case Common.Enums.SearchParamType.Composite:
                     //Composite searchParameters do not require populating as they are a Composite of other SearchParameter Types

@@ -39,7 +39,7 @@ namespace Bug.Api.ActionResults
           if (FhirApiResult.FhirResource is object && FhirApiResult.FhirResource.R4 is object)
           {
             //When we have a FHIR Resource to return
-            FhirApiResult.FhirResource.Stu3.ResourceBase = IServiceBaseUrl.Url(FhirApiResult.FhirVersion);
+            FhirApiResult.FhirResource.R4.ResourceBase = IServiceBaseUrl.Url(FhirApiResult.FhirVersion);
             return new FhirR4ResourceActionResult(FhirApiResult.HttpStatusCode, FhirApiResult.FhirResource.R4);
           }
           else

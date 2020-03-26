@@ -7,7 +7,7 @@ namespace Bug.Stu3Fhir.ResourceSupport
 {
   public interface IStu3FhirResourceIdSupport
   {
-    string GetFhirId(IFhirResourceStu3 fhirResource);
+    string? GetFhirId(IFhirResourceStu3 fhirResource);
     void SetFhirId(string id, IFhirResourceStu3 fhirResource);
 
   }

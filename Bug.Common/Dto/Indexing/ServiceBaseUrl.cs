@@ -10,6 +10,7 @@ namespace Bug.Common.Dto.Indexing
     {
       this.IsPrimary = false;
     }
+    public int Id { get; set; }
     public string? Url { get; set; }
     public bool IsPrimary { get; set; }
   }

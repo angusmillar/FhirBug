@@ -23,12 +23,14 @@ namespace Bug.R4Fhir.Indexing
     {
       ITypedElement TypedElement = fhirResource.R4.ToTypedElement();
       FhirPathCompiler.DefaultSymbolTable.AddFhirExtensions();
-      var oFhirEvaluationContext = new Hl7.Fhir.FhirPath.FhirEvaluationContext(TypedElement)
-      {
-        //The resolve() function then also needs to be provided an external resolver delegate that performs the resolve
-        //that delegate can be set as below. Here I am providing my own implementation 'IPyroFhirPathResolve.Resolver' 
-        ElementResolver = IFhirPathResolve.Resolver
-      };
+      //var oFhirEvaluationContext = new Hl7.Fhir.FhirPath.FhirEvaluationContext(TypedElement);
+      var oFhirEvaluationContext = new Hl7.Fhir.FhirPath.FhirEvaluationContext(fhirResource.R4);
+      //The resolve() function then also needs to be provided an external resolver delegate that performs the resolve
+      //that delegate can be set as below. Here I am providing my own implementation 'IPyroFhirPathResolve.Resolver' 
+      oFhirEvaluationContext.ElementResolver = IFhirPathResolve.Resolver;
+
+
+
 
       try
       {

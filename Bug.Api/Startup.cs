@@ -309,6 +309,7 @@ namespace Bug.Api
       container.Register<Logic.CacheService.IMethodCache, Logic.CacheService.MethodCache>(Lifestyle.Scoped);
       container.Register<Logic.CacheService.IHttpStatusCodeCache, Logic.CacheService.HttpStatusCodeCache>(Lifestyle.Scoped);
       container.Register<Logic.CacheService.ISearchParameterCache, Logic.CacheService.SearchParameterCache>(Lifestyle.Scoped);
+      container.Register<Common.Interfaces.CacheService.IServiceBaseUrlCache, Logic.CacheService.ServiceBaseUrlCache>(Lifestyle.Scoped);
 
       //-- Repositories ---------------
       container.Register<IUnitOfWork, Bug.Data.AppDbContext>(Lifestyle.Scoped);
@@ -317,6 +318,8 @@ namespace Bug.Api
       container.Register<IMethodRepository, Bug.Data.Repository.MethodRepository>(Lifestyle.Scoped);
       container.Register<IHttpStatusCodeRepository, Bug.Data.Repository.HttpStatusCodeRepository>(Lifestyle.Scoped);
       container.Register<ISearchParameterRepository, Bug.Data.Repository.SearchParameterRepository>(Lifestyle.Scoped);
+      container.Register<Common.Interfaces.Repository.IServiceBaseUrlRepository, Bug.Data.Repository.ServiceBaseUrlRepository>(Lifestyle.Scoped);
+      
 
 
 
@@ -325,7 +328,7 @@ namespace Bug.Api
 
 
       // ## Transient ###################################################################
-     
+
 
 
     }

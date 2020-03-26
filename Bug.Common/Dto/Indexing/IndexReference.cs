@@ -8,13 +8,11 @@ namespace Bug.Common.Dto.Indexing
   public class IndexReference : IndexBase
   {
     public IndexReference(int fkSearchParameterId) 
-      : base(fkSearchParameterId)
-    {
-      this.ServiceBaseUrl = new ServiceBaseUrl();
-    }
+      : base(fkSearchParameterId){ }
 
-    public ServiceBaseUrl ServiceBaseUrl { get; set; }    
-    public ResourceType? FkResourceTypeId { get; set; }    
+    public int? ServiceBaseUrlId { get; set; }
+    public ServiceBaseUrl? ServiceBaseUrl { get; set; }    
+    public ResourceType? ResourceTypeId { get; set; }    
     public string? ResourceId { get; set; }
     public string? VersionId { get; set; }
   }

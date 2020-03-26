@@ -92,7 +92,7 @@ namespace Bug.R4Fhir.ResourceSupport
       }
     }
 
-    public string GetFhirId(IFhirResourceR4 fhirResource)
+    public string? GetFhirId(IFhirResourceR4 fhirResource)
     {
       NullCheck(fhirResource.R4, "resource");      
       return fhirResource.R4.Id;
