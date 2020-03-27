@@ -128,6 +128,7 @@ CREATE TABLE "IndexReference" (
     resourcetype_id integer NOT NULL,
     resource_id text NOT NULL,
     version_id text NULL,
+    canonical_version_id text NULL,
     CONSTRAINT "PK_IndexReference" PRIMARY KEY (id),
     CONSTRAINT "FK_IndexReference_ResourceStore_resourcestore_id" FOREIGN KEY (resourcestore_id) REFERENCES "ResourceStore" (id) ON DELETE CASCADE,
     CONSTRAINT "FK_IndexReference_ResourceType_resourcetype_id" FOREIGN KEY (resourcetype_id) REFERENCES "ResourceType" (id) ON DELETE CASCADE,
@@ -225,6 +226,8 @@ CREATE INDEX "Ix_IndexQuantity_System" ON "IndexQuantity" (system);
 
 CREATE INDEX "Ix_IndexQuantity_SystemHigh" ON "IndexQuantity" (system_high);
 
+CREATE INDEX "Ix_IndexReference_CanonicalVersionId" ON "IndexReference" (canonical_version_id);
+
 CREATE INDEX "Ix_IndexReference_ResourceId" ON "IndexReference" (resource_id);
 
 CREATE INDEX "IX_IndexReference_resourcestore_id" ON "IndexReference" (resourcestore_id);
@@ -286,5 +289,5 @@ CREATE INDEX "IX_SearchParameterTargetResourceType_searchparameter_id" ON "Searc
 CREATE UNIQUE INDEX "Ix_ServiceBaseUrl_Url" ON "ServiceBaseUrl" (url);
 
 INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
-VALUES ('20200324082857_First', '3.1.1');
+VALUES ('20200327061637_First', '3.1.1');
 

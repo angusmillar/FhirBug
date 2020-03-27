@@ -141,6 +141,53 @@ namespace Bug.Test.Logic
     }
 
     [Theory]
+    [InlineData(FhirVersion.R4, "Patient", "10", "11")]
+    [InlineData(FhirVersion.Stu3, "Patient", "10", "11")]
+    public void TestFhirUriCanonical(FhirVersion fhirVersion, string resourceName, string resourceId, string CanonicalVersionId)
+    {
+      // Prepare
+      FhirUriFactory FhirUriFactory = GetFhirUriFactory(TestData.BaseUrlServer, new string[] { resourceName });
+
+      
+      string RequestUrl = $"{resourceName}/{resourceId}|{CanonicalVersionId}";
+      
+            //Act
+      if (FhirUriFactory.TryParse(RequestUrl, fhirVersion, out IFhirUri? IFhirUri, out string ErrorMessage))
+      {
+        //Assert
+        if (IFhirUri is object)
+        {
+          Assert.Equal(resourceName, IFhirUri.ResourseName);
+          Assert.Equal(resourceId, IFhirUri.ResourceId);
+          Assert.Equal(string.Empty, IFhirUri.VersionId);
+          Assert.Equal(CanonicalVersionId, IFhirUri.CanonicalVersionId);
+
+          Assert.Equal(new Uri(TestData.BaseUrlServer), IFhirUri.PrimaryServiceRootServers);
+          Assert.False(IFhirUri.IsCompartment);
+          Assert.False(IFhirUri.ErrorInParseing);
+          Assert.False(IFhirUri.IsMetaData);
+          Assert.False(IFhirUri.IsOperation);
+          Assert.False(IFhirUri.IsCompartment);
+          Assert.False(IFhirUri.IsUrn);
+          Assert.False(IFhirUri.IsFormDataSearch);
+          Assert.Equal(RequestUrl, IFhirUri.OriginalString);
+          Assert.Equal(string.Empty, IFhirUri.CompartmentalisedResourseName);
+          Assert.Equal(fhirVersion, IFhirUri.FhirVersion);
+          Assert.Equal(string.Empty, IFhirUri.OperationName);
+          Assert.Null(IFhirUri.OperationType);
+          Assert.Equal(string.Empty, IFhirUri.Query);
+          Assert.Equal(string.Empty, IFhirUri.Urn);
+          Assert.Null(IFhirUri.UrnType);
+          Assert.Equal(string.Empty, IFhirUri.ParseErrorMessage);
+        }
+      }
+      else
+      {
+        Assert.Equal("some error message", ErrorMessage);
+      }
+    }
+
+    [Theory]
     [InlineData(FhirVersion.Stu3, TestData.BaseUrlServer, TestData.BaseUrlRemote)]
     [InlineData(FhirVersion.R4, TestData.BaseUrlServer, TestData.BaseUrlRemote)]
     public void TestFhirUriBaseHistory(FhirVersion fhirVersion, string serversBase, string requestBase)

@@ -33,6 +33,7 @@ namespace Bug.Logic.UriSupport
       this.IsCompartment = false;
       this.IsMetaData = false;
       this.IsHistoryReferance = false;
+      this.CanonicalVersionId = string.Empty;
     }
 
     public string ParseErrorMessage { get; set; }
@@ -60,6 +61,7 @@ namespace Bug.Logic.UriSupport
     public bool IsContained { get; set; }
     public bool IsMetaData { get; set; }
     public bool IsHistoryReferance { get; set; }
+    public string CanonicalVersionId { get; set; }    
     public bool IsCompartment { get; set; }
     public Uri? UriPrimaryServiceRoot
     {

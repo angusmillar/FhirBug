@@ -16,7 +16,8 @@ namespace Bug.Logic.CacheService
     private readonly IDistributedCache IDistributedCache;
     private readonly IServiceBaseUrlRepository IServiceBaseUrlRepository;
     private readonly Bug.Common.ApplicationConfig.IFhirServerConfig IFhirServerConfig;
-    private const string ParameterName = "table:ServiceBaseUrl:url:";
+    private const string ParameterNameUrl = "table:serviceBaseUrl:url:";
+    private const string ParameterNameIsPrimary = "table:serviceBaseUrl:isPrimary:true";
     public ServiceBaseUrlCache(IDistributedCache IDistributedCache,
       IServiceBaseUrlRepository IServiceBaseUrlRepository,
       Bug.Common.ApplicationConfig.IFhirServerConfig IFhirServerConfig)
@@ -28,7 +29,7 @@ namespace Bug.Logic.CacheService
 
     public async Task<IServiceBaseUrl?> GetAsync(string url)
     {
-      byte[]? data = await IDistributedCache.GetAsync($"{ParameterName}{url}");
+      byte[]? data = await IDistributedCache.GetAsync($"{ParameterNameUrl}{url}");
       if (data is object)
       {
         return JsonSerializer.Deserialize<ServiceBaseUrl>(data);
@@ -45,6 +46,35 @@ namespace Bug.Logic.CacheService
       }
     }
 
+    public async Task<IServiceBaseUrl> GetPrimaryAsync()
+    {
+      byte[]? data = await IDistributedCache.GetAsync($"{ParameterNameIsPrimary}");
+      if (data is object)
+      {
+        return JsonSerializer.Deserialize<ServiceBaseUrl>(data);
+      }
+      else
+      {
+        IServiceBaseUrl ServiceBaseUrl = await IServiceBaseUrlRepository.GetPrimary();
+        if (ServiceBaseUrl is IServiceBaseUrl IServiceBaseUrl)
+        {
+          await this.SetPrimaryAsync(IServiceBaseUrl);
+          return IServiceBaseUrl;
+        }
+        return null;
+      }
+    }
+
+    public async Task SetPrimaryAsync(IServiceBaseUrl serviceBaseUrl)
+    {
+      byte[] jsonUtf8Bytes = JsonSerializer.SerializeToUtf8Bytes(serviceBaseUrl);
+      var RedisOptions = new DistributedCacheEntryOptions()
+      {
+        SlidingExpiration = TimeSpan.FromMinutes(IFhirServerConfig.CahceSlidingExpirationMinites)
+      };
+      await IDistributedCache.SetAsync($"{ParameterNameIsPrimary}", jsonUtf8Bytes, RedisOptions);
+    }
+
     public async Task SetAsync(IServiceBaseUrl serviceBaseUrl)
     {
       byte[] jsonUtf8Bytes = JsonSerializer.SerializeToUtf8Bytes(serviceBaseUrl);
@@ -52,12 +82,17 @@ namespace Bug.Logic.CacheService
       {
         SlidingExpiration = TimeSpan.FromMinutes(IFhirServerConfig.CahceSlidingExpirationMinites)
       };
-      await IDistributedCache.SetAsync($"{ParameterName}{serviceBaseUrl.Url}", jsonUtf8Bytes, RedisOptions);
+      await IDistributedCache.SetAsync($"{ParameterNameUrl}{serviceBaseUrl.Url}", jsonUtf8Bytes, RedisOptions);
     }
 
     public async Task RemoveAsync(string url)
     {
-      await IDistributedCache.RemoveAsync($"{ParameterName}{url}");
+      await IDistributedCache.RemoveAsync($"{ParameterNameUrl}{url}");
+    }
+
+    public async Task RemovePrimaryAsync(string url)
+    {
+      await IDistributedCache.RemoveAsync($"{ParameterNameIsPrimary}");
     }
   }
 }

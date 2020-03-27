@@ -19,6 +19,11 @@ namespace Bug.Data.Repository
       return await DbSet.SingleOrDefaultAsync(x => x.Url == url);
     }
 
+    public async Task<IServiceBaseUrl> GetPrimary()
+    {
+      return await DbSet.SingleAsync(x => x.IsPrimary == true);
+    }
+
     public IServiceBaseUrl Add(string url, bool IsPrimary)
     {
       var Now = DateTimeOffset.Now.ToZulu();

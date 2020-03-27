@@ -113,6 +113,8 @@ namespace Bug.Api
       Common.ApplicationConfig.FhirServerConfig fhirServerConfig = Configuration.GetSection(typeof(Common.ApplicationConfig.FhirServerConfig).Name).Get<Common.ApplicationConfig.FhirServerConfig>();
       container.RegisterInstance<Common.ApplicationConfig.IFhirServerConfig>(fhirServerConfig);
       container.RegisterInstance<Common.ApplicationConfig.IServerDefaultTimeZoneTimeSpan>(fhirServerConfig);
+      container.RegisterInstance<Common.ApplicationConfig.IEnforceResourceReferentialIntegrity>(fhirServerConfig);
+      
       container.Register<Common.ApplicationConfig.IServiceBaseUrl, Common.ApplicationConfig.ServiceBaseUrl>(Lifestyle.Singleton);      
       container.Register<Common.DateTimeTools.IServerDateTimeSupport, Common.DateTimeTools.ServerDateTimeSupport>(Lifestyle.Singleton);
       container.Register<Bug.Api.ActionResults.IActionResultFactory, Bug.Api.ActionResults.ActionResultFactory>(Lifestyle.Singleton);
@@ -263,10 +265,10 @@ namespace Bug.Api
       container.Register<Bug.Stu3Fhir.Indexing.IStu3TypedElementSupport, Bug.Stu3Fhir.Indexing.Stu3TypedElementSupport>(Lifestyle.Scoped);
       container.Register<Bug.R4Fhir.Indexing.IR4TypedElementSupport, Bug.R4Fhir.Indexing.R4TypedElementSupport>(Lifestyle.Scoped);
       container.Register<Bug.R4Fhir.Indexing.Resolver.IFhirPathResolve, Bug.R4Fhir.Indexing.Resolver.FhirPathResolve>(Lifestyle.Scoped);
-      
 
 
-      //-- Fhir Services ---------------      
+
+      //-- Scoped Fhir Services ---------------      
       container.Register<Logic.Service.IUpdateResourceService, Logic.Service.UpdateResourceService>(Lifestyle.Scoped);
       container.Register<Logic.Service.ValidatorService.IValidateQueryService, Logic.Service.ValidatorService.ValidateQueryService>(Lifestyle.Scoped);      
       container.Register<Logic.Service.IFhirResourceIdSupport, Logic.Service.FhirResourceIdSupport>(Lifestyle.Scoped);
@@ -278,6 +280,10 @@ namespace Bug.Api
       container.Register<Logic.Service.IOperationOutcomeSupport, Logic.Service.OperationOutcomeSupport>(Lifestyle.Scoped);
       container.Register<Logic.Service.IFhirResourceBundleSupport, Logic.Service.FhirResourceBundleSupport>(Lifestyle.Scoped);
       container.Register<Logic.Service.FhirResourceService.IHistoryBundleService, Logic.Service.FhirResourceService.HistoryBundleService>(Lifestyle.Scoped);
+
+      //-- Scoped General Services -----------------
+      container.Register<Logic.Service.ReferentialIntegrity.IReferentialIntegrityService, Logic.Service.ReferentialIntegrity.ReferentialIntegrityService>(Lifestyle.Scoped);
+      
 
       //-- Scoped Fhir Indexing -------------
       container.Register<Logic.Service.Indexing.IIndexer, Logic.Service.Indexing.Indexer>(Lifestyle.Scoped);
@@ -318,10 +324,9 @@ namespace Bug.Api
       container.Register<IMethodRepository, Bug.Data.Repository.MethodRepository>(Lifestyle.Scoped);
       container.Register<IHttpStatusCodeRepository, Bug.Data.Repository.HttpStatusCodeRepository>(Lifestyle.Scoped);
       container.Register<ISearchParameterRepository, Bug.Data.Repository.SearchParameterRepository>(Lifestyle.Scoped);
+      container.Register<IIndexReferenceRepository, Bug.Data.Repository.IndexReferenceRepository>(Lifestyle.Scoped);
       container.Register<Common.Interfaces.Repository.IServiceBaseUrlRepository, Bug.Data.Repository.ServiceBaseUrlRepository>(Lifestyle.Scoped);
       
-
-
 
       //container.Register<Bug.Stu3Fhir.ResourceSupport.IResourceNameSupport, Bug.Stu3Fhir.ResourceSupport.ResourceNameSupport>(Lifestyle.Scoped);
       //container.Register<Bug.R4Fhir.ResourceSupport.IResourceNameSupport, Bug.R4Fhir.ResourceSupport.ResourceNameSupport>(Lifestyle.Scoped);

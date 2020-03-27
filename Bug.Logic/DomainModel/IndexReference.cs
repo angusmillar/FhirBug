@@ -13,5 +13,6 @@ namespace Bug.Logic.DomainModel
     public ResourceType ResourceType { get; set; }
     public string ResourceId { get; set; }
     public string VersionId { get; set; }
+    public string CanonicalVersionId { get; set; }
   }
 }

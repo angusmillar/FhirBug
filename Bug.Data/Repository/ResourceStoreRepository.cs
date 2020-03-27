@@ -26,6 +26,28 @@ namespace Bug.Data.Repository
         x.IsCurrent == true);
     }
 
+    public async Task<bool> ReferentialIntegrityCheckAsync(Common.Enums.FhirVersion fhirVersion, Common.Enums.ResourceType resourceTypeId, string resourceId, int? versionId = null)
+    {
+      if (versionId.HasValue)
+      {
+        return await DbSet.AnyAsync(x =>
+          x.FhirVersionId == fhirVersion &
+          x.ResourceTypeId == resourceTypeId &
+          x.ResourceId == resourceId &
+          x.VersionId == versionId.Value &          
+          x.IsDeleted == false);
+      }
+      else
+      {
+        return await DbSet.AnyAsync(x =>
+          x.FhirVersionId == fhirVersion &
+          x.ResourceTypeId == resourceTypeId &
+          x.ResourceId == resourceId &
+          x.IsCurrent == true &
+          x.IsDeleted == false);
+      }
+    }
+
     public async Task<IList<ResourceStore>> GetResourceHistoryListAsync(Common.Enums.FhirVersion fhirMajorVersion, Common.Enums.ResourceType resourceType)
     {
       return await DbSet.Select(x => new ResourceStore()
@@ -101,39 +123,14 @@ namespace Bug.Data.Repository
         y.ResourceId == resourceId).OrderBy(z => z.LastUpdated).ToListAsync();
     }
 
-    public void UpdateIsCurrent(ResourceStore resourceStore)
+    public void UpdateCurrent(ResourceStore resourceStore)
     {
       DbSet.Attach(resourceStore);
       _context.Entry(resourceStore).Property(v => v.IsCurrent).IsModified = true;
       _context.Entry(resourceStore).Property(v => v.Updated).IsModified = true;
 
-      //Delete all the indexes for this ResourceStore entity
-      _context.Set<IndexDateTime>().Where(x => x.ResourceStoreId == resourceStore.Id)
-        .Select(y => new IndexDateTime() { Id = y.Id }).ToList()
-        .ForEach(b => _context.Set<IndexDateTime>().Remove(b));
-
-      _context.Set<IndexQuantity>().Where(x => x.ResourceStoreId == resourceStore.Id)
-        .Select(y => new IndexQuantity() { Id = y.Id }).ToList()
-        .ForEach(b => _context.Set<IndexQuantity>().Remove(b));
-
-      _context.Set<IndexReference>().Where(x => x.ResourceStoreId == resourceStore.Id)
-        .Select(y => new IndexReference() { Id = y.Id }).ToList()
-        .ForEach(b => _context.Set<IndexReference>().Remove(b));
-
-      _context.Set<IndexString>().Where(x => x.ResourceStoreId == resourceStore.Id)
-        .Select(y => new IndexString() { Id = y.Id }).ToList()
-        .ForEach(b => _context.Set<IndexString>().Remove(b));
-
-      _context.Set<IndexToken>().Where(x => x.ResourceStoreId == resourceStore.Id)
-        .Select(y => new IndexToken() { Id = y.Id }).ToList()
-        .ForEach(b => _context.Set<IndexToken>().Remove(b));
-
-      _context.Set<IndexUri>().Where(x => x.ResourceStoreId == resourceStore.Id)
-        .Select(y => new IndexUri() { Id = y.Id }).ToList()
-        .ForEach(b => _context.Set<IndexUri>().Remove(b));
+      RemoveAllIndexes(resourceStore);
     }
-
-
 
     public async Task<ResourceStore?> GetCurrentMetaAsync(Common.Enums.FhirVersion fhirMajorVersion, Common.Enums.ResourceType resourceType, string resourceId)
     {
@@ -147,12 +144,29 @@ namespace Bug.Data.Repository
         VersionId = x.VersionId,
         FhirVersionId = x.FhirVersionId,
         ResourceTypeId = x.ResourceTypeId,
-        ResourceType = x.ResourceType
+        //ResourceType = x.ResourceType
       }).SingleOrDefaultAsync(y =>
         y.FhirVersionId == fhirMajorVersion &
         y.ResourceTypeId == resourceType &
         y.ResourceId == resourceId &
         y.IsCurrent == true);
+    }
+
+    private void RemoveAllIndexes(ResourceStore resourceStore)
+    {
+      RemoveIndex<IndexDateTime>(resourceStore);
+      RemoveIndex<IndexQuantity>(resourceStore);
+      RemoveIndex<IndexReference>(resourceStore);
+      RemoveIndex<IndexString>(resourceStore);
+      RemoveIndex<IndexToken>(resourceStore);
+      RemoveIndex<IndexUri>(resourceStore);
+    }
+
+    private void RemoveIndex<IndexType>(ResourceStore resourceStore) where IndexType : IndexBase, new()
+    {
+      _context.Set<IndexType>().Where(x => x.ResourceStoreId == resourceStore.Id)
+        .Select(y => new IndexType() { Id = y.Id }).ToList()
+        .ForEach(b => _context.Set<IndexType>().Remove(b));
     }
 
   }

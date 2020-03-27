@@ -32,6 +32,7 @@ namespace Bug.Logic.UriSupport
     private const string _uuidName = "uuid";
     private const string _HttpName = "http";
     private const string _HttpsName = "https";
+    private const char _CanonicalDilimeter = '|';
 
     public bool TryParse(string requestUri, FhirVersion fhirVersion, out IFhirUri? fhirUri, out string errorMessage)
     {
@@ -290,8 +291,22 @@ namespace Bug.Logic.UriSupport
             }
             else
             {
-              //Normal Resource Id
-              fhirUri.ResourceId = Segment;
+              //Could have a Canonical version e.g CodeSystem/myCodeSystem|2.0
+              if (Segment.Contains(_CanonicalDilimeter))
+              {
+                string[] SplitCanonical = Segment.Split(_CanonicalDilimeter);
+                fhirUri.ResourceId = SplitCanonical[0];
+                fhirUri.CanonicalVersionId = SplitCanonical[1];
+                int TotalLength = fhirUri.ResourceId.Count() + fhirUri.CanonicalVersionId.Count() + 1;
+                Remainder = RemoveStartsWithSlash(Remainder.Substring(TotalLength, Remainder.Count() - TotalLength));
+              }
+              else
+              {
+                //Normal Resource Id
+                fhirUri.ResourceId = Segment;
+                Remainder = RemoveStartsWithSlash(Remainder.Substring(fhirUri.ResourceId.Count(), Remainder.Count() - fhirUri.ResourceId.Count()));
+              }
+              
               if (string.IsNullOrEmpty(fhirUri.ResourseName) || fhirUri.IsContained)
               {
                 fhirUri.IsRelativeToServer = false;
@@ -303,8 +318,7 @@ namespace Bug.Logic.UriSupport
               else
               {
                 fhirUri.IsRelativeToServer = true;
-              }
-              Remainder = RemoveStartsWithSlash(Remainder.Substring(fhirUri.ResourceId.Count(), Remainder.Count() - fhirUri.ResourceId.Count()));
+              }              
             }
           }
           else

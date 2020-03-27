@@ -1,4 +1,5 @@
-﻿using Bug.Common.Compression;
+﻿using AutoMapper;
+using Bug.Common.Compression;
 using Bug.Common.DateTimeTools;
 using Bug.Common.Enums;
 using Bug.Common.FhirTools;
@@ -6,6 +7,8 @@ using Bug.Logic.CacheService;
 using Bug.Logic.DomainModel;
 using Bug.Logic.Interfaces.Repository;
 using Bug.Logic.Service;
+using Bug.Logic.Service.Indexing;
+using Bug.Logic.Service.ReferentialIntegrity;
 using Bug.Logic.Service.ValidatorService;
 using System;
 using System.Threading.Tasks;
@@ -21,7 +24,11 @@ namespace Bug.Logic.Query.FhirApi.Update
     private readonly IUpdateResourceService IUpdateResourceService;
     private readonly IServerDateTimeSupport IServerDefaultDateTimeOffSet;
     private readonly IFhirResourceJsonSerializationService IFhirResourceJsonSerializationService;
+    private readonly IReferentialIntegrityService IReferentialIntegrityService;
     private readonly IGZipper IGZipper;
+    private readonly IIndexer IIndexer;
+    private readonly IMapper IMapper;
+
 
     public UpdateQueryHandler(
       IValidateQueryService IValidateQueryService,
@@ -31,7 +38,10 @@ namespace Bug.Logic.Query.FhirApi.Update
       IUpdateResourceService IUpdateResourceService,
       IServerDateTimeSupport IServerDefaultDateTimeOffSet,
       IFhirResourceJsonSerializationService IFhirResourceJsonSerializationService,
-      IGZipper IGZipper)
+      IReferentialIntegrityService IReferentialIntegrityService,
+      IGZipper IGZipper,
+      IIndexer IIndexer,
+      IMapper IMapper)
     {
       this.IValidateQueryService = IValidateQueryService;
       this.IResourceStoreRepository = IResourceStoreRepository;      
@@ -40,7 +50,10 @@ namespace Bug.Logic.Query.FhirApi.Update
       this.IUpdateResourceService = IUpdateResourceService;
       this.IServerDefaultDateTimeOffSet = IServerDefaultDateTimeOffSet;
       this.IFhirResourceJsonSerializationService = IFhirResourceJsonSerializationService;
+      this.IReferentialIntegrityService = IReferentialIntegrityService;
       this.IGZipper = IGZipper;
+      this.IIndexer = IIndexer;
+      this.IMapper = IMapper;
     }
 
     public async Task<FhirApiResult> Handle(UpdateQuery query)
@@ -74,7 +87,7 @@ namespace Bug.Logic.Query.FhirApi.Update
         PreviousResourseStore.IsCurrent = false;
         PreviousResourseStore.Updated = NewLastUpdated.ToZulu();
         NewVersionId = PreviousResourseStore.VersionId + 1;        
-        IResourceStoreRepository.UpdateIsCurrent(PreviousResourseStore);
+        IResourceStoreRepository.UpdateCurrent(PreviousResourseStore);
       }
 
       
@@ -90,7 +103,7 @@ namespace Bug.Logic.Query.FhirApi.Update
       if (HttpStatusCode is null)
         throw new ArgumentNullException($"Unable to locate {nameof(HttpStatusCode)} of type {FinalyHttpStatusCode.ToString()} in the database.");
 
-      DateTime Now = DateTimeOffset.Now.ToZulu();
+      
       var ResourceStore = new ResourceStore()
       {
         ResourceId = query.ResourceId,
@@ -106,6 +119,21 @@ namespace Bug.Logic.Query.FhirApi.Update
         Created = NewLastUpdated.ToZulu(),
         Updated = NewLastUpdated.ToZulu(),
       };
+
+      IndexerOutcome IndexerOutcome = await IIndexer.Process(query.FhirResource, ResourceType.Value);
+
+      var ReferentialIntegrityOutcome = await IReferentialIntegrityService.Check(query.FhirVersion, IndexerOutcome.ReferenceIndexList);
+      if (ReferentialIntegrityOutcome.IsError)
+      {
+        return new FhirApiResult(System.Net.HttpStatusCode.BadRequest, query.FhirVersion)
+        {
+          ResourceId = null,
+          FhirResource = ReferentialIntegrityOutcome.FhirResource,
+          VersionId = null
+        };
+      }
+      
+      IMapper.Map(IndexerOutcome, ResourceStore);
 
       IResourceStoreRepository.Add(ResourceStore);
       await IResourceStoreRepository.SaveChangesAsync();

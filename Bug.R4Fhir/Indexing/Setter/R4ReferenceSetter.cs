@@ -163,15 +163,17 @@ namespace Bug.R4Fhir.Indexing.Setter
       {
         if (this.IFhirUriFactory.TryParse(UriString.Trim(), FhirVersion.R4, out IFhirUri? ReferanceUri, out string ErrorMessage))
         {
-          if (Uri.IsWellFormedUriString(UriString, UriKind.Relative) || Uri.IsWellFormedUriString(UriString, UriKind.Absolute))
+          if (ReferanceUri is object)
           {
-            if (ReferanceUri is object)
-            {
-              var ResourceIndex = new IndexReference(this.SearchParameterId);
-              await SetResourceIndentityElements(ResourceIndex, ReferanceUri);
-              ResourceIndexList.Add(ResourceIndex);
-            }
+            var ResourceIndex = new IndexReference(this.SearchParameterId);
+            await SetResourceIndentityElements(ResourceIndex, ReferanceUri);
+            ResourceIndexList.Add(ResourceIndex);
           }
+        }
+        else
+        {
+          string message = $"One of the resources references found in the submitted resource is invalid. The reference was : {UriString}. The error was: {ErrorMessage}";
+          throw new Bug.Common.Exceptions.FhirErrorException(System.Net.HttpStatusCode.BadRequest, new string[] { message });
         }
       }
     }
@@ -179,8 +181,12 @@ namespace Bug.R4Fhir.Indexing.Setter
     private async System.Threading.Tasks.Task SetResourceIndentityElements(IndexReference ResourceIndex, IFhirUri FhirRequestUri)
     {
       ResourceIndex.ResourceTypeId = IResourceTypeSupport.GetTypeFromName(FhirRequestUri.ResourseName);
-      ResourceIndex.VersionId = FhirRequestUri.VersionId;
-      ResourceIndex.ResourceId = FhirRequestUri.ResourceId;
+      if (!string.IsNullOrWhiteSpace(FhirRequestUri.ResourceId))
+        ResourceIndex.ResourceId = FhirRequestUri.ResourceId;
+      if (!string.IsNullOrWhiteSpace(FhirRequestUri.VersionId))
+        ResourceIndex.VersionId = FhirRequestUri.VersionId;
+      if (!string.IsNullOrWhiteSpace(FhirRequestUri.CanonicalVersionId))
+        ResourceIndex.CanonicalVersionId = FhirRequestUri.CanonicalVersionId;
 
       IServiceBaseUrl? ServiceBaseUrl;
       ServiceBaseUrl = await IServiceBaseUrlCache.GetAsync(StringSupport.StripHttp(FhirRequestUri.UriPrimaryServiceRoot!.OriginalString));
@@ -190,8 +196,8 @@ namespace Bug.R4Fhir.Indexing.Setter
         if (ServiceBaseUrl is null)
         {
           ServiceBaseUrl = IServiceBaseUrlRepository.Add(StringSupport.StripHttp(FhirRequestUri.UriPrimaryServiceRoot.OriginalString), FhirRequestUri.IsRelativeToServer);
-          await IServiceBaseUrlRepository.SaveChangesAsync();          
-        }                
+          await IServiceBaseUrlRepository.SaveChangesAsync();
+        }
       }
       ResourceIndex.ServiceBaseUrlId = ServiceBaseUrl.Id;
     }

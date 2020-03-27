@@ -10,7 +10,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Bug.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20200324082857_First")]
+    [Migration("20200327061637_First")]
     partial class First
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -217,6 +217,10 @@ namespace Bug.Data.Migrations
                         .HasColumnType("integer")
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
+                    b.Property<string>("CanonicalVersionId")
+                        .HasColumnName("canonical_version_id")
+                        .HasColumnType("text");
+
                     b.Property<string>("ResourceId")
                         .IsRequired()
                         .HasColumnName("resource_id")
@@ -244,6 +248,9 @@ namespace Bug.Data.Migrations
                         .HasColumnType("text");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CanonicalVersionId")
+                        .HasName("Ix_IndexReference_CanonicalVersionId");
 
                     b.HasIndex("ResourceId")
                         .HasName("Ix_IndexReference_ResourceId");

@@ -163,11 +163,21 @@ namespace Bug.Logic.Service.ValidatorService
           throw new Bug.Common.Exceptions.FhirFatalException(System.Net.HttpStatusCode.InternalServerError, message);
         }
 
+        string? ResourceResourceId = IFhirResourceIdSupport.GetResourceId(updateQuery.FhirResource);
+        
+        //Check resource has a resource id
+        if (string.IsNullOrWhiteSpace(ResourceResourceId))
+        {
+          string message = $"There was no resource id found in the resource of the request. " +
+            $"An update ({updateQuery.Method.GetCode()}) request must contain a resource with a resource id in the body of the request.";
+          OperationOutCome = IOperationOutcomeSupport.GetError(updateQuery.FhirResource.FhirMajorVersion, new string[] { message });
+          return false;
+        }
+
         //Check the URL has a resource id equals the resource's id              
-        string ResourceResourceId = IFhirResourceIdSupport.GetResourceId(updateQuery.FhirResource);
         if (!ResourceResourceId.Equals(FhirUri.ResourceId, StringComparison.CurrentCulture))
         {
-          string message = $"The resource id found in the body of the request does not match the resource id stated in the request URL. " +
+          string message = $"The resource id found in the resource of the request does not match the resource id stated in the request URL. " +
             $"The resource id in the body was: '{ResourceResourceId}' and in the URL it was: '{FhirUri.ResourceId}'. The full URL was: {FhirUri.OriginalString}";
           OperationOutCome = IOperationOutcomeSupport.GetError(updateQuery.FhirResource.FhirMajorVersion, new string[] { message });
           return false;

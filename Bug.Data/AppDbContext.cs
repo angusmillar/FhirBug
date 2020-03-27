@@ -311,6 +311,7 @@ namespace Bug.Data
         entity.Property(e => e.ResourceTypeId).HasColumnName("resourcetype_id").IsRequired(true).HasConversion<int>();
         entity.Property(e => e.ResourceId).HasColumnName("resource_id").IsRequired(true);
         entity.Property(e => e.VersionId).HasColumnName("version_id").IsRequired(false);
+        entity.Property(e => e.CanonicalVersionId).HasColumnName("canonical_version_id").IsRequired(false);
 
         entity.HasOne(x => x.ServiceBaseUrl)
         .WithMany()
@@ -321,6 +322,9 @@ namespace Bug.Data
 
         entity.HasIndex(x => x.VersionId)
           .HasName("Ix_IndexReference_VersionId");
+
+        entity.HasIndex(x => x.CanonicalVersionId)
+         .HasName("Ix_IndexReference_CanonicalVersionId");
       });
 
       //##### IndexDateTime #################################################

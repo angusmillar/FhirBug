@@ -5,34 +5,7 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
-  <ItemGroup>
-    <Compile Remove="Migrations\20200316074546_First.cs" />
-    <Compile Remove="Migrations\20200316074546_First.Designer.cs" />
-    <Compile Remove="Migrations\20200316080756_First.cs" />
-    <Compile Remove="Migrations\20200316080756_First.Designer.cs" />
-    <Compile Remove="Migrations\20200317005406_First.cs" />
-    <Compile Remove="Migrations\20200317005406_First.Designer.cs" />
-    <Compile Remove="Migrations\20200318062338_First.cs" />
-    <Compile Remove="Migrations\20200318062338_First.Designer.cs" />
-    <Compile Remove="Migrations\20200318062717_First.cs" />
-    <Compile Remove="Migrations\20200318062717_First.Designer.cs" />
-    <Compile Remove="Migrations\20200318063132_First.cs" />
-    <Compile Remove="Migrations\20200318063132_First.Designer.cs" />
-    <Compile Remove="Migrations\20200318122524_First.cs" />
-    <Compile Remove="Migrations\20200318122524_First.Designer.cs" />
-    <Compile Remove="Migrations\20200324074632_First.cs" />
-    <Compile Remove="Migrations\20200324074632_First.Designer.cs" />
-    <Compile Remove="Migrations\20200324075254_First.cs" />
-    <Compile Remove="Migrations\20200324075254_First.Designer.cs" />
-    <Compile Remove="Migrations\20200324075621_First.cs" />
-    <Compile Remove="Migrations\20200324075621_First.Designer.cs" />
-    <Compile Remove="Migrations\20200324080306_First.cs" />
-    <Compile Remove="Migrations\20200324080306_First.Designer.cs" />
-    <Compile Remove="Migrations\20200324081059_First.cs" />
-    <Compile Remove="Migrations\20200324081059_First.Designer.cs" />
-    <Compile Remove="Migrations\20200324081754_First.cs" />
-    <Compile Remove="Migrations\20200324081754_First.Designer.cs" />
-  </ItemGroup>
+  
 
   
 

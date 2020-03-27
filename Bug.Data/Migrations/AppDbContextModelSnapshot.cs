@@ -215,6 +215,10 @@ namespace Bug.Data.Migrations
                         .HasColumnType("integer")
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
+                    b.Property<string>("CanonicalVersionId")
+                        .HasColumnName("canonical_version_id")
+                        .HasColumnType("text");
+
                     b.Property<string>("ResourceId")
                         .IsRequired()
                         .HasColumnName("resource_id")
@@ -242,6 +246,9 @@ namespace Bug.Data.Migrations
                         .HasColumnType("text");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CanonicalVersionId")
+                        .HasName("Ix_IndexReference_CanonicalVersionId");
 
                     b.HasIndex("ResourceId")
                         .HasName("Ix_IndexReference_ResourceId");

@@ -251,7 +251,8 @@ namespace Bug.Data.Migrations
                     servicebaseurl_id = table.Column<int>(nullable: false),
                     resourcetype_id = table.Column<int>(nullable: false),
                     resource_id = table.Column<string>(nullable: false),
-                    version_id = table.Column<string>(nullable: true)
+                    version_id = table.Column<string>(nullable: true),
+                    canonical_version_id = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
@@ -508,6 +509,11 @@ namespace Bug.Data.Migrations
                 name: "Ix_IndexQuantity_SystemHigh",
                 table: "IndexQuantity",
                 column: "system_high");
+
+            migrationBuilder.CreateIndex(
+                name: "Ix_IndexReference_CanonicalVersionId",
+                table: "IndexReference",
+                column: "canonical_version_id");
 
             migrationBuilder.CreateIndex(
                 name: "Ix_IndexReference_ResourceId",

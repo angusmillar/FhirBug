@@ -29,5 +29,6 @@ namespace Bug.Common.Interfaces
     string Urn { get; }
     UrnType? UrnType { get; }
     string VersionId { get; }
+    string CanonicalVersionId { get; }
   }
 }

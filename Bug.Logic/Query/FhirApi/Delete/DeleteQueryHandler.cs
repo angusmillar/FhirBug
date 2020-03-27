@@ -61,7 +61,7 @@ namespace Bug.Logic.Query.FhirApi.Delete
         //FinalyHttpStatusCode = System.Net.HttpStatusCode.OK;
         PreviousResourseStore.IsCurrent = false;
         NewVersionId = PreviousResourseStore.VersionId + 1;
-        IResourceStoreRepository.UpdateIsCurrent(PreviousResourseStore);
+        IResourceStoreRepository.UpdateCurrent(PreviousResourseStore);
 
         DateTime Now = DateTimeOffset.Now.ToZulu();
         var ResourceStore = new ResourceStore()
