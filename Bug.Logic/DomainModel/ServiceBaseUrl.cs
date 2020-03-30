@@ -10,5 +10,6 @@ namespace Bug.Logic.DomainModel
   {
     public string Url { get; set; }
     public bool IsPrimary { get; set; }
+    public Common.Enums.FhirVersion FhirVersionId { get; set; }    
   }
 }

@@ -65,7 +65,7 @@ namespace Bug.Api.Middleware
       FhirVersion VersionInUse = GetFhirVersionInUse(context.Request.Path.Value);
       if (exec is FhirException FhirException)
       {
-        _logger.LogError(FhirException, "FhirException has been throwen");
+        _logger.LogError(FhirException, "FhirException has been thrown");
         FhirFormatType AcceptFormatType = Bug.Api.ContentFormatters.FhirMediaType.GetFhirFormatTypeFromAcceptHeader(context.Request.Headers.SingleOrDefault(x => x.Key.ToLower(System.Globalization.CultureInfo.CurrentCulture) == "accept").Value);
         switch (VersionInUse)
         {
@@ -91,7 +91,7 @@ namespace Bug.Api.Middleware
         }
         else
         {
-          UsersErrorMessage = $"An unhandled exception has been throwen. To protect data privacy the exception information has been writen to the application log with the error log identifier: {ErrorGuid}";
+          UsersErrorMessage = $"An unhanded exception has been thrown. To protect data privacy the exception information has been writen to the application log with the error log identifier: {ErrorGuid}";
         }
         _logger.LogError(exec, $"Error log identifier: {ErrorGuid}");
         switch (VersionInUse)

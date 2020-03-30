@@ -9,9 +9,9 @@ namespace Bug.Test.Logic.MockSupport
 {
   public static class IServiceBaseUrl_MockFactory
   {
-    public static Mock<IServiceBaseUrl> Get(string ServersBaseServiceRootStu3, string ServersBaseServiceRootR4)
+    public static Mock<IServiceBaseUrlConfi> Get(string ServersBaseServiceRootStu3, string ServersBaseServiceRootR4)
     {
-      Mock<IServiceBaseUrl> IServiceBaseUrlMock = new Mock<IServiceBaseUrl>();
+      Mock<IServiceBaseUrlConfi> IServiceBaseUrlMock = new Mock<IServiceBaseUrlConfi>();
       IServiceBaseUrlMock.Setup(x =>
       x.Url(FhirVersion.Stu3)).Returns(new Uri(ServersBaseServiceRootStu3));
       IServiceBaseUrlMock.Setup(x =>

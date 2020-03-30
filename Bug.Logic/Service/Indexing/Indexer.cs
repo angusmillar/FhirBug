@@ -56,7 +56,7 @@ namespace Bug.Logic.Service.Indexing
 
       var IndexerOutcome = new IndexerOutcome();
 
-      List<SearchParameter> SearchParameterList = await ISearchParameterCache.GetForIndexingAsync(fhirResource.FhirMajorVersion, resourceType);
+      List<SearchParameter> SearchParameterList = await ISearchParameterCache.GetForIndexingAsync(fhirResource.FhirVersion, resourceType);
 
 
       foreach (SearchParameter SearchParameter in SearchParameterList)
@@ -84,29 +84,29 @@ namespace Bug.Logic.Service.Indexing
                 switch (SearchParameter.SearchParamTypeId)
                 {
                   case Common.Enums.SearchParamType.Number:
-                    IndexerOutcome.QuantityIndexList.AddRange(INumberSetterSupport.Set(fhirResource.FhirMajorVersion, TypedElement, resourceType, SearchParameter.Id, SearchParameter.Name));
+                    IndexerOutcome.QuantityIndexList.AddRange(INumberSetterSupport.Set(fhirResource.FhirVersion, TypedElement, resourceType, SearchParameter.Id, SearchParameter.Name));
                     break;
                   case Common.Enums.SearchParamType.Date:
-                    IndexerOutcome.DateTimeIndexList.AddRange(IDateTimeSetterSupport.Set(fhirResource.FhirMajorVersion, TypedElement, resourceType, SearchParameter.Id, SearchParameter.Name));
+                    IndexerOutcome.DateTimeIndexList.AddRange(IDateTimeSetterSupport.Set(fhirResource.FhirVersion, TypedElement, resourceType, SearchParameter.Id, SearchParameter.Name));
 
                     break;
                   case Common.Enums.SearchParamType.String:
-                    IndexerOutcome.StringIndexList.AddRange(IStringSetterSupport.Set(fhirResource.FhirMajorVersion, TypedElement, resourceType, SearchParameter.Id, SearchParameter.Name));
+                    IndexerOutcome.StringIndexList.AddRange(IStringSetterSupport.Set(fhirResource.FhirVersion, TypedElement, resourceType, SearchParameter.Id, SearchParameter.Name));
                     break;
                   case Common.Enums.SearchParamType.Token:
-                    IndexerOutcome.TokenIndexList.AddRange(ITokenSetterSupport.Set(fhirResource.FhirMajorVersion, TypedElement, resourceType, SearchParameter.Id, SearchParameter.Name));
+                    IndexerOutcome.TokenIndexList.AddRange(ITokenSetterSupport.Set(fhirResource.FhirVersion, TypedElement, resourceType, SearchParameter.Id, SearchParameter.Name));
                     break;
                   case Common.Enums.SearchParamType.Reference:
-                    IndexerOutcome.ReferenceIndexList.AddRange(await IReferenceSetterSupport.SetAsync(fhirResource.FhirMajorVersion, TypedElement, resourceType, SearchParameter.Id, SearchParameter.Name));
+                    IndexerOutcome.ReferenceIndexList.AddRange(await IReferenceSetterSupport.SetAsync(fhirResource.FhirVersion, TypedElement, resourceType, SearchParameter.Id, SearchParameter.Name));
                     break;
                   case Common.Enums.SearchParamType.Composite:
                     //Composite searchParameters do not require populating as they are a Composite of other SearchParameter Types
                     break;
                   case Common.Enums.SearchParamType.Quantity:
-                    IndexerOutcome.QuantityIndexList.AddRange(IQuantitySetterSupport.Set(fhirResource.FhirMajorVersion, TypedElement, resourceType, SearchParameter.Id, SearchParameter.Name));
+                    IndexerOutcome.QuantityIndexList.AddRange(IQuantitySetterSupport.Set(fhirResource.FhirVersion, TypedElement, resourceType, SearchParameter.Id, SearchParameter.Name));
                     break;
                   case Common.Enums.SearchParamType.Uri:
-                    IndexerOutcome.UriIndexList.AddRange(IUriSetterSupport.Set(fhirResource.FhirMajorVersion, TypedElement, resourceType, SearchParameter.Id, SearchParameter.Name));
+                    IndexerOutcome.UriIndexList.AddRange(IUriSetterSupport.Set(fhirResource.FhirVersion, TypedElement, resourceType, SearchParameter.Id, SearchParameter.Name));
                     break;
                   case Common.Enums.SearchParamType.Special:
                     string SpecialMessage = $"Encountered a search parameter of type: {Common.Enums.SearchParamType.Special.GetCode()} which is not supported by the server. " +

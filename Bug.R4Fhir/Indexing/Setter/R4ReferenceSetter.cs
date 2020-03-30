@@ -18,7 +18,7 @@ namespace Bug.R4Fhir.Indexing.Setter
 {
   public class R4ReferenceSetter : IR4ReferenceSetter
   {
-    private readonly Bug.Common.ApplicationConfig.IServiceBaseUrl IPrimaryServiceRootCache;
+    private readonly Bug.Common.ApplicationConfig.IServiceBaseUrlConfi IPrimaryServiceRootCache;
     private readonly IFhirUriFactory IFhirUriFactory;
     private readonly IResourceTypeSupport IResourceTypeSupport;
     private readonly IServiceBaseUrlCache IServiceBaseUrlCache;
@@ -30,7 +30,7 @@ namespace Bug.R4Fhir.Indexing.Setter
     private string? SearchParameterName;
 
     public R4ReferenceSetter(IFhirUriFactory IFhirUriFactory,
-      Bug.Common.ApplicationConfig.IServiceBaseUrl IPrimaryServiceRootCache,
+      Bug.Common.ApplicationConfig.IServiceBaseUrlConfi IPrimaryServiceRootCache,
       IResourceTypeSupport IResourceTypeSupport,
       IServiceBaseUrlCache IServiceBaseUrlCache,
       IServiceBaseUrlRepository IServiceBaseUrlRepository)
@@ -189,13 +189,13 @@ namespace Bug.R4Fhir.Indexing.Setter
         ResourceIndex.CanonicalVersionId = FhirRequestUri.CanonicalVersionId;
 
       IServiceBaseUrl? ServiceBaseUrl;
-      ServiceBaseUrl = await IServiceBaseUrlCache.GetAsync(StringSupport.StripHttp(FhirRequestUri.UriPrimaryServiceRoot!.OriginalString));
+      ServiceBaseUrl = await IServiceBaseUrlCache.GetAsync(FhirVersion.R4, StringSupport.StripHttp(FhirRequestUri.UriPrimaryServiceRoot!.OriginalString));
       if (ServiceBaseUrl is null)
       {
-        ServiceBaseUrl = await IServiceBaseUrlRepository.GetBy(StringSupport.StripHttp(FhirRequestUri.UriPrimaryServiceRoot!.OriginalString));
+        ServiceBaseUrl = await IServiceBaseUrlRepository.GetBy(FhirVersion.R4, StringSupport.StripHttp(FhirRequestUri.UriPrimaryServiceRoot!.OriginalString));
         if (ServiceBaseUrl is null)
         {
-          ServiceBaseUrl = IServiceBaseUrlRepository.Add(StringSupport.StripHttp(FhirRequestUri.UriPrimaryServiceRoot.OriginalString), FhirRequestUri.IsRelativeToServer);
+          ServiceBaseUrl = await IServiceBaseUrlRepository.AddAsync(FhirVersion.R4, StringSupport.StripHttp(FhirRequestUri.UriPrimaryServiceRoot.OriginalString), FhirRequestUri.IsRelativeToServer);
           await IServiceBaseUrlRepository.SaveChangesAsync();
         }
       }

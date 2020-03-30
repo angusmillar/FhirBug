@@ -16,7 +16,7 @@ namespace Bug.Stu3Fhir.Indexing.Setter
 {
   public class Stu3ReferenceSetter : IStu3ReferenceSetter
   {
-    private readonly Bug.Common.ApplicationConfig.IServiceBaseUrl IPrimaryServiceRootCache;
+    private readonly Bug.Common.ApplicationConfig.IServiceBaseUrlConfi IPrimaryServiceRootCache;
     private readonly IFhirUriFactory IFhirUriFactory;
     private readonly IResourceTypeSupport IResourceTypeSupport;
     private readonly IServiceBaseUrlCache IServiceBaseUrlCache;
@@ -28,7 +28,7 @@ namespace Bug.Stu3Fhir.Indexing.Setter
     private string? SearchParameterName;
 
     public Stu3ReferenceSetter(IFhirUriFactory IFhirUriFactory,
-      Bug.Common.ApplicationConfig.IServiceBaseUrl IPrimaryServiceRootCache,
+      Bug.Common.ApplicationConfig.IServiceBaseUrlConfi IPrimaryServiceRootCache,
       IResourceTypeSupport IResourceTypeSupport,
       IServiceBaseUrlCache IServiceBaseUrlCache,
       IServiceBaseUrlRepository IServiceBaseUrlRepository)
@@ -176,13 +176,13 @@ namespace Bug.Stu3Fhir.Indexing.Setter
 
 
       IServiceBaseUrl? ServiceBaseUrl;
-      ServiceBaseUrl = await IServiceBaseUrlCache.GetAsync(StringSupport.StripHttp(FhirRequestUri.UriPrimaryServiceRoot!.OriginalString));
+      ServiceBaseUrl = await IServiceBaseUrlCache.GetAsync(FhirVersion.Stu3, StringSupport.StripHttp(FhirRequestUri.UriPrimaryServiceRoot!.OriginalString));
       if (ServiceBaseUrl is null)
       {
-        ServiceBaseUrl = await IServiceBaseUrlRepository.GetBy(StringSupport.StripHttp(FhirRequestUri.UriPrimaryServiceRoot!.OriginalString));
+        ServiceBaseUrl = await IServiceBaseUrlRepository.GetBy(FhirVersion.Stu3, StringSupport.StripHttp(FhirRequestUri.UriPrimaryServiceRoot!.OriginalString));
         if (ServiceBaseUrl is null)
         {
-          ServiceBaseUrl = IServiceBaseUrlRepository.Add(StringSupport.StripHttp(FhirRequestUri.UriPrimaryServiceRoot.OriginalString), FhirRequestUri.IsRelativeToServer);
+          ServiceBaseUrl = await IServiceBaseUrlRepository.AddAsync(FhirVersion.Stu3, StringSupport.StripHttp(FhirRequestUri.UriPrimaryServiceRoot.OriginalString), FhirRequestUri.IsRelativeToServer);
           await IServiceBaseUrlRepository.SaveChangesAsync();
         }
       }

@@ -14,21 +14,22 @@ namespace Bug.Data.Repository
     public ServiceBaseUrlRepository(AppDbContext context)
       : base(context) { }
 
-    public async Task<IServiceBaseUrl?> GetBy(string url)
+    public async Task<IServiceBaseUrl?> GetBy(Bug.Common.Enums.FhirVersion fhirVersion, string url)
     {
-      return await DbSet.SingleOrDefaultAsync(x => x.Url == url);
+      return await DbSet.SingleOrDefaultAsync(x => x.FhirVersionId == fhirVersion & x.Url == url);
     }
 
-    public async Task<IServiceBaseUrl> GetPrimary()
+    public async Task<IServiceBaseUrl?> GetPrimary(Bug.Common.Enums.FhirVersion fhirVersion)
     {
-      return await DbSet.SingleAsync(x => x.IsPrimary == true);
+      return await DbSet.SingleOrDefaultAsync(x => x.IsPrimary == true & x.FhirVersionId == fhirVersion);
     }
 
-    public IServiceBaseUrl Add(string url, bool IsPrimary)
+    public async Task<IServiceBaseUrl> AddAsync(Bug.Common.Enums.FhirVersion fhirVersion, string url, bool IsPrimary)
     {
       var Now = DateTimeOffset.Now.ToZulu();
-      var ServiceBaseUrl = new ServiceBaseUrl() { Url = url, IsPrimary = IsPrimary, Created = Now, Updated = Now };
+      var ServiceBaseUrl = new ServiceBaseUrl() { FhirVersionId = fhirVersion, Url = url, IsPrimary = IsPrimary, Created = Now, Updated = Now };
       base.Add(ServiceBaseUrl);
+      await base.SaveChangesAsync();
       return ServiceBaseUrl;
     }
     public new async Task SaveChangesAsync()

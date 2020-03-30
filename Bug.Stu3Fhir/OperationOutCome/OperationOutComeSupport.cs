@@ -9,25 +9,25 @@ namespace Bug.Stu3Fhir.OperationOutCome
   {
     public OperationOutcome GetFatal(string[] errorMessageList)
     {
-      return GetOpOutCome(errorMessageList, OperationOutcome.IssueSeverity.Fatal);
+      return GetOpOutCome(errorMessageList, OperationOutcome.IssueSeverity.Fatal, OperationOutcome.IssueType.Exception);
     }
 
     public OperationOutcome GetError(string[] errorMessageList)
     {
-      return GetOpOutCome(errorMessageList, OperationOutcome.IssueSeverity.Error);
+      return GetOpOutCome(errorMessageList, OperationOutcome.IssueSeverity.Error, OperationOutcome.IssueType.Processing);
     }
 
     public OperationOutcome GetWarning(string[] errorMessageList)
     {
-      return GetOpOutCome(errorMessageList, OperationOutcome.IssueSeverity.Warning);
+      return GetOpOutCome(errorMessageList, OperationOutcome.IssueSeverity.Warning, OperationOutcome.IssueType.Informational);
     }
 
     public OperationOutcome GetInformation(string[] errorMessageList)
     {
-      return GetOpOutCome(errorMessageList, OperationOutcome.IssueSeverity.Information);
+      return GetOpOutCome(errorMessageList, OperationOutcome.IssueSeverity.Information, OperationOutcome.IssueType.Informational);
     }
 
-    private OperationOutcome GetOpOutCome(string[] errorMessageList, OperationOutcome.IssueSeverity issueSeverity)
+    private OperationOutcome GetOpOutCome(string[] errorMessageList, OperationOutcome.IssueSeverity issueSeverity, OperationOutcome.IssueType issueType)
     {
       var Opt = new OperationOutcome();
       Opt.Issue = new List<OperationOutcome.IssueComponent>();
@@ -48,7 +48,7 @@ namespace Bug.Stu3Fhir.OperationOutCome
 
         var Issue = new OperationOutcome.IssueComponent();
         Issue.Severity = issueSeverity;
-        Issue.Code = OperationOutcome.IssueType.Exception;
+        Issue.Code = issueType;
         Issue.Details = new CodeableConcept();
         Issue.Details.Text = ErrorMsg;
         Opt.Issue.Add(Issue);

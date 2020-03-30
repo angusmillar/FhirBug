@@ -7,6 +7,7 @@ using Bug.Common.Enums;
 using Bug.Logic.Query.FhirApi;
 using Microsoft.Extensions.Logging;
 using Bug.Logic.Interfaces.Repository;
+using Bug.Logic.Interfaces.Transaction;
 
 namespace Bug.Logic.Query.FhirApi.Decorator
 {
@@ -30,11 +31,27 @@ namespace Bug.Logic.Query.FhirApi.Decorator
         throw new ArgumentNullException(paramName: nameof(query));
 
       using IBugDbContextTransaction Transaction = await IUnitOfWork.BeginTransactionAsync();
+
       try
       {
         TResult Result = await this.decorated.Handle(query);
-        await Transaction.CommitAsync();
-        return Result;
+        if (Result is ITransactional TransactionalResult)
+        {
+          if (TransactionalResult.CommitTransaction)
+          {
+            await Transaction.CommitAsync();
+          }
+          else
+          {
+            Transaction.Rollback();
+          }
+          return Result;
+        }
+        else
+        {
+          Transaction.Rollback();
+          throw new System.ApplicationException($"Internal Server Error: Detected a transactional query attributed class who's result did not implement the ITransactional interface. The Query was of type {query.GetType().FullName}. The transaction was rolled back.");
+        }
       }
       catch (Exception Exec)
       {

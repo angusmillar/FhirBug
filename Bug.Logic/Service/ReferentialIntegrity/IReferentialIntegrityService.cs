@@ -7,6 +7,7 @@ namespace Bug.Logic.Service.ReferentialIntegrity
 {
   public interface IReferentialIntegrityService
   {
-    Task<ReferentialIntegrityOutcome> Check(FhirVersion fhirVersion, List<IndexReference> IndexReferenceList);
+    Task<ReferentialIntegrityOutcome> CheckOnCommit(FhirVersion fhirVersion, List<IndexReference> IndexReferenceList);
+    Task<ReferentialIntegrityOutcome> CheckOnDelete(Common.Enums.FhirVersion fhirVersion, ResourceType resourceType, string resourceId);
   }
 }

@@ -6,7 +6,6 @@ using Bug.Logic.Query.FhirApi;
 using Bug.Logic.Query.FhirApi.Update;
 using Bug.Logic.Interfaces.CompositionRoot;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Net;
@@ -14,7 +13,6 @@ using System.Threading.Tasks;
 using Bug.Common.Constant;
 using Bug.Api.Extensions;
 using Microsoft.Extensions.Primitives;
-using Bug.Api.ActionResults;
 
 namespace Bug.Api.Controllers
 {
@@ -24,15 +22,12 @@ namespace Bug.Api.Controllers
   public class FhirStu3Controller : ControllerBase
   {    
     private readonly IFhirApiQueryHandlerFactory IFhirApiQueryHandlerFactory;
-    private readonly IActionResultFactory IActionResultFactory;
-
-
+    
     private readonly FhirVersion _ControllerFhirVersion = FhirVersion.Stu3;
 
-    public FhirStu3Controller(IFhirApiQueryHandlerFactory IFhirApiQueryHandlerFactory, IActionResultFactory IActionResultFactory)
+    public FhirStu3Controller(IFhirApiQueryHandlerFactory IFhirApiQueryHandlerFactory)
     {      
-      this.IFhirApiQueryHandlerFactory = IFhirApiQueryHandlerFactory;
-      this.IActionResultFactory = IActionResultFactory;      
+      this.IFhirApiQueryHandlerFactory = IFhirApiQueryHandlerFactory;      
     }
 
     //#####################################################################
@@ -62,7 +57,7 @@ namespace Bug.Api.Controllers
         Cap.ResourceBase = new Uri("http://localhost/fhir");
 
       }).ConfigureAwait(false);     
-      return new FhirStu3ResourceActionResult(HttpStatusCode.OK, Cap);
+      return this.StatusCode((int)HttpStatusCode.OK, Cap);
     }
 
 
@@ -71,7 +66,7 @@ namespace Bug.Api.Controllers
     public async Task<ActionResult<Stu3Model.Resource>> Get(string resourceName, string resourceId)
     {
       var Query = new Logic.Query.FhirApi.Read.ReadQuery(
-        HttpVerb.PUT,
+        HttpVerb.GET,
         _ControllerFhirVersion,
         this.Request.GetUrl(),
         new Dictionary<string, StringValues>(this.Request.Headers),
@@ -81,8 +76,7 @@ namespace Bug.Api.Controllers
 
       var ReadQueryHandler = this.IFhirApiQueryHandlerFactory.GetReadCommand();
       FhirApiResult Result = await ReadQueryHandler.Handle(Query);
-
-      return IActionResultFactory.GetActionResult(Result);
+      return Result.PrepareResponse<Stu3Model.Resource>(this);
     }
 
     // GET: stu3/fhir/Patient/100/_history/2
@@ -90,7 +84,7 @@ namespace Bug.Api.Controllers
     public async Task<ActionResult<Stu3Model.Resource>> GetVRead(string resourceName, string resourceId, int versionId)
     {
       var Query = new Logic.Query.FhirApi.VRead.VReadQuery(
-       HttpVerb.PUT,
+       HttpVerb.GET,
        _ControllerFhirVersion,
        this.Request.GetUrl(),
        new Dictionary<string, StringValues>(this.Request.Headers),
@@ -101,8 +95,7 @@ namespace Bug.Api.Controllers
 
       var ReadQueryHandler = this.IFhirApiQueryHandlerFactory.GetVReadCommand();
       FhirApiResult Result = await ReadQueryHandler.Handle(Query);
-
-      return IActionResultFactory.GetActionResult(Result);
+      return Result.PrepareResponse<Stu3Model.Resource>(this);
     }
 
     // GET: stu3/fhir/Patient/100/_history/2
@@ -110,7 +103,7 @@ namespace Bug.Api.Controllers
     public async Task<ActionResult<Stu3Model.Resource>> GetHistoryInstance(string resourceName, string resourceId)
     {
       var Query = new Logic.Query.FhirApi.HistoryInstance.HistoryInstanceQuery(
-       HttpVerb.PUT,
+       HttpVerb.GET,
        _ControllerFhirVersion,
        this.Request.GetUrl(),
        new Dictionary<string, StringValues>(this.Request.Headers),
@@ -120,8 +113,7 @@ namespace Bug.Api.Controllers
 
       var ReadQueryHandler = this.IFhirApiQueryHandlerFactory.GetHistoryInstanceCommand();
       FhirApiResult Result = await ReadQueryHandler.Handle(Query);
-
-      return IActionResultFactory.GetActionResult(Result);
+      return Result.PrepareResponse<Stu3Model.Resource>(this);
     }
 
     // GET: stu3/fhir/Patient/100/_history
@@ -129,7 +121,7 @@ namespace Bug.Api.Controllers
     public async Task<ActionResult<Stu3Model.Resource>> GetHistoryResource(string resourceName)
     {
       var Query = new Logic.Query.FhirApi.HistoryResource.HistoryResourceQuery(
-       HttpVerb.PUT,
+       HttpVerb.GET,
        _ControllerFhirVersion,
        this.Request.GetUrl(),
        new Dictionary<string, StringValues>(this.Request.Headers),
@@ -138,8 +130,7 @@ namespace Bug.Api.Controllers
 
       var ReadQueryHandler = this.IFhirApiQueryHandlerFactory.GetHistoryResourceCommand();
       FhirApiResult Result = await ReadQueryHandler.Handle(Query);
-
-      return IActionResultFactory.GetActionResult(Result);
+      return Result.PrepareResponse<Stu3Model.Resource>(this);
     }
 
     // GET: stu3/fhir/_history
@@ -147,7 +138,7 @@ namespace Bug.Api.Controllers
     public async Task<ActionResult<Stu3Model.Resource>> GetHistoryBase()
     {
       var Query = new Logic.Query.FhirApi.HistoryBase.HistoryBaseQuery(
-       HttpVerb.PUT,
+       HttpVerb.GET,
        _ControllerFhirVersion,
        this.Request.GetUrl(),
        new Dictionary<string, StringValues>(this.Request.Headers)       
@@ -155,8 +146,7 @@ namespace Bug.Api.Controllers
 
       var ReadQueryHandler = this.IFhirApiQueryHandlerFactory.GetHistoryBaseCommand();
       FhirApiResult Result = await ReadQueryHandler.Handle(Query);
-
-      return IActionResultFactory.GetActionResult(Result);
+      return Result.PrepareResponse<Stu3Model.Resource>(this);
     }
 
     // GET: stu3/fhir/Patient
@@ -203,7 +193,7 @@ namespace Bug.Api.Controllers
 
       var CreateQueryHandler = this.IFhirApiQueryHandlerFactory.GetCreateCommand();
       FhirApiResult Result = await CreateQueryHandler.Handle(Query);
-      return IActionResultFactory.GetActionResult(Result);
+      return Result.PrepareResponse<Stu3Model.Resource>(this);
     }
 
 
@@ -237,8 +227,8 @@ namespace Bug.Api.Controllers
         );
 
       var UpdateCommandHandler = this.IFhirApiQueryHandlerFactory.GetUpdateCommand();
-      FhirApiResult Result = await UpdateCommandHandler.Handle(command);      
-      return IActionResultFactory.GetActionResult(Result);
+      FhirApiResult Result = await UpdateCommandHandler.Handle(command);
+      return Result.PrepareResponse<Stu3Model.Resource>(this);
     }
 
     //#####################################################################
@@ -261,10 +251,10 @@ namespace Bug.Api.Controllers
 
       var ReadQueryHandler = this.IFhirApiQueryHandlerFactory.GetDeleteCommand();
       FhirApiResult Result = await ReadQueryHandler.Handle(Query);
-
-      return IActionResultFactory.GetActionResult(Result);
+      return Result.PrepareResponse<Stu3Model.Resource>(this);
     }
 
+    
 
   }
 }

@@ -8,6 +8,7 @@ using Bug.Logic.DomainModel;
 using Bug.Logic.Interfaces.Repository;
 using System.Threading.Tasks;
 using Bug.Common.Enums;
+using Bug.Logic.DomainModel.Projection;
 //using System.Data.Entity;
 
 namespace Bug.Data.Repository
@@ -28,6 +29,24 @@ namespace Bug.Data.Repository
         
     }
 
+    public async Task<List<ReferentialIntegrityQuery>> GetResourcesReferenced(Common.Enums.FhirVersion fhirVersion, int serviceBaseUrlId, Common.Enums.ResourceType resourceTypeId, string resourceId, string? versionId = null)
+    {
+      return await DbSet.Select(x => new ReferentialIntegrityQuery()
+      {
+        TargetResourceId = x.ResourceStore.ResourceId,
+        TargetResourceTypeId = x.ResourceStore.ResourceTypeId,
+        FhirVersionId = x.ResourceStore.FhirVersionId,
+        ServiceBaseUrlId = x.ServiceBaseUrlId,
+        ResourceTypeId = x.ResourceTypeId,
+        ResourceId = x.ResourceId,
+        VersionId = x.VersionId        
+      }).Distinct().Take(100).Where(x =>
+       x.FhirVersionId == fhirVersion &
+       x.ServiceBaseUrlId == serviceBaseUrlId &
+       x.ResourceTypeId == resourceTypeId &
+       x.ResourceId == resourceId &
+       x.VersionId == versionId).ToListAsync();      
+    }
   }
 }
 

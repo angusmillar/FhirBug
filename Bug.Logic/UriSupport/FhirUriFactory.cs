@@ -11,14 +11,14 @@ namespace Bug.Logic.UriSupport
 {
   public class FhirUriFactory : IFhirUriFactory
   {
-    private readonly IServiceBaseUrl IServiceBaseUrl;
+    private readonly IServiceBaseUrlConfi IServiceBaseUrl;
     private readonly IValidateResourceNameFactory IResourceNameSupportFactory;
 
     /// <summary>
     /// Constructor
     /// </summary>
     /// <param name="PrimaryServiceRoot">Should take the form http://SomeServer.net/bla/bla/bla/fhir </param>
-    public FhirUriFactory(IServiceBaseUrl IServiceBaseUrl, IValidateResourceNameFactory IResourceNameSupportFactory)
+    public FhirUriFactory(IServiceBaseUrlConfi IServiceBaseUrl, IValidateResourceNameFactory IResourceNameSupportFactory)
     {
       this.IResourceNameSupportFactory = IResourceNameSupportFactory;
       this.IServiceBaseUrl = IServiceBaseUrl;

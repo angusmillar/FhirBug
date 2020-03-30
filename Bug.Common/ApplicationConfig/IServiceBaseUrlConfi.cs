@@ -3,7 +3,7 @@ using System;
 
 namespace Bug.Common.ApplicationConfig
 {
-  public interface IServiceBaseUrl
+  public interface IServiceBaseUrlConfi
   {
     Uri Url(FhirVersion fhirMajorVersion);
   }

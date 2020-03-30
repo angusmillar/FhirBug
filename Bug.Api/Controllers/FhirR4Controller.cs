@@ -11,11 +11,11 @@ using Bug.Common.Constant;
 using Microsoft.Extensions.Primitives;
 using Bug.Common.Enums;
 using Bug.Api.Extensions;
-using Bug.Api.ActionResults;
 using Bug.Logic.Interfaces.CompositionRoot;
 using Bug.Logic.Query.FhirApi;
 using Bug.Logic.Query.FhirApi.Update;
 using Bug.Common.FhirTools;
+using System.Net;
 
 namespace Bug.Api.Controllers
 {
@@ -24,19 +24,17 @@ namespace Bug.Api.Controllers
   public class FhirR4Controller : ControllerBase
   {
     private readonly IFhirApiQueryHandlerFactory IFhirApiQueryHandlerFactory;
-    private readonly IActionResultFactory IActionResultFactory;    
-
+    
     private readonly FhirVersion _ControllerFhirVersion = FhirVersion.R4;
 
-    public FhirR4Controller(IFhirApiQueryHandlerFactory IFhirApiQueryHandlerFactory, IActionResultFactory IActionResultFactory)
+    public FhirR4Controller(IFhirApiQueryHandlerFactory IFhirApiQueryHandlerFactory)
     {
-      this.IFhirApiQueryHandlerFactory = IFhirApiQueryHandlerFactory;
-      this.IActionResultFactory = IActionResultFactory;
+      this.IFhirApiQueryHandlerFactory = IFhirApiQueryHandlerFactory;      
     }
 
     // GET fhir/values   
     [HttpGet("metadata")]
-    public async Task<R4Model.CapabilityStatement> GetConformance()
+    public async Task<ActionResult<R4Model.Resource>> GetConformance()
     {
       var Cap = new R4Model.CapabilityStatement();
       await System.Threading.Tasks.Task.Run(() =>
@@ -58,15 +56,15 @@ namespace Bug.Api.Controllers
 
       }).ConfigureAwait(false);
       
-      return Cap;
+      return this.StatusCode((int)HttpStatusCode.OK, Cap);
     }
 
     // GET: stu3/fhir/Patient/100
     [HttpGet, Route("{resourceName}/{resourceId}")]
     public async Task<ActionResult<R4Model.Resource>> Get(string resourceName, string resourceId)
-    {
+    {      
       var Query = new Logic.Query.FhirApi.Read.ReadQuery(
-        HttpVerb.PUT,
+        HttpVerb.GET,
         _ControllerFhirVersion,
         this.Request.GetUrl(),
         new Dictionary<string, StringValues>(this.Request.Headers),
@@ -76,15 +74,15 @@ namespace Bug.Api.Controllers
 
       var ReadQueryHandler = this.IFhirApiQueryHandlerFactory.GetReadCommand();
       FhirApiResult Result = await ReadQueryHandler.Handle(Query);
-
-      return IActionResultFactory.GetActionResult(Result);
+      this.Response.Headers.AddHeaders(Result.Headers);
+      return Result.PrepareResponse<R4Model.Resource>(this);
     }
     // GET: stu3/fhir/Patient/100/_history/2
     [HttpGet, Route("{resourceName}/{resourceId}/_history/{versionId}")]
     public async Task<ActionResult<R4Model.Resource>> GetHistoryVersion(string resourceName, string resourceId, int versionId)
     {
       var Query = new Logic.Query.FhirApi.VRead.VReadQuery(
-       HttpVerb.PUT,
+       HttpVerb.GET,
        _ControllerFhirVersion,
        this.Request.GetUrl(),
        new Dictionary<string, StringValues>(this.Request.Headers),
@@ -95,8 +93,7 @@ namespace Bug.Api.Controllers
 
       var ReadQueryHandler = this.IFhirApiQueryHandlerFactory.GetVReadCommand();
       FhirApiResult Result = await ReadQueryHandler.Handle(Query);
-
-      return IActionResultFactory.GetActionResult(Result);
+      return Result.PrepareResponse<R4Model.Resource>(this);
     }
 
     // GET: stu3/fhir/Patient/100/_history/2
@@ -104,7 +101,7 @@ namespace Bug.Api.Controllers
     public async Task<ActionResult<R4Model.Resource>> GetHistoryInstance(string resourceName, string resourceId)
     {
       var Query = new Logic.Query.FhirApi.HistoryInstance.HistoryInstanceQuery(
-       HttpVerb.PUT,
+       HttpVerb.GET,
        _ControllerFhirVersion,
        this.Request.GetUrl(),
        new Dictionary<string, StringValues>(this.Request.Headers),
@@ -114,8 +111,7 @@ namespace Bug.Api.Controllers
 
       var ReadQueryHandler = this.IFhirApiQueryHandlerFactory.GetHistoryInstanceCommand();
       FhirApiResult Result = await ReadQueryHandler.Handle(Query);
-
-      return IActionResultFactory.GetActionResult(Result);
+      return Result.PrepareResponse<R4Model.Resource>(this);
     }
 
     // GET: stu3/fhir/Patient/100/_history/2
@@ -123,7 +119,7 @@ namespace Bug.Api.Controllers
     public async Task<ActionResult<R4Model.Resource>> GetHistoryResource(string resourceName)
     {
       var Query = new Logic.Query.FhirApi.HistoryResource.HistoryResourceQuery(
-       HttpVerb.PUT,
+       HttpVerb.GET,
        _ControllerFhirVersion,
        this.Request.GetUrl(),
        new Dictionary<string, StringValues>(this.Request.Headers),
@@ -132,8 +128,7 @@ namespace Bug.Api.Controllers
 
       var ReadQueryHandler = this.IFhirApiQueryHandlerFactory.GetHistoryResourceCommand();
       FhirApiResult Result = await ReadQueryHandler.Handle(Query);
-
-      return IActionResultFactory.GetActionResult(Result);
+      return Result.PrepareResponse<R4Model.Resource>(this);
     }
 
     // GET: r4/fhir/_history
@@ -141,7 +136,7 @@ namespace Bug.Api.Controllers
     public async Task<ActionResult<R4Model.Resource>> GetHistoryBase()
     {
       var Query = new Logic.Query.FhirApi.HistoryBase.HistoryBaseQuery(
-       HttpVerb.PUT,
+       HttpVerb.GET,
        _ControllerFhirVersion,
        this.Request.GetUrl(),
        new Dictionary<string, StringValues>(this.Request.Headers)
@@ -149,8 +144,7 @@ namespace Bug.Api.Controllers
 
       var ReadQueryHandler = this.IFhirApiQueryHandlerFactory.GetHistoryBaseCommand();
       FhirApiResult Result = await ReadQueryHandler.Handle(Query);
-
-      return IActionResultFactory.GetActionResult(Result);
+      return Result.PrepareResponse<R4Model.Resource>(this);
     }
 
     // GET: stu3/fhir/Patient
@@ -197,7 +191,7 @@ namespace Bug.Api.Controllers
 
       var CreateQueryHandler = this.IFhirApiQueryHandlerFactory.GetCreateCommand();
       FhirApiResult Result = await CreateQueryHandler.Handle(Query);
-      return IActionResultFactory.GetActionResult(Result);
+      return Result.PrepareResponse<R4Model.Resource>(this);
     }
 
 
@@ -232,8 +226,10 @@ namespace Bug.Api.Controllers
 
       var UpdateCommandHandler = this.IFhirApiQueryHandlerFactory.GetUpdateCommand();
       FhirApiResult Result = await UpdateCommandHandler.Handle(command);
-      return IActionResultFactory.GetActionResult(Result);
+      return Result.PrepareResponse<R4Model.Resource>(this);    
     }
+
+    
 
     //#####################################################################
     //##|DELETE|#############################################################
@@ -255,9 +251,11 @@ namespace Bug.Api.Controllers
 
       var ReadQueryHandler = this.IFhirApiQueryHandlerFactory.GetDeleteCommand();
       FhirApiResult Result = await ReadQueryHandler.Handle(Query);
-
-      return IActionResultFactory.GetActionResult(Result);
+      this.Response.Headers.AddHeaders(Result.Headers);
+      return Result.PrepareResponse<R4Model.Resource>(this);
     }
 
+
+    
   }
 }

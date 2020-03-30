@@ -89,7 +89,8 @@ namespace Bug.Data.Migrations
                     created = table.Column<DateTime>(nullable: false),
                     updated = table.Column<DateTime>(nullable: false),
                     url = table.Column<string>(maxLength: 450, nullable: false),
-                    is_primary = table.Column<bool>(nullable: false)
+                    is_primary = table.Column<bool>(nullable: false),
+                    fhirversion_id = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -662,9 +663,9 @@ namespace Bug.Data.Migrations
                 column: "searchparameter_id");
 
             migrationBuilder.CreateIndex(
-                name: "Ix_ServiceBaseUrl_Url",
+                name: "Ix_ServiceBaseUrl_Url_FhirVersionId",
                 table: "ServiceBaseUrl",
-                column: "url",
+                columns: new[] { "url", "fhirversion_id" },
                 unique: true);
         }
 

@@ -3,10 +3,12 @@ using Bug.Common.Compression;
 using Bug.Common.DateTimeTools;
 using Bug.Common.Enums;
 using Bug.Common.FhirTools;
+using Bug.Logic.Attributes;
 using Bug.Logic.CacheService;
 using Bug.Logic.DomainModel;
 using Bug.Logic.Interfaces.Repository;
 using Bug.Logic.Service;
+using Bug.Logic.Service.Headers;
 using Bug.Logic.Service.Indexing;
 using Bug.Logic.Service.ReferentialIntegrity;
 using Bug.Logic.Service.ValidatorService;
@@ -15,7 +17,8 @@ using System.Threading.Tasks;
 
 namespace Bug.Logic.Query.FhirApi.Update
 {
-  public class UpdateQueryHandler : IQueryHandler<UpdateQuery, FhirApiResult>
+  [Transactional]
+  public class UpdateQueryHandler : IQueryHandler<UpdateQuery, FhirApiTransactionalResult>
   {
     private readonly IValidateQueryService IValidateQueryService;
     private readonly IResourceStoreRepository IResourceStoreRepository;    
@@ -28,6 +31,7 @@ namespace Bug.Logic.Query.FhirApi.Update
     private readonly IGZipper IGZipper;
     private readonly IIndexer IIndexer;
     private readonly IMapper IMapper;
+    private readonly IHeaderService IHeaderService;
 
 
     public UpdateQueryHandler(
@@ -41,7 +45,8 @@ namespace Bug.Logic.Query.FhirApi.Update
       IReferentialIntegrityService IReferentialIntegrityService,
       IGZipper IGZipper,
       IIndexer IIndexer,
-      IMapper IMapper)
+      IMapper IMapper,
+      IHeaderService IHeaderService)
     {
       this.IValidateQueryService = IValidateQueryService;
       this.IResourceStoreRepository = IResourceStoreRepository;      
@@ -54,16 +59,17 @@ namespace Bug.Logic.Query.FhirApi.Update
       this.IGZipper = IGZipper;
       this.IIndexer = IIndexer;
       this.IMapper = IMapper;
+      this.IHeaderService = IHeaderService;
     }
 
-    public async Task<FhirApiResult> Handle(UpdateQuery query)
+    public async Task<FhirApiTransactionalResult> Handle(UpdateQuery query)
     {
       if (query is null)
         throw new NullReferenceException();
       
       if (!IValidateQueryService.IsValid(query, out FhirResource? IsNotValidOperationOutCome))
       {
-        return new FhirApiResult(System.Net.HttpStatusCode.BadRequest, IsNotValidOperationOutCome!.FhirMajorVersion)
+        return new FhirApiTransactionalResult(System.Net.HttpStatusCode.BadRequest, IsNotValidOperationOutCome!.FhirVersion, query.CorrelationId)
         {
           ResourceId = null,
           FhirResource = IsNotValidOperationOutCome,
@@ -80,7 +86,7 @@ namespace Bug.Logic.Query.FhirApi.Update
 
       DateTimeOffset NewLastUpdated = IServerDefaultDateTimeOffSet.Now();
 
-      ResourceStore? PreviousResourseStore = await IResourceStoreRepository.GetCurrentMetaAsync(query.FhirResource.FhirMajorVersion, ResourceType.Value, query.ResourceId);
+      ResourceStore? PreviousResourseStore = await IResourceStoreRepository.GetCurrentMetaAsync(query.FhirResource.FhirVersion, ResourceType.Value, query.ResourceId);
       if (PreviousResourseStore is object)
       {
         FinalyHttpStatusCode = System.Net.HttpStatusCode.OK;
@@ -122,10 +128,10 @@ namespace Bug.Logic.Query.FhirApi.Update
 
       IndexerOutcome IndexerOutcome = await IIndexer.Process(query.FhirResource, ResourceType.Value);
 
-      var ReferentialIntegrityOutcome = await IReferentialIntegrityService.Check(query.FhirVersion, IndexerOutcome.ReferenceIndexList);
+      var ReferentialIntegrityOutcome = await IReferentialIntegrityService.CheckOnCommit(query.FhirVersion, IndexerOutcome.ReferenceIndexList);
       if (ReferentialIntegrityOutcome.IsError)
       {
-        return new FhirApiResult(System.Net.HttpStatusCode.BadRequest, query.FhirVersion)
+        return new FhirApiTransactionalResult(System.Net.HttpStatusCode.Conflict, query.FhirVersion, query.CorrelationId)
         {
           ResourceId = null,
           FhirResource = ReferentialIntegrityOutcome.FhirResource,
@@ -137,12 +143,19 @@ namespace Bug.Logic.Query.FhirApi.Update
 
       IResourceStoreRepository.Add(ResourceStore);
       await IResourceStoreRepository.SaveChangesAsync();
-      
-      var OutCome = new FhirApiResult(FinalyHttpStatusCode, query.FhirVersion)
+
+      var OutCome = new FhirApiTransactionalResult(FinalyHttpStatusCode, query.FhirVersion, query.CorrelationId)
       {
         FhirResource = query.FhirResource,
         ResourceId = query.ResourceId,
-        VersionId = NewVersionId
+        VersionId = NewVersionId,
+        Headers = await IHeaderService.GetForUpdateAsync(
+          query.FhirResource.FhirVersion,
+          query.RequestUri.Scheme,
+          NewLastUpdated,
+          query.ResourceId,
+          NewVersionId),
+        CommitTransaction = true
       };
 
       return OutCome;

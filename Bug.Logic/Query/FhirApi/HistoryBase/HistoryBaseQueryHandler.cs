@@ -38,7 +38,7 @@ namespace Bug.Logic.Query.FhirApi.HistoryBase
 
       if (!IValidateQueryService.IsValid(query, out FhirResource? IsNotValidOperationOutCome))
       {
-        return new FhirApiResult(System.Net.HttpStatusCode.BadRequest, IsNotValidOperationOutCome!.FhirMajorVersion)
+        return new FhirApiResult(System.Net.HttpStatusCode.BadRequest, IsNotValidOperationOutCome!.FhirVersion, query.CorrelationId)
         {
           ResourceId = null,
           FhirResource = IsNotValidOperationOutCome,
@@ -50,7 +50,7 @@ namespace Bug.Logic.Query.FhirApi.HistoryBase
       
       var BundleModel = IHistoryBundleService.GetHistoryBundleModel(ResourceStoreList);
       
-      return new FhirApiResult(System.Net.HttpStatusCode.OK, query.FhirVersion)
+      return new FhirApiResult(System.Net.HttpStatusCode.OK, query.FhirVersion, query.CorrelationId)
       {
         FhirResource = IFhirResourceBundleSupport.GetFhirResource(query.FhirVersion, BundleModel)
       };

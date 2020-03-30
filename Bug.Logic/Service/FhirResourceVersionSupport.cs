@@ -17,7 +17,7 @@ namespace Bug.Logic.Service
 
     public string? GetVersion(FhirResource fhirResource)
     {
-      switch (fhirResource.FhirMajorVersion)
+      switch (fhirResource.FhirVersion)
       {
         case Common.Enums.FhirVersion.Stu3:
           var Stu3Tool = IFhirResourceVersionSupportFactory.GetStu3();
@@ -26,13 +26,13 @@ namespace Bug.Logic.Service
           var R4Tool = IFhirResourceVersionSupportFactory.GetR4();
           return R4Tool.GetVersion(fhirResource);
         default:
-          throw new FhirVersionFatalException(fhirResource.FhirMajorVersion);
+          throw new FhirVersionFatalException(fhirResource.FhirVersion);
       }
     }
 
     public void SetVersion(FhirResource fhirResource, int versionId)
     {
-      switch (fhirResource.FhirMajorVersion)
+      switch (fhirResource.FhirVersion)
       {
         case Common.Enums.FhirVersion.Stu3:
           var Stu3Tool = IFhirResourceVersionSupportFactory.GetStu3();
@@ -43,7 +43,7 @@ namespace Bug.Logic.Service
           R4Tool.SetVersion(versionId.ToString(), fhirResource);
           break;
         default:
-          throw new FhirVersionFatalException(fhirResource.FhirMajorVersion);
+          throw new FhirVersionFatalException(fhirResource.FhirVersion);
       }
     }
   }

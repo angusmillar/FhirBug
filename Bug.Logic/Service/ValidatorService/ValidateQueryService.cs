@@ -107,7 +107,7 @@ namespace Bug.Logic.Service.ValidatorService
         if (!ResourceName.Equals(FhirUri.ResourseName, StringComparison.CurrentCulture))
         {
           string message = $"The resource provided in the body of the request does not match the resource type stated in the URL. The resource in the body was of type '{ResourceName}' and the URL stated the type '{FhirUri.ResourseName}'. The full URL was: {FhirUri.OriginalString}";
-          OperationOutCome = IOperationOutcomeSupport.GetError(createQuery.FhirResource.FhirMajorVersion, new string[] { message });
+          OperationOutCome = IOperationOutcomeSupport.GetError(createQuery.FhirResource.FhirVersion, new string[] { message });
           return false;
         }
 
@@ -123,7 +123,7 @@ namespace Bug.Logic.Service.ValidatorService
         if (!string.IsNullOrWhiteSpace(ResourceResourceId))
         {
           string message = $"The Create ({createQuery.Method.GetCode()}) interaction creates a new resource in a server-assigned location with a server assigned resource id. If the client wishes to have control over the id of a newly submitted resource, it should use the update ({HttpVerb.PUT.GetCode()}) interaction instead. The resource provide was found to contain the id: {ResourceResourceId}";
-          OperationOutCome = IOperationOutcomeSupport.GetError(createQuery.FhirResource.FhirMajorVersion, new string[] { message });
+          OperationOutCome = IOperationOutcomeSupport.GetError(createQuery.FhirResource.FhirVersion, new string[] { message });
           return false;
         }
 
@@ -152,7 +152,7 @@ namespace Bug.Logic.Service.ValidatorService
         if (!ResourceName.Equals(FhirUri.ResourseName, StringComparison.CurrentCulture))
         {
           string message = $"The resource provided in the body of the request does not match the resource type stated in the URL. The resource in the body was of type '{ResourceName}' and the URL stated the type '{FhirUri.ResourseName}'. The full URL was: {FhirUri.OriginalString}";
-          OperationOutCome = IOperationOutcomeSupport.GetError(updateQuery.FhirResource.FhirMajorVersion, new string[] { message });
+          OperationOutCome = IOperationOutcomeSupport.GetError(updateQuery.FhirResource.FhirVersion, new string[] { message });
           return false;
         }
 
@@ -170,7 +170,7 @@ namespace Bug.Logic.Service.ValidatorService
         {
           string message = $"There was no resource id found in the resource of the request. " +
             $"An update ({updateQuery.Method.GetCode()}) request must contain a resource with a resource id in the body of the request.";
-          OperationOutCome = IOperationOutcomeSupport.GetError(updateQuery.FhirResource.FhirMajorVersion, new string[] { message });
+          OperationOutCome = IOperationOutcomeSupport.GetError(updateQuery.FhirResource.FhirVersion, new string[] { message });
           return false;
         }
 
@@ -179,7 +179,7 @@ namespace Bug.Logic.Service.ValidatorService
         {
           string message = $"The resource id found in the resource of the request does not match the resource id stated in the request URL. " +
             $"The resource id in the body was: '{ResourceResourceId}' and in the URL it was: '{FhirUri.ResourceId}'. The full URL was: {FhirUri.OriginalString}";
-          OperationOutCome = IOperationOutcomeSupport.GetError(updateQuery.FhirResource.FhirMajorVersion, new string[] { message });
+          OperationOutCome = IOperationOutcomeSupport.GetError(updateQuery.FhirResource.FhirVersion, new string[] { message });
           return false;
         }
 
@@ -189,7 +189,7 @@ namespace Bug.Logic.Service.ValidatorService
         {
           string message = $"The resource id found in the body of the request does not match the resource id stated in the request URL. " +
             $"The resource id in the body was: '{ResourceResourceId}' and in the URL it was: '{FhirUri.ResourceId}'. The full URL was: {FhirUri.OriginalString}";
-          OperationOutCome = IOperationOutcomeSupport.GetError(updateQuery.FhirResource.FhirMajorVersion, new string[] { message });
+          OperationOutCome = IOperationOutcomeSupport.GetError(updateQuery.FhirResource.FhirVersion, new string[] { message });
           return false;
         }
       }

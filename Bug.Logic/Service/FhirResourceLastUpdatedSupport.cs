@@ -17,7 +17,7 @@ namespace Bug.Logic.Service
 
     public DateTimeOffset? GetLastUpdated(FhirResource fhirResource)
     {
-      switch (fhirResource.FhirMajorVersion)
+      switch (fhirResource.FhirVersion)
       {
         case Common.Enums.FhirVersion.Stu3:
           var Stu3Tool = IFhirResourceLastUpdatedSupportFactory.GetStu3();
@@ -26,13 +26,13 @@ namespace Bug.Logic.Service
           var R4Tool = IFhirResourceLastUpdatedSupportFactory.GetR4();
           return R4Tool.GetLastUpdated(fhirResource);
         default:
-          throw new FhirVersionFatalException(fhirResource.FhirMajorVersion);
+          throw new FhirVersionFatalException(fhirResource.FhirVersion);
       }
     }
 
     public void SetLastUpdated(FhirResource fhirResource, DateTimeOffset dateTime)
     {
-      switch (fhirResource.FhirMajorVersion)
+      switch (fhirResource.FhirVersion)
       {
         case Common.Enums.FhirVersion.Stu3:
           var Stu3Tool = IFhirResourceLastUpdatedSupportFactory.GetStu3();
@@ -43,7 +43,7 @@ namespace Bug.Logic.Service
           R4Tool.SetLastUpdated(dateTime, fhirResource);
           break;
         default:
-          throw new FhirVersionFatalException(fhirResource.FhirMajorVersion);
+          throw new FhirVersionFatalException(fhirResource.FhirVersion);
       }
     }
   }

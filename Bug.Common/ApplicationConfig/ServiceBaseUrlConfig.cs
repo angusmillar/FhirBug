@@ -6,10 +6,10 @@ using Bug.Common.Enums;
 namespace Bug.Common.ApplicationConfig
 {
 
-  public class ServiceBaseUrl : IServiceBaseUrl
+  public class ServiceBaseUrlConfig : IServiceBaseUrlConfi
   {
     private readonly IFhirServerConfig IFhirServerConfig;
-    public ServiceBaseUrl(IFhirServerConfig IFhirServerConfig)
+    public ServiceBaseUrlConfig(IFhirServerConfig IFhirServerConfig)
     {
       this.IFhirServerConfig = IFhirServerConfig;
     }

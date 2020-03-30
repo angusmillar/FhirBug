@@ -8,7 +8,7 @@ using Microsoft.Extensions.Primitives;
 
 namespace Bug.Logic.Query.FhirApi
 {
-  public abstract class FhirBaseApiQuery: IQuery<FhirApiResult>, IQuery<ResourceStore>
+  public abstract class FhirBaseApiQuery: IQuery<FhirApiResult>, IQuery<FhirApiTransactionalResult>
   {
     public FhirBaseApiQuery(HttpVerb HttpVerb, Common.Enums.FhirVersion FhirVersion, Uri RequestUri, Dictionary<string, StringValues> HeaderDictionary)
     {
@@ -16,10 +16,12 @@ namespace Bug.Logic.Query.FhirApi
       this.FhirVersion = FhirVersion;
       this.RequestUri = RequestUri;
       this.RequestHeaderDictionary = HeaderDictionary;
+      this.CorrelationId = Guid.NewGuid().ToString();
     }
     public HttpVerb Method { get; set; }
     public Common.Enums.FhirVersion FhirVersion { get; set; }
     public Uri RequestUri { get; set; }        
-    public Dictionary<string, StringValues> RequestHeaderDictionary { get; set; }
+    public Dictionary<string, StringValues> RequestHeaderDictionary { get; set; }    
+    public string CorrelationId { get; set; }
   }
 }

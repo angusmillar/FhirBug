@@ -115,9 +115,8 @@ namespace Bug.Api
       container.RegisterInstance<Common.ApplicationConfig.IServerDefaultTimeZoneTimeSpan>(fhirServerConfig);
       container.RegisterInstance<Common.ApplicationConfig.IEnforceResourceReferentialIntegrity>(fhirServerConfig);
       
-      container.Register<Common.ApplicationConfig.IServiceBaseUrl, Common.ApplicationConfig.ServiceBaseUrl>(Lifestyle.Singleton);      
-      container.Register<Common.DateTimeTools.IServerDateTimeSupport, Common.DateTimeTools.ServerDateTimeSupport>(Lifestyle.Singleton);
-      container.Register<Bug.Api.ActionResults.IActionResultFactory, Bug.Api.ActionResults.ActionResultFactory>(Lifestyle.Singleton);
+      container.Register<Common.ApplicationConfig.IServiceBaseUrlConfi, Common.ApplicationConfig.ServiceBaseUrlConfig>(Lifestyle.Singleton);      
+      container.Register<Common.DateTimeTools.IServerDateTimeSupport, Common.DateTimeTools.ServerDateTimeSupport>(Lifestyle.Singleton);      
 
       //var profiles =
       //      from t in typeof(AutoMapperRegistry).Assembly.GetTypes()
@@ -204,9 +203,23 @@ namespace Bug.Api
       container.Register(typeof(IQueryHandler<,>),
         AppDomain.CurrentDomain.GetAssemblies(), Lifestyle.Scoped);
 
-      //Wrap all ICommandHandlers with this Decorator
+      //3. Wrap all ICommandHandlers with this Decorator
       container.RegisterDecorator(typeof(IQueryHandler<,>),
         typeof(Bug.Logic.Query.FhirApi.Decorator.FhirApiQueryDecorator<,>), Lifestyle.Scoped);
+
+      //2. Only wrap the FhirApiQueryDbTransactionDecorator around Query types with an attribute of TransactionalAttribute
+      container.RegisterDecorator(typeof(IQueryHandler<,>),
+        typeof(Bug.Logic.Query.FhirApi.Decorator.FhirApiQueryDbTransactionDecorator<,>), Lifestyle.Scoped,
+        context => context.ImplementationType.GetCustomAttributes(false)
+        .Any(a => a.GetType() == typeof(Bug.Logic.Attributes.TransactionalAttribute)));
+
+
+
+
+      //1. Wrap all ICommandHandlers with this Decorator
+      container.RegisterDecorator(typeof(IQueryHandler<,>),
+        typeof(Bug.Logic.Query.FhirApi.Decorator.FhirApiQueryLoggingDecorator<,>), Lifestyle.Scoped);
+
 
       //Only wrap ICommandHandlers with this Decorator where the TCommand is an CreateCommand
       //container.RegisterDecorator(typeof(IQueryHandler<,>),
@@ -216,7 +229,7 @@ namespace Bug.Api
       //    return (c.ServiceType.GenericTypeArguments[0].Name == typeof(Bug.Logic.Query.FhirApi.Create.CreateQuery).Name);
       //  }
       //);
-      
+
       //Only wrap ICommandHandlers with this Decorator where the TCommand is an CreateCommand
       //container.RegisterDecorator(typeof(IQueryHandler<,>),
       //  typeof(Bug.Logic.Query.FhirApi.Create.Decorator.CreateValidatorDecorator<,>), Lifestyle.Scoped,
@@ -225,7 +238,7 @@ namespace Bug.Api
       //    return (c.ServiceType.GenericTypeArguments[0].Name == typeof(Bug.Logic.Query.FhirApi.Create.CreateQuery).Name);
       //  }
       //);
-      
+
       ////Only wrap ICommandHandlers with this Decorator where the TCommand is an UpdateCommand
       //container.RegisterDecorator(typeof(IQueryHandler<,>),
       //  typeof(Bug.Logic.Query.FhirApi.Update.Decorator.UpdateValidatorQueryDecorator<,>), Lifestyle.Scoped,
@@ -235,12 +248,6 @@ namespace Bug.Api
       //  }
       //);
 
-      container.RegisterDecorator(typeof(IQueryHandler<,>),
-        typeof(Bug.Logic.Query.FhirApi.Decorator.FhirApiQueryDbTransactionDecorator<,>), Lifestyle.Scoped);
-
-      //Wrap all ICommandHandlers with this Decorator
-      container.RegisterDecorator(typeof(IQueryHandler<,>),
-        typeof(Bug.Logic.Query.FhirApi.Decorator.FhirApiQueryLoggingDecorator<,>), Lifestyle.Scoped);
 
 
       //-- Fhir Version Supports ---------------      
@@ -283,7 +290,9 @@ namespace Bug.Api
 
       //-- Scoped General Services -----------------
       container.Register<Logic.Service.ReferentialIntegrity.IReferentialIntegrityService, Logic.Service.ReferentialIntegrity.ReferentialIntegrityService>(Lifestyle.Scoped);
+      container.Register<Logic.Service.Headers.IHeaderService, Logic.Service.Headers.HeaderService>(Lifestyle.Scoped);
       
+
 
       //-- Scoped Fhir Indexing -------------
       container.Register<Logic.Service.Indexing.IIndexer, Logic.Service.Indexing.Indexer>(Lifestyle.Scoped);

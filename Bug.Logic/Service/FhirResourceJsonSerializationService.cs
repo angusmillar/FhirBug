@@ -22,14 +22,14 @@ namespace Bug.Logic.Service
 
     public byte[] SerializeToJsonBytes(FhirResource fhirResource)
     {
-      switch (fhirResource.FhirMajorVersion)
+      switch (fhirResource.FhirVersion)
       {
         case FhirVersion.Stu3:
           return IStu3SerializationToJsonBytes.SerializeToJsonBytes(fhirResource);
         case FhirVersion.R4:
           return IR4SerializationToJsonBytes.SerializeToJsonBytes(fhirResource);
         default:
-          throw new FhirVersionFatalException(fhirResource.FhirMajorVersion);
+          throw new FhirVersionFatalException(fhirResource.FhirVersion);
       }
     }
   }

@@ -17,7 +17,7 @@ namespace Bug.Logic.Service
 
     public string GetName(FhirResource fhirResource)
     {
-      switch (fhirResource.FhirMajorVersion)
+      switch (fhirResource.FhirVersion)
       {
         case Common.Enums.FhirVersion.Stu3:
           var Stu3Tool = IFhirResourceNameSupportFactory.GetStu3();
@@ -26,7 +26,7 @@ namespace Bug.Logic.Service
           var R4Tool = IFhirResourceNameSupportFactory.GetR4();
           return R4Tool.GetName(fhirResource);
         default:
-          throw new FhirVersionFatalException(fhirResource.FhirMajorVersion);
+          throw new FhirVersionFatalException(fhirResource.FhirVersion);
       }
     }
   }

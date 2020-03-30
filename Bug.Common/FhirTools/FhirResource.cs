@@ -12,16 +12,16 @@ namespace Bug.Common.FhirTools
 {
   public class FhirResource : IFhirResourceStu3, IFhirResourceR4
   {
-    public FhirResource(FhirVersion FhirMajorVersion)
+    public FhirResource(FhirVersion FhirVersion)
     {
-      _FhirMajorVersion = FhirMajorVersion;
+      _FhirVersion = FhirVersion;
     }
-    private FhirVersion _FhirMajorVersion;
-    public FhirVersion FhirMajorVersion 
+    private FhirVersion _FhirVersion;
+    public FhirVersion FhirVersion 
     { 
       get
       {
-        return _FhirMajorVersion;
+        return _FhirVersion;
       }        
     }
 
@@ -30,7 +30,7 @@ namespace Bug.Common.FhirTools
     {
       get
       {
-        if (this._FhirMajorVersion == FhirVersion.R4)
+        if (this._FhirVersion == FhirVersion.R4)
         {
           string message = $"Internal server error, attempted to Get a {FhirVersion.Stu3.GetCode()} Resource from a {this.GetType().Name} object instance when the the class was instantated as a FHIR {FhirVersion.R4.GetCode()} version instance.";
           throw new Bug.Common.Exceptions.FhirVersionFatalException(message);
@@ -39,7 +39,7 @@ namespace Bug.Common.FhirTools
       }
       set
       {
-        if (this._FhirMajorVersion == FhirVersion.R4)
+        if (this._FhirVersion == FhirVersion.R4)
         {
           string message = $"Internal server error, attempted to Set a {this.GetType().Name} object instances with a {FhirVersion.Stu3.GetCode()} Resource when the the class was instantated as a FHIR {FhirVersion.R4.GetCode()} version instance.";
           throw new Bug.Common.Exceptions.FhirVersionFatalException(message);
@@ -53,7 +53,7 @@ namespace Bug.Common.FhirTools
     {
       get
       {
-        if (FhirMajorVersion == FhirVersion.Stu3)
+        if (FhirVersion == FhirVersion.Stu3)
         {
           string message = $"Internal server error, attempted to Get a {FhirVersion.R4.GetCode()} Resource from a {this.GetType().Name} object instance when the the class was instantated as a FHIR {FhirVersion.Stu3.GetCode()} version instance.";
           throw new Bug.Common.Exceptions.FhirVersionFatalException(message);
@@ -62,7 +62,7 @@ namespace Bug.Common.FhirTools
       }
       set
       {
-        if (FhirMajorVersion == FhirVersion.Stu3)
+        if (FhirVersion == FhirVersion.Stu3)
         {
           string message = $"Internal server error, attempted to Set a {this.GetType().Name} object instances with a {FhirVersion.R4.GetCode()} Resource when the the class was instantated as a FHIR {FhirVersion.Stu3.GetCode()} version instance.";
           throw new Bug.Common.Exceptions.FhirVersionFatalException(message);

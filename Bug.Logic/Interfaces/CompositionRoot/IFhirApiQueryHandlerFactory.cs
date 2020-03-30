@@ -13,13 +13,14 @@ namespace Bug.Logic.Interfaces.CompositionRoot
 {
   public interface IFhirApiQueryHandlerFactory
   {
-    IQueryHandler<UpdateQuery, FhirApiResult> GetUpdateCommand();
-    IQueryHandler<CreateQuery, FhirApiResult> GetCreateCommand();
+    IQueryHandler<UpdateQuery, FhirApiTransactionalResult> GetUpdateCommand();
+    IQueryHandler<CreateQuery, FhirApiTransactionalResult> GetCreateCommand();
+    IQueryHandler<DeleteQuery, FhirApiTransactionalResult> GetDeleteCommand();
     IQueryHandler<ReadQuery, FhirApiResult> GetReadCommand();
     IQueryHandler<VReadQuery, FhirApiResult> GetVReadCommand();
     IQueryHandler<HistoryInstanceQuery, FhirApiResult> GetHistoryInstanceCommand();
     IQueryHandler<HistoryResourceQuery, FhirApiResult> GetHistoryResourceCommand();
     IQueryHandler<HistoryBaseQuery, FhirApiResult> GetHistoryBaseCommand();
-    IQueryHandler<DeleteQuery, FhirApiResult> GetDeleteCommand();
+    
   }
 }

@@ -17,7 +17,7 @@ namespace Bug.Logic.Service
 
     public string? GetResourceId(FhirResource fhirResource)
     {
-      switch (fhirResource.FhirMajorVersion)
+      switch (fhirResource.FhirVersion)
       {
         case Common.Enums.FhirVersion.Stu3:
           var Stu3FhirResourceIdSupport = IFhirResourceIdSupportFactory.GetStu3();
@@ -26,13 +26,13 @@ namespace Bug.Logic.Service
           var R4FhirResourceIdSupport = IFhirResourceIdSupportFactory.GetR4();
           return R4FhirResourceIdSupport.GetFhirId(fhirResource);
         default:
-          throw new FhirVersionFatalException(fhirResource.FhirMajorVersion);
+          throw new FhirVersionFatalException(fhirResource.FhirVersion);
       }
     }
 
     public void SetResourceId(FhirResource fhirResource, string id)
     {
-      switch (fhirResource.FhirMajorVersion)
+      switch (fhirResource.FhirVersion)
       {
         case Common.Enums.FhirVersion.Stu3:
           var Stu3FhirResourceIdSupport = IFhirResourceIdSupportFactory.GetStu3();
@@ -43,7 +43,7 @@ namespace Bug.Logic.Service
           R4FhirResourceIdSupport.SetFhirId(id, fhirResource);
           break;
         default:
-          throw new FhirVersionFatalException(fhirResource.FhirMajorVersion);
+          throw new FhirVersionFatalException(fhirResource.FhirVersion);
       }
     }
   }

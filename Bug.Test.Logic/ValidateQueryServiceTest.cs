@@ -268,7 +268,7 @@ namespace Bug.Test.Logic
     private static FhirUriFactory GetFhirUriFactory(string resourceName)
     {
       var ValidResourceNames = new string[] { resourceName };
-      Mock<IServiceBaseUrl> IServiceBaseUrlMock = IServiceBaseUrl_MockFactory.Get(TestData.BaseUrlServer, TestData.BaseUrlServer);
+      Mock<IServiceBaseUrlConfi> IServiceBaseUrlMock = IServiceBaseUrl_MockFactory.Get(TestData.BaseUrlServer, TestData.BaseUrlServer);
       Mock<IR4ValidateResourceName> IR4ValidateResourceNameMock = IR4ValidateResourceName_MockFactory.Get(ValidResourceNames);
       Mock<IStu3ValidateResourceName> IStu3ValidateResourceNameMock = IStu3ValidateResourceName_MockFactory.Get(ValidResourceNames);
       Mock<IValidateResourceNameFactory> IValidateResourceNameFactoryMock = IValidateResourceNameFactory_MockFactory.Get(IStu3ValidateResourceNameMock.Object, IR4ValidateResourceNameMock.Object);

@@ -18,7 +18,7 @@ namespace Bug.Logic.Service.Indexing
 
     public IEnumerable<ITypedElement>? Select(FhirResource fhirResource, string Expression)
     {
-      switch (fhirResource.FhirMajorVersion)
+      switch (fhirResource.FhirVersion)
       {
         case Common.Enums.FhirVersion.Stu3:
           var Stu3Tool = IFhirTypedElementSupportFactory.GetStu3();
@@ -27,7 +27,7 @@ namespace Bug.Logic.Service.Indexing
           var R4Tool = IFhirTypedElementSupportFactory.GetR4();
           return R4Tool.Select(fhirResource, Expression);
         default:
-          throw new FhirVersionFatalException(fhirResource.FhirMajorVersion);
+          throw new FhirVersionFatalException(fhirResource.FhirVersion);
       }
     }
   }

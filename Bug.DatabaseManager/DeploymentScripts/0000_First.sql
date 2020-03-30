@@ -51,6 +51,7 @@ CREATE TABLE "ServiceBaseUrl" (
     updated timestamp without time zone NOT NULL,
     url character varying(450) NOT NULL,
     is_primary boolean NOT NULL,
+    fhirversion_id integer NOT NULL,
     CONSTRAINT "PK_ServiceBaseUrl" PRIMARY KEY (id)
 );
 
@@ -286,8 +287,8 @@ CREATE INDEX "IX_SearchParameterTargetResourceType_resourcetype_id" ON "SearchPa
 
 CREATE INDEX "IX_SearchParameterTargetResourceType_searchparameter_id" ON "SearchParameterTargetResourceType" (searchparameter_id);
 
-CREATE UNIQUE INDEX "Ix_ServiceBaseUrl_Url" ON "ServiceBaseUrl" (url);
+CREATE UNIQUE INDEX "Ix_ServiceBaseUrl_Url_FhirVersionId" ON "ServiceBaseUrl" (url, fhirversion_id);
 
 INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
-VALUES ('20200327061637_First', '3.1.1');
+VALUES ('20200329055547_First', '3.1.1');
 

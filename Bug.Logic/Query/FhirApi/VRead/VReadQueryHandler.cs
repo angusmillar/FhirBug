@@ -37,7 +37,7 @@ namespace Bug.Logic.Query.FhirApi.VRead
 
       if (!IValidateQueryService.IsValid(query, out FhirResource? IsNotValidOperationOutCome))
       {
-        return new FhirApiResult(System.Net.HttpStatusCode.BadRequest, IsNotValidOperationOutCome!.FhirMajorVersion)
+        return new FhirApiResult(System.Net.HttpStatusCode.BadRequest, IsNotValidOperationOutCome!.FhirVersion, query.CorrelationId)
         {
           ResourceId = null,
           FhirResource = IsNotValidOperationOutCome,
@@ -55,13 +55,13 @@ namespace Bug.Logic.Query.FhirApi.VRead
       {
         if (ResourceStore.IsDeleted)
         {
-          return new FhirApiResult(System.Net.HttpStatusCode.Gone, query.FhirVersion);
+          return new FhirApiResult(System.Net.HttpStatusCode.Gone, query.FhirVersion, query.CorrelationId);
         }
         else
         {
           if (ResourceStore.ResourceBlob is object)
           {
-            return new FhirApiResult(System.Net.HttpStatusCode.OK, query.FhirVersion)
+            return new FhirApiResult(System.Net.HttpStatusCode.OK, query.FhirVersion, query.CorrelationId)
             {
               ResourceId = ResourceStore.ResourceId,
               VersionId = ResourceStore.VersionId,
@@ -77,7 +77,7 @@ namespace Bug.Logic.Query.FhirApi.VRead
       }
       else
       {
-        return new FhirApiResult(System.Net.HttpStatusCode.NotFound, query.FhirVersion);
+        return new FhirApiResult(System.Net.HttpStatusCode.NotFound, query.FhirVersion, query.CorrelationId);
       }
 
     }

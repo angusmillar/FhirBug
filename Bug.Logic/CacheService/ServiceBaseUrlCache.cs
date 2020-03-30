@@ -8,6 +8,7 @@ using System;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Bug.Common.Interfaces.Repository;
+using Bug.Common.StringTools;
 
 namespace Bug.Logic.CacheService
 {
@@ -15,28 +16,31 @@ namespace Bug.Logic.CacheService
   {
     private readonly IDistributedCache IDistributedCache;
     private readonly IServiceBaseUrlRepository IServiceBaseUrlRepository;
+    private readonly Bug.Common.ApplicationConfig.IServiceBaseUrlConfi IServiceBaseUrlConfig;
     private readonly Bug.Common.ApplicationConfig.IFhirServerConfig IFhirServerConfig;
-    private const string ParameterNameUrl = "table:serviceBaseUrl:url:";
-    private const string ParameterNameIsPrimary = "table:serviceBaseUrl:isPrimary:true";
+    private const string ParameterNameUrl = "table:serviceBaseUrl:fhirVersion:url:";
+    private const string ParameterNameIsPrimary = "table:serviceBaseUrl:fhirVersion:isPrimary::";
     public ServiceBaseUrlCache(IDistributedCache IDistributedCache,
       IServiceBaseUrlRepository IServiceBaseUrlRepository,
+      Bug.Common.ApplicationConfig.IServiceBaseUrlConfi IServiceBaseUrlConfig,
       Bug.Common.ApplicationConfig.IFhirServerConfig IFhirServerConfig)
     {
       this.IDistributedCache = IDistributedCache;
       this.IServiceBaseUrlRepository = IServiceBaseUrlRepository;
+      this.IServiceBaseUrlConfig = IServiceBaseUrlConfig;
       this.IFhirServerConfig = IFhirServerConfig;
     }
 
-    public async Task<IServiceBaseUrl?> GetAsync(string url)
+    public async Task<IServiceBaseUrl?> GetAsync(Bug.Common.Enums.FhirVersion fhirVersion, string url)
     {
-      byte[]? data = await IDistributedCache.GetAsync($"{ParameterNameUrl}{url}");
+      byte[]? data = await IDistributedCache.GetAsync(GetKey(fhirVersion, url));
       if (data is object)
       {
         return JsonSerializer.Deserialize<ServiceBaseUrl>(data);
       }
       else
       {
-       IServiceBaseUrl? ServiceBaseUrl = await IServiceBaseUrlRepository.GetBy(url);
+        IServiceBaseUrl? ServiceBaseUrl = await IServiceBaseUrlRepository.GetBy(fhirVersion, url);
         if (ServiceBaseUrl is object && ServiceBaseUrl is IServiceBaseUrl IServiceBaseUrl)
         {
           await this.SetAsync(IServiceBaseUrl);
@@ -46,22 +50,27 @@ namespace Bug.Logic.CacheService
       }
     }
 
-    public async Task<IServiceBaseUrl> GetPrimaryAsync()
+    public async Task<IServiceBaseUrl> GetPrimaryAsync(Bug.Common.Enums.FhirVersion fhirVersion)
     {
-      byte[]? data = await IDistributedCache.GetAsync($"{ParameterNameIsPrimary}");
+      byte[]? data = await IDistributedCache.GetAsync(GetPrimaryKey(fhirVersion));
       if (data is object)
       {
         return JsonSerializer.Deserialize<ServiceBaseUrl>(data);
       }
       else
       {
-        IServiceBaseUrl ServiceBaseUrl = await IServiceBaseUrlRepository.GetPrimary();
-        if (ServiceBaseUrl is IServiceBaseUrl IServiceBaseUrl)
+        IServiceBaseUrl? ServiceBaseUrl = await IServiceBaseUrlRepository.GetPrimary(fhirVersion);
+        if (ServiceBaseUrl is object)
         {
-          await this.SetPrimaryAsync(IServiceBaseUrl);
-          return IServiceBaseUrl;
+          await this.SetPrimaryAsync(ServiceBaseUrl);
+          return ServiceBaseUrl;
         }
-        return null;
+        else
+        {
+          ServiceBaseUrl = await IServiceBaseUrlRepository.AddAsync(fhirVersion, StringSupport.StripHttp(IServiceBaseUrlConfig.Url(fhirVersion).OriginalString), true);
+          await this.SetPrimaryAsync(ServiceBaseUrl);
+          return ServiceBaseUrl;
+        }
       }
     }
 
@@ -72,7 +81,7 @@ namespace Bug.Logic.CacheService
       {
         SlidingExpiration = TimeSpan.FromMinutes(IFhirServerConfig.CahceSlidingExpirationMinites)
       };
-      await IDistributedCache.SetAsync($"{ParameterNameIsPrimary}", jsonUtf8Bytes, RedisOptions);
+      await IDistributedCache.SetAsync(GetPrimaryKey(serviceBaseUrl.FhirVersionId), jsonUtf8Bytes, RedisOptions);
     }
 
     public async Task SetAsync(IServiceBaseUrl serviceBaseUrl)
@@ -82,17 +91,28 @@ namespace Bug.Logic.CacheService
       {
         SlidingExpiration = TimeSpan.FromMinutes(IFhirServerConfig.CahceSlidingExpirationMinites)
       };
-      await IDistributedCache.SetAsync($"{ParameterNameUrl}{serviceBaseUrl.Url}", jsonUtf8Bytes, RedisOptions);
+      await IDistributedCache.SetAsync(GetKey(serviceBaseUrl.FhirVersionId, serviceBaseUrl.Url), jsonUtf8Bytes, RedisOptions);
     }
 
-    public async Task RemoveAsync(string url)
+    public async Task RemoveAsync(Bug.Common.Enums.FhirVersion fhirVersion, string url)
     {
-      await IDistributedCache.RemoveAsync($"{ParameterNameUrl}{url}");
+      await IDistributedCache.RemoveAsync(GetKey(fhirVersion, url));
     }
 
-    public async Task RemovePrimaryAsync(string url)
+    public async Task RemovePrimaryAsync(Bug.Common.Enums.FhirVersion fhirVersion, string url)
     {
-      await IDistributedCache.RemoveAsync($"{ParameterNameIsPrimary}");
+      await IDistributedCache.RemoveAsync(GetPrimaryKey(fhirVersion));
+      await RemoveAsync(fhirVersion, url);
+    }
+
+    private string GetPrimaryKey(Bug.Common.Enums.FhirVersion fhirVersion)
+    {
+      return $"table:serviceBaseUrl:fVer:{((int)fhirVersion).ToString()}:isPrimary:true";
+    }
+
+    private string GetKey(Bug.Common.Enums.FhirVersion fhirVersion, string url)
+    {
+      return $"table:serviceBaseUrl:fVer:{((int)fhirVersion).ToString()}:url:{url}";
     }
   }
 }

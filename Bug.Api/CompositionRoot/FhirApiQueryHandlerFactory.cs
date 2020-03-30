@@ -20,15 +20,22 @@ namespace Bug.Api.CompositionRoot
     {
       this._container = container;
     }
-    public IQueryHandler<UpdateQuery, FhirApiResult> GetUpdateCommand()
+
+    //FhirApiTransactionalResult
+    public IQueryHandler<UpdateQuery, FhirApiTransactionalResult> GetUpdateCommand()
     {
-      return (IQueryHandler<UpdateQuery, FhirApiResult>)_container.GetInstance(typeof(IQueryHandler<UpdateQuery, FhirApiResult>));            
+      return (IQueryHandler<UpdateQuery, FhirApiTransactionalResult>)_container.GetInstance(typeof(IQueryHandler<UpdateQuery, FhirApiTransactionalResult>));            
     }
-    public IQueryHandler<CreateQuery, FhirApiResult> GetCreateCommand()
+    public IQueryHandler<CreateQuery, FhirApiTransactionalResult> GetCreateCommand()
     {
-      return (IQueryHandler<CreateQuery, FhirApiResult>)_container.GetInstance(typeof(IQueryHandler<CreateQuery, FhirApiResult>));
+      return (IQueryHandler<CreateQuery, FhirApiTransactionalResult>)_container.GetInstance(typeof(IQueryHandler<CreateQuery, FhirApiTransactionalResult>));
+    }
+    public IQueryHandler<DeleteQuery, FhirApiTransactionalResult> GetDeleteCommand()
+    {
+      return (IQueryHandler<DeleteQuery, FhirApiTransactionalResult>)_container.GetInstance(typeof(IQueryHandler<DeleteQuery, FhirApiTransactionalResult>));
     }
 
+    //FhirApiResult
     public IQueryHandler<ReadQuery, FhirApiResult> GetReadCommand()
     {
       return (IQueryHandler<ReadQuery, FhirApiResult>)_container.GetInstance(typeof(IQueryHandler<ReadQuery, FhirApiResult>));
@@ -52,10 +59,7 @@ namespace Bug.Api.CompositionRoot
       return (IQueryHandler<HistoryBaseQuery, FhirApiResult>)_container.GetInstance(typeof(IQueryHandler<HistoryBaseQuery, FhirApiResult>));
     }
 
-    public IQueryHandler<DeleteQuery, FhirApiResult> GetDeleteCommand()
-    {
-      return (IQueryHandler<DeleteQuery, FhirApiResult>)_container.GetInstance(typeof(IQueryHandler<DeleteQuery, FhirApiResult>));
-    }
+    
 
 
   }

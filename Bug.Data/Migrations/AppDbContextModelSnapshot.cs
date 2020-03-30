@@ -697,6 +697,10 @@ namespace Bug.Data.Migrations
                         .HasColumnName("created")
                         .HasColumnType("timestamp without time zone");
 
+                    b.Property<int>("FhirVersionId")
+                        .HasColumnName("fhirversion_id")
+                        .HasColumnType("integer");
+
                     b.Property<bool>("IsPrimary")
                         .HasColumnName("is_primary")
                         .HasColumnType("boolean");
@@ -713,9 +717,9 @@ namespace Bug.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Url")
+                    b.HasIndex("Url", "FhirVersionId")
                         .IsUnique()
-                        .HasName("Ix_ServiceBaseUrl_Url");
+                        .HasName("Ix_ServiceBaseUrl_Url_FhirVersionId");
 
                     b.ToTable("ServiceBaseUrl");
                 });

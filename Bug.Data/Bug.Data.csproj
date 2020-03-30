@@ -5,9 +5,6 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
-  
-
-  
 
   <ItemGroup>
     <Compile Include="..\Bug.CodeGeneration\T4Templates\ResourceName\ResourceTypeSeed.cs" Link="Seeding\ResourceTypeSeed.cs" />
@@ -35,6 +32,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Migrations\" />
     <Folder Include="Seeding\" />
   </ItemGroup>
 

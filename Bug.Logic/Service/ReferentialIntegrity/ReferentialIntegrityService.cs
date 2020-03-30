@@ -8,32 +8,36 @@ using System.Threading.Tasks;
 using Bug.Common.FhirTools;
 using Bug.Common.Enums;
 using Bug.Common.ApplicationConfig;
+using Bug.Logic.DomainModel.Projection;
 
 namespace Bug.Logic.Service.ReferentialIntegrity
 {
   public class ReferentialIntegrityService : IReferentialIntegrityService
   {
     private readonly IResourceStoreRepository IResourceStoreRepository;
+    private readonly IIndexReferenceRepository IIndexReferenceRepository;
     private readonly IServiceBaseUrlCache IServiceBaseUrlCache;
     private readonly IOperationOutcomeSupport IOperationOutcomeSupport;
     private readonly IEnforceResourceReferentialIntegrity IEnforceResourceReferentialIntegrity;
     public ReferentialIntegrityService(IResourceStoreRepository IResourceStoreRepository,
+      IIndexReferenceRepository IIndexReferenceRepository,
       IServiceBaseUrlCache IServiceBaseUrlCache,
       IOperationOutcomeSupport IOperationOutcomeSupport,
       IEnforceResourceReferentialIntegrity IEnforceResourceReferentialIntegrity)
     {
       this.IResourceStoreRepository = IResourceStoreRepository;
+      this.IIndexReferenceRepository = IIndexReferenceRepository;
       this.IServiceBaseUrlCache = IServiceBaseUrlCache;
       this.IOperationOutcomeSupport = IOperationOutcomeSupport;
       this.IEnforceResourceReferentialIntegrity = IEnforceResourceReferentialIntegrity;
     }
 
-    public async Task<ReferentialIntegrityOutcome> Check(Common.Enums.FhirVersion fhirVersion, List<Bug.Common.Dto.Indexing.IndexReference> IndexReferenceList)
+    public async Task<ReferentialIntegrityOutcome> CheckOnCommit(Common.Enums.FhirVersion fhirVersion, List<Bug.Common.Dto.Indexing.IndexReference> IndexReferenceList)
     {
       var Outcome = new ReferentialIntegrityOutcome();
 
       List<string> ErrorMessageList = new List<string>();
-      var PrimaryServiceBaseUrl = await IServiceBaseUrlCache.GetPrimaryAsync();
+      var PrimaryServiceBaseUrl = await IServiceBaseUrlCache.GetPrimaryAsync(fhirVersion);
       foreach (var Index in IndexReferenceList.Where(x => x.ServiceBaseUrlId == PrimaryServiceBaseUrl.Id))
       {
         if (!Index.ServiceBaseUrlId.HasValue)
@@ -86,6 +90,41 @@ namespace Bug.Logic.Service.ReferentialIntegrity
       }
 
       return Outcome;
+    }
+
+    public async Task<ReferentialIntegrityOutcome> CheckOnDelete(Common.Enums.FhirVersion fhirVersion, ResourceType resourceType, string resourceId)
+    {
+      var Outcome = new ReferentialIntegrityOutcome();
+      if (!IEnforceResourceReferentialIntegrity.EnforceRelativeResourceReferentialIntegrity)
+      {
+        Outcome.IsError = false;
+        return Outcome;
+      }
+      
+      var PrimaryServiceBaseUrl = await IServiceBaseUrlCache.GetPrimaryAsync(fhirVersion);
+      if (!await IIndexReferenceRepository.AnyAsync(fhirVersion, PrimaryServiceBaseUrl.Id, resourceType, resourceId))
+      {
+        Outcome.IsError = false;
+        return Outcome;
+      }
+      else
+      {
+        List<string> ErrorMessageList = new List<string>
+        {
+          $"Enforce relative resource referential integrity is turned on for this server. " +
+          $"The following resources have resource references to the resource you are trying to delete. " +
+          $"These references must be resolved before the resource can be deleted. Only the first 100 detected references are listed below. "
+        };
+        List <ReferentialIntegrityQuery> ReferentialIntegrityQueryList = await IIndexReferenceRepository.GetResourcesReferenced(fhirVersion, PrimaryServiceBaseUrl.Id, resourceType, resourceId);
+        foreach(var ReferentialIntegrityQuery in ReferentialIntegrityQueryList)
+        {
+          ErrorMessageList.Add($"The resource: {ReferentialIntegrityQuery.TargetResourceTypeId.GetCode()}/{ReferentialIntegrityQuery.TargetResourceId} references the resource attempting to be deleted.");
+        }
+        Outcome.IsError = true;
+        Outcome.FhirResource = IOperationOutcomeSupport.GetError(fhirVersion, ErrorMessageList.ToArray());
+        return Outcome;
+      }
+     
     }
   }
 }

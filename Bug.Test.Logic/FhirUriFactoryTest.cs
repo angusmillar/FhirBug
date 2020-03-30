@@ -402,7 +402,7 @@ namespace Bug.Test.Logic
     public void TestFhirUri_ResourceNameValidForFhirVersion(FhirVersion fhirVersion, string serversBase, string resourceNameR4, string resourceNameStu3, string resourceId)
     {
       // Prepare
-      Mock<IServiceBaseUrl> IServiceBaseUrlMock = IServiceBaseUrl_MockFactory.Get(serversBase, serversBase);
+      Mock<IServiceBaseUrlConfi> IServiceBaseUrlMock = IServiceBaseUrl_MockFactory.Get(serversBase, serversBase);
       Mock<IR4ValidateResourceName> IR4ValidateResourceNameMock = IR4ValidateResourceName_MockFactory.Get(new string[] { resourceNameR4 });
       Mock<IStu3ValidateResourceName> IStu3ValidateResourceNameMock = IStu3ValidateResourceName_MockFactory.Get(new string[] { resourceNameStu3 });
       Mock<IValidateResourceNameFactory> IValidateResourceNameFactoryMock = IValidateResourceNameFactory_MockFactory.Get(IStu3ValidateResourceNameMock.Object, IR4ValidateResourceNameMock.Object);
@@ -910,7 +910,7 @@ namespace Bug.Test.Logic
 
     private static FhirUriFactory GetFhirUriFactory(string ServersBaseServiceRoot, string[] validResourceNameList)
     {
-      Mock<IServiceBaseUrl> IServiceBaseUrlMock = IServiceBaseUrl_MockFactory.Get(ServersBaseServiceRoot, ServersBaseServiceRoot);
+      Mock<IServiceBaseUrlConfi> IServiceBaseUrlMock = IServiceBaseUrl_MockFactory.Get(ServersBaseServiceRoot, ServersBaseServiceRoot);
       Mock<IR4ValidateResourceName> IR4ValidateResourceNameMock = IR4ValidateResourceName_MockFactory.Get(validResourceNameList);
       Mock<IStu3ValidateResourceName> IStu3ValidateResourceNameMock = IStu3ValidateResourceName_MockFactory.Get(validResourceNameList);
       Mock<IValidateResourceNameFactory> IValidateResourceNameFactoryMock = IValidateResourceNameFactory_MockFactory.Get(IStu3ValidateResourceNameMock.Object, IR4ValidateResourceNameMock.Object);

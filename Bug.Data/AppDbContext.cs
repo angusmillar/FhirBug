@@ -87,7 +87,7 @@ namespace Bug.Data
           .IsUnique();
 
         //We often order by LastUpdated
-        entity.HasIndex(x => new { x.LastUpdated })
+        entity.HasIndex(x => x.LastUpdated)
           .HasName("Ix_ResourceStore_LastUpdated");
 
       });
@@ -293,9 +293,11 @@ namespace Bug.Data
         SetupBaseIntKeyProperties(entity);
         entity.Property(x => x.Url).HasColumnName("url").IsRequired(true).HasMaxLength(DatabaseMetaData.FieldLength.StringMaxLength);        
         entity.Property(x => x.IsPrimary).HasColumnName("is_primary").IsRequired(true);
-
-        entity.HasIndex(x => x.Url)
-          .HasName("Ix_ServiceBaseUrl_Url").IsUnique(true);
+        entity.Property(x => x.FhirVersionId).HasColumnName("fhirversion_id").IsRequired(true).HasConversion<int>();
+        
+        entity.HasIndex(x => new { x.Url, x.FhirVersionId })
+          .HasName("Ix_ServiceBaseUrl_Url_FhirVersionId")
+          .IsUnique();
       });
 
       //##### IndexReference #################################################
