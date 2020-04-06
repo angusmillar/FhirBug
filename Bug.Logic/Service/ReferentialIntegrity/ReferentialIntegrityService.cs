@@ -1,14 +1,13 @@
-﻿using Bug.Common.Interfaces.CacheService;
+﻿using Bug.Common.ApplicationConfig;
+using Bug.Common.Enums;
+using Bug.Common.Interfaces.CacheService;
+using Bug.Logic.DomainModel.Projection;
 using Bug.Logic.Interfaces.Repository;
+using Bug.Logic.Service.Fhir;
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Linq;
 using System.Threading.Tasks;
-using Bug.Common.FhirTools;
-using Bug.Common.Enums;
-using Bug.Common.ApplicationConfig;
-using Bug.Logic.DomainModel.Projection;
 
 namespace Bug.Logic.Service.ReferentialIntegrity
 {

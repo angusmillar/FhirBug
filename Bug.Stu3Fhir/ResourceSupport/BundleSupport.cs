@@ -11,7 +11,7 @@ namespace Bug.Stu3Fhir.ResourceSupport
 {
   public class BundleSupport : IStu3BundleSupport
   {
-    public FhirResource GetFhirResource(BundleModel bundleModel)
+    public Common.FhirTools.FhirResource GetFhirResource(BundleModel bundleModel)
     {
       Bundle Bundle = new Bundle();
       BundleTypeMap BundleTypeMap = new BundleTypeMap();
@@ -95,7 +95,7 @@ namespace Bug.Stu3Fhir.ResourceSupport
           }
         }
       }
-      return new FhirResource(FhirVersion.Stu3) { Stu3 = Bundle };
+      return new Common.FhirTools.FhirResource(Common.Enums.FhirVersion.Stu3) { Stu3 = Bundle };
     }
   }
 }

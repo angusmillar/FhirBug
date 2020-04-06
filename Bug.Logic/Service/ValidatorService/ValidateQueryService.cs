@@ -4,6 +4,7 @@ using Bug.Common.Interfaces;
 using Bug.Logic.Query.FhirApi;
 using Bug.Logic.Query.FhirApi.Create;
 using Bug.Logic.Query.FhirApi.Update;
+using Bug.Logic.Service.Fhir;
 using Bug.Logic.UriSupport;
 using System;
 
@@ -26,7 +27,7 @@ namespace Bug.Logic.Service.ValidatorService
       this.IFhirResourceIdSupport = IFhirResourceIdSupport;
       this.IFhirUriFactory = IFhirUriFactory;
     }
-    public bool IsValid(FhirBaseApiQuery fhirApiQuery, out FhirResource? OperationOutCome)
+    public bool IsValid(FhirBaseApiQuery fhirApiQuery, out Common.FhirTools.FhirResource? OperationOutCome)
     {      
       OperationOutCome = null;
 

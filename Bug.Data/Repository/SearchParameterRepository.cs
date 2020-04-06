@@ -29,16 +29,48 @@ namespace Bug.Data.Repository
 
     public async Task<List<SearchParameter>> GetForIndexingAsync(Common.Enums.FhirVersion fhirVersion, Common.Enums.ResourceType resourceType)
     {
+
       return await DbSet
       .Include(d => d.TargetResourceTypeList)
       .Where(y => y.FhirVersionId == fhirVersion & y.ResourceTypeList.Any(z => z.ResourceTypeId == resourceType))
       .Select(x => new SearchParameter()
-      { 
+      {
         Id = x.Id,
         Name = x.Name,
         FhirPath = x.FhirPath,
-        SearchParamTypeId = x.SearchParamTypeId,        
-        TargetResourceTypeList = x.TargetResourceTypeList,        
+        SearchParamTypeId = x.SearchParamTypeId,
+        TargetResourceTypeList = x.TargetResourceTypeList,
+        FhirVersionId = x.FhirVersionId,
+        ResourceTypeList = x.ResourceTypeList
+      }).ToListAsync();
+
+      //return await DbSet
+      //.Include(d => d.TargetResourceTypeList)
+      //.Where(y => y.FhirVersionId == fhirVersion & y.ResourceTypeList.Any(z => z.ResourceTypeId == resourceType))
+      //.Select(x => new SearchParameter()
+      //{ 
+      //  Id = x.Id,
+      //  Name = x.Name,
+      //  FhirPath = x.FhirPath,
+      //  SearchParamTypeId = x.SearchParamTypeId,        
+      //  TargetResourceTypeList = x.TargetResourceTypeList,        
+      //}).ToListAsync();
+    }
+
+    public async Task<List<SearchParameter>> GetForSearchQueryAsync(Common.Enums.FhirVersion fhirVersion, Common.Enums.ResourceType resourceType)
+    {
+      return await DbSet
+      .Include(d => d.TargetResourceTypeList)
+      .Where(y => y.FhirVersionId == fhirVersion & y.ResourceTypeList.Any(z => z.ResourceTypeId == resourceType))
+      .Select(x => new SearchParameter()
+      {
+        Id = x.Id,
+        Name = x.Name,
+        FhirPath = x.FhirPath,
+        SearchParamTypeId = x.SearchParamTypeId,
+        TargetResourceTypeList = x.TargetResourceTypeList,
+        FhirVersionId = x.FhirVersionId,
+        ResourceTypeList = x.ResourceTypeList
       }).ToListAsync();
     }
   }

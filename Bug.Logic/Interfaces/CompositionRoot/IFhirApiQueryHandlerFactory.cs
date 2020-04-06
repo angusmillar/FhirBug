@@ -6,6 +6,7 @@ using Bug.Logic.Query.FhirApi.HistoryBase;
 using Bug.Logic.Query.FhirApi.HistoryInstance;
 using Bug.Logic.Query.FhirApi.HistoryResource;
 using Bug.Logic.Query.FhirApi.Read;
+using Bug.Logic.Query.FhirApi.Search;
 using Bug.Logic.Query.FhirApi.Update;
 using Bug.Logic.Query.FhirApi.VRead;
 
@@ -21,6 +22,8 @@ namespace Bug.Logic.Interfaces.CompositionRoot
     IQueryHandler<HistoryInstanceQuery, FhirApiResult> GetHistoryInstanceCommand();
     IQueryHandler<HistoryResourceQuery, FhirApiResult> GetHistoryResourceCommand();
     IQueryHandler<HistoryBaseQuery, FhirApiResult> GetHistoryBaseCommand();
-    
+    IQueryHandler<SearchQuery, FhirApiResult> GetSearchCommand();
+
+
   }
 }

@@ -12,12 +12,12 @@ namespace Bug.Common.FhirTools
 {
   public class FhirResource : IFhirResourceStu3, IFhirResourceR4
   {
-    public FhirResource(FhirVersion FhirVersion)
+    public FhirResource(Enums.FhirVersion FhirVersion)
     {
       _FhirVersion = FhirVersion;
     }
-    private FhirVersion _FhirVersion;
-    public FhirVersion FhirVersion 
+    private Enums.FhirVersion _FhirVersion;
+    public Enums.FhirVersion FhirVersion 
     { 
       get
       {
@@ -30,18 +30,18 @@ namespace Bug.Common.FhirTools
     {
       get
       {
-        if (this._FhirVersion == FhirVersion.R4)
+        if (this._FhirVersion == Enums.FhirVersion.R4)
         {
-          string message = $"Internal server error, attempted to Get a {FhirVersion.Stu3.GetCode()} Resource from a {this.GetType().Name} object instance when the the class was instantated as a FHIR {FhirVersion.R4.GetCode()} version instance.";
+          string message = $"Internal server error, attempted to Get a {Enums.FhirVersion.Stu3.GetCode()} Resource from a {this.GetType().Name} object instance when the the class was instantated as a FHIR {Enums.FhirVersion.R4.GetCode()} version instance.";
           throw new Bug.Common.Exceptions.FhirVersionFatalException(message);
         }
         return _Stu3;
       }
       set
       {
-        if (this._FhirVersion == FhirVersion.R4)
+        if (this._FhirVersion == Enums.FhirVersion.R4)
         {
-          string message = $"Internal server error, attempted to Set a {this.GetType().Name} object instances with a {FhirVersion.Stu3.GetCode()} Resource when the the class was instantated as a FHIR {FhirVersion.R4.GetCode()} version instance.";
+          string message = $"Internal server error, attempted to Set a {this.GetType().Name} object instances with a {Enums.FhirVersion.Stu3.GetCode()} Resource when the the class was instantated as a FHIR {Enums.FhirVersion.R4.GetCode()} version instance.";
           throw new Bug.Common.Exceptions.FhirVersionFatalException(message);
         }
         _Stu3 = value;
@@ -53,18 +53,18 @@ namespace Bug.Common.FhirTools
     {
       get
       {
-        if (FhirVersion == FhirVersion.Stu3)
+        if (FhirVersion == Enums.FhirVersion.Stu3)
         {
-          string message = $"Internal server error, attempted to Get a {FhirVersion.R4.GetCode()} Resource from a {this.GetType().Name} object instance when the the class was instantated as a FHIR {FhirVersion.Stu3.GetCode()} version instance.";
+          string message = $"Internal server error, attempted to Get a {Enums.FhirVersion.R4.GetCode()} Resource from a {this.GetType().Name} object instance when the the class was instantated as a FHIR {Enums.FhirVersion.Stu3.GetCode()} version instance.";
           throw new Bug.Common.Exceptions.FhirVersionFatalException(message);
         }
         return _R4;
       }
       set
       {
-        if (FhirVersion == FhirVersion.Stu3)
+        if (FhirVersion == Enums.FhirVersion.Stu3)
         {
-          string message = $"Internal server error, attempted to Set a {this.GetType().Name} object instances with a {FhirVersion.R4.GetCode()} Resource when the the class was instantated as a FHIR {FhirVersion.Stu3.GetCode()} version instance.";
+          string message = $"Internal server error, attempted to Set a {this.GetType().Name} object instances with a {Enums.FhirVersion.R4.GetCode()} Resource when the the class was instantated as a FHIR {Enums.FhirVersion.Stu3.GetCode()} version instance.";
           throw new Bug.Common.Exceptions.FhirVersionFatalException(message);
         }
         _R4 = value;

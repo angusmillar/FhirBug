@@ -1,9 +1,6 @@
 ﻿using Bug.Common.FhirTools;
-using Bug.Logic.Service;
+using Bug.Logic.Service.Fhir;
 using Moq;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Bug.Test.Logic.MockSupport
 {

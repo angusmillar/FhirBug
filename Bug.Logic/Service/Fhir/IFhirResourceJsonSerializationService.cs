@@ -1,0 +1,9 @@
+﻿using Bug.Common.FhirTools;
+
+namespace Bug.Logic.Service.Fhir
+{
+  public interface IFhirResourceJsonSerializationService
+  {
+    byte[] SerializeToJsonBytes(FhirResource fhirResource);
+  }
+}

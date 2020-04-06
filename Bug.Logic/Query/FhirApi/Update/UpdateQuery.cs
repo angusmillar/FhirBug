@@ -8,12 +8,12 @@ namespace Bug.Logic.Query.FhirApi.Update
 {  
   public class UpdateQuery : FhirApiResourceInstanceQuery
   {
-    public UpdateQuery(HttpVerb HttpVerb, FhirVersion FhirVersion, Uri RequestUri, Dictionary<string, StringValues> HeaderDictionary, string ResourceName, string ResourceId, FhirResource FhirResource)
-      : base(HttpVerb, FhirVersion, RequestUri, HeaderDictionary, ResourceName, ResourceId)
+    public UpdateQuery(HttpVerb HttpVerb, Common.Enums.FhirVersion FhirVersion, Uri RequestUri, Dictionary<string, StringValues> RequestQuery, Dictionary<string, StringValues> HeaderDictionary, string ResourceName, string ResourceId, Common.FhirTools.FhirResource FhirResource)
+      : base(HttpVerb, FhirVersion, RequestUri, RequestQuery, HeaderDictionary, ResourceName, ResourceId)
     {
       this.FhirResource = FhirResource;      
     }
 
-    public FhirResource FhirResource { get; set; }   
+    public Common.FhirTools.FhirResource FhirResource { get; set; }   
   }
 }

@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.WebUtilities;
 using Bug.Common.Constant;
 using Microsoft.Extensions.Primitives;
 using Bug.Common.Enums;
@@ -25,7 +26,7 @@ namespace Bug.Api.Controllers
   {
     private readonly IFhirApiQueryHandlerFactory IFhirApiQueryHandlerFactory;
     
-    private readonly FhirVersion _ControllerFhirVersion = FhirVersion.R4;
+    private readonly Common.Enums.FhirVersion _ControllerFhirVersion = Common.Enums.FhirVersion.R4;
 
     public FhirR4Controller(IFhirApiQueryHandlerFactory IFhirApiQueryHandlerFactory)
     {
@@ -36,6 +37,7 @@ namespace Bug.Api.Controllers
     [HttpGet("metadata")]
     public async Task<ActionResult<R4Model.Resource>> GetConformance()
     {
+      
       var Cap = new R4Model.CapabilityStatement();
       await System.Threading.Tasks.Task.Run(() =>
       {        
@@ -67,6 +69,7 @@ namespace Bug.Api.Controllers
         HttpVerb.GET,
         _ControllerFhirVersion,
         this.Request.GetUrl(),
+        QueryHelpers.ParseQuery(this.Request.QueryString.ToString()),
         new Dictionary<string, StringValues>(this.Request.Headers),
         resourceName,
         resourceId
@@ -85,6 +88,7 @@ namespace Bug.Api.Controllers
        HttpVerb.GET,
        _ControllerFhirVersion,
        this.Request.GetUrl(),
+       QueryHelpers.ParseQuery(this.Request.QueryString.ToString()),
        new Dictionary<string, StringValues>(this.Request.Headers),
        resourceName,
        resourceId,
@@ -104,6 +108,7 @@ namespace Bug.Api.Controllers
        HttpVerb.GET,
        _ControllerFhirVersion,
        this.Request.GetUrl(),
+       QueryHelpers.ParseQuery(this.Request.QueryString.ToString()),
        new Dictionary<string, StringValues>(this.Request.Headers),
        resourceName,
        resourceId
@@ -122,6 +127,7 @@ namespace Bug.Api.Controllers
        HttpVerb.GET,
        _ControllerFhirVersion,
        this.Request.GetUrl(),
+       QueryHelpers.ParseQuery(this.Request.QueryString.ToString()),
        new Dictionary<string, StringValues>(this.Request.Headers),
        resourceName     
        );
@@ -139,6 +145,7 @@ namespace Bug.Api.Controllers
        HttpVerb.GET,
        _ControllerFhirVersion,
        this.Request.GetUrl(),
+       QueryHelpers.ParseQuery(this.Request.QueryString.ToString()),
        new Dictionary<string, StringValues>(this.Request.Headers)
        );
 
@@ -147,24 +154,23 @@ namespace Bug.Api.Controllers
       return Result.PrepareResponse<R4Model.Resource>(this);
     }
 
-    // GET: stu3/fhir/Patient
-    //[HttpGet, Route("{resourceName}")]
-    //public async Task<ActionResult<Stu3Model.Resource>> GetSearch(string resourceName)
-    //{
-    //  string test1 = resourceName;
-    //  return StatusCode((int)HttpStatusCode.OK, GetTestPateint());
-    //}
+    // GET: r4/fhir/Patient?family=millar&given=angus
+    [HttpGet, Route("{resourceName}")]
+    public async Task<ActionResult<R4Model.Resource>> GetSearch(string resourceName)
+    {
+      var Query = new Logic.Query.FhirApi.Search.SearchQuery(
+       HttpVerb.GET,
+       _ControllerFhirVersion,
+       this.Request.GetUrl(),
+       QueryHelpers.ParseQuery(this.Request.QueryString.ToString()),
+       new Dictionary<string, StringValues>(this.Request.Headers),
+       resourceName
+       );
 
-    // GET: stu3/fhir/Patient
-    //[HttpGet, Route("{compartment}/{fhirId}/{resourceName}")]
-    //public async Task<ActionResult<Stu3Model.Resource>> GetCompartmentSearch(string compartment, string fhirId, string resourceName)
-    //{
-    //  string test1 = compartment;
-    //  string test2 = fhirId;
-    //  string test3 = resourceName;
-
-    //  return StatusCode((int)HttpStatusCode.OK, GetTestPateint());
-    //}
+      var ReadQueryHandler = this.IFhirApiQueryHandlerFactory.GetSearchCommand();
+      FhirApiResult Result = await ReadQueryHandler.Handle(Query);
+      return Result.PrepareResponse<R4Model.Resource>(this);
+    }    
 
     //#####################################################################
     //## |POST - CREATE| ##################################################
@@ -184,9 +190,10 @@ namespace Bug.Api.Controllers
         HttpVerb.POST,
         _ControllerFhirVersion,
         this.Request.GetUrl(),
+        QueryHelpers.ParseQuery(this.Request.QueryString.ToString()),
         new Dictionary<string, StringValues>(this.Request.Headers),
         resourceName,
-        new FhirResource(_ControllerFhirVersion) { R4 = resource }
+        new Common.FhirTools.FhirResource(_ControllerFhirVersion) { R4 = resource }
         );
 
       var CreateQueryHandler = this.IFhirApiQueryHandlerFactory.GetCreateCommand();
@@ -218,10 +225,11 @@ namespace Bug.Api.Controllers
         HttpVerb.PUT,
         _ControllerFhirVersion,
         this.Request.GetUrl(),
+        QueryHelpers.ParseQuery(this.Request.QueryString.ToString()),
         new Dictionary<string, StringValues>(this.Request.Headers),
         resourceName,
         resourceId,
-        new FhirResource(_ControllerFhirVersion) { R4 = resource }
+        new Common.FhirTools.FhirResource(_ControllerFhirVersion) { R4 = resource }
         );
 
       var UpdateCommandHandler = this.IFhirApiQueryHandlerFactory.GetUpdateCommand();
@@ -244,6 +252,7 @@ namespace Bug.Api.Controllers
         HttpVerb.DELETE,
         _ControllerFhirVersion,
         this.Request.GetUrl(),
+        QueryHelpers.ParseQuery(this.Request.QueryString.ToString()),
         new Dictionary<string, StringValues>(this.Request.Headers),
         resourceName,
         resourceId

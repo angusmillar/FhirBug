@@ -3,7 +3,7 @@ using Bug.Common.Exceptions;
 using Bug.Common.FhirTools;
 using Bug.Logic.DomainModel;
 using Bug.Logic.Interfaces.Repository;
-using Bug.Logic.Service;
+using Bug.Logic.Service.Fhir;
 using Bug.Logic.Service.ValidatorService;
 using System.Threading.Tasks;
 
@@ -35,7 +35,7 @@ namespace Bug.Logic.Query.FhirApi.VRead
     public async Task<FhirApiResult> Handle(VReadQuery query)
     {
 
-      if (!IValidateQueryService.IsValid(query, out FhirResource? IsNotValidOperationOutCome))
+      if (!IValidateQueryService.IsValid(query, out Common.FhirTools.FhirResource? IsNotValidOperationOutCome))
       {
         return new FhirApiResult(System.Net.HttpStatusCode.BadRequest, IsNotValidOperationOutCome!.FhirVersion, query.CorrelationId)
         {

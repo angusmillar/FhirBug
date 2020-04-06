@@ -12,7 +12,7 @@ using Bug.Common.DateTimeTools;
 using Bug.Common.Enums;
 using Bug.Common.ApplicationConfig;
 using System;
-using Bug.Logic.Service.FhirResourceService;
+using Bug.Logic.Service.Fhir;
 
 namespace Bug.Logic.Query.FhirApi.HistoryInstance
 {
@@ -40,7 +40,7 @@ namespace Bug.Logic.Query.FhirApi.HistoryInstance
 
     public async Task<FhirApiResult> Handle(HistoryInstanceQuery query)
     {
-      if (!IValidateQueryService.IsValid(query, out FhirResource? IsNotValidOperationOutCome))
+      if (!IValidateQueryService.IsValid(query, out Common.FhirTools.FhirResource? IsNotValidOperationOutCome))
       {
         return new FhirApiResult(System.Net.HttpStatusCode.BadRequest, IsNotValidOperationOutCome!.FhirVersion, query.CorrelationId)
         {

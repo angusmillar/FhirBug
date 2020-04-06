@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 using Bug.Common.FhirTools.Bundle;
 using Bug.Common.FhirTools;
 using Bug.Common.DateTimeTools;
-using Bug.Logic.Service.FhirResourceService;
+using Bug.Logic.Service.Fhir;
 
 namespace Bug.Logic.Query.FhirApi.HistoryBase
 {
@@ -36,7 +36,7 @@ namespace Bug.Logic.Query.FhirApi.HistoryBase
     public async Task<FhirApiResult> Handle(HistoryBaseQuery query)
     {
 
-      if (!IValidateQueryService.IsValid(query, out FhirResource? IsNotValidOperationOutCome))
+      if (!IValidateQueryService.IsValid(query, out Common.FhirTools.FhirResource? IsNotValidOperationOutCome))
       {
         return new FhirApiResult(System.Net.HttpStatusCode.BadRequest, IsNotValidOperationOutCome!.FhirVersion, query.CorrelationId)
         {

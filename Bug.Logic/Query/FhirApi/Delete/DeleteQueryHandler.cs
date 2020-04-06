@@ -44,9 +44,9 @@ namespace Bug.Logic.Query.FhirApi.Delete
 
     public async Task<FhirApiTransactionalResult> Handle(DeleteQuery query)
     {
-      if (!IValidateQueryService.IsValid(query, out FhirResource? IsNotValidOperationOutCome))
+      if (!IValidateQueryService.IsValid(query, out Common.FhirTools.FhirResource? IsNotValidOperationOutCome))
       {
-        return new FhirApiTransactionalResult(System.Net.HttpStatusCode.BadRequest, IsNotValidOperationOutCome!.FhirVersion, query.CorrelationId)
+        return new FhirApiTransactionalResult((System.Net.HttpStatusCode)System.Net.HttpStatusCode.BadRequest, (Common.Enums.FhirVersion)IsNotValidOperationOutCome!.FhirVersion, (string)query.CorrelationId)
         {
           ResourceId = null,
           FhirResource = IsNotValidOperationOutCome,

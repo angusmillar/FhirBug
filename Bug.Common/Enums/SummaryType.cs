@@ -6,15 +6,15 @@ namespace Bug.Common.Enums
 {  
   public enum SummaryType
   {
-    [EnumInfo("True", "True")]
+    [EnumInfo("true", "True")]
     True = 0,
-    [EnumInfo("Text", "Text")]
+    [EnumInfo("text", "Text")]
     Text = 1,
-    [EnumInfo("Data", "Data")]
+    [EnumInfo("data", "Data")]
     Data = 2,
-    [EnumInfo("Count", "Count")]
+    [EnumInfo("count", "Count")]
     Count = 3,
-    [EnumInfo("False", "False")]
+    [EnumInfo("false", "False")]
     False = 4
   };
 }

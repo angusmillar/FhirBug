@@ -6,6 +6,6 @@ namespace Bug.Logic.Service.Indexing
 {
   public interface IIndexer
   {
-    Task<IndexerOutcome> Process(FhirResource fhirResource, ResourceType resourceType);
+    Task<IndexerOutcome> Process(Common.FhirTools.FhirResource fhirResource, ResourceType resourceType);
   }
 }

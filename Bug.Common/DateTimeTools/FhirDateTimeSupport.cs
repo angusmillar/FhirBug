@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Bug.Common.Enums;
 
 namespace Bug.Common.DateTimeTools
 {
@@ -12,7 +13,7 @@ namespace Bug.Common.DateTimeTools
     private readonly static string MilliSecDelimiter = ".";
     private readonly static string HourMinSecDelimiter = ":";
 
-    public enum DateTimePrecision { Year, Month, Day, HourMin, Sec, MilliSec, Tick };
+    
     public DateTime? Value { get; set; }
     public int ValueDate { get; set; }
 
@@ -276,7 +277,7 @@ namespace Bug.Common.DateTimeTools
     public static DateTimeOffset CalculateHighDateTimeForRange(DateTimeOffset LowValue, DateTimePrecision Precision)
     {
       DateTimeOffset HighDateTime = LowValue;
-      if (Precision == FhirDateTimeSupport.DateTimePrecision.Year)
+      if (Precision == DateTimePrecision.Year)
       {
         //To deal with the problem of no time zones on Dates, e.g 2018-10-05 we treat the search as a 36 hour day rather than a 24 hours day
         //When the precision is one on Year, Month or Day. For more find grained precisions such as Hour, Min, Sec we  expected to have the 
@@ -304,7 +305,7 @@ namespace Bug.Common.DateTimeTools
         HighDateTime = HighDateTime.AddHours(6);
 
       }
-      else if (Precision == FhirDateTimeSupport.DateTimePrecision.Month)
+      else if (Precision == DateTimePrecision.Month)
       {
         //Work out the normal 24 hour day range low and high
         HighDateTime = LowValue.AddMonths(1).AddMilliseconds(-1);
@@ -314,7 +315,7 @@ namespace Bug.Common.DateTimeTools
         //Add 6 hours to the high
         HighDateTime = HighDateTime.AddHours(6);
       }
-      else if (Precision == FhirDateTimeSupport.DateTimePrecision.Day)
+      else if (Precision == DateTimePrecision.Day)
       {
         //Work out the normal 24 hour day range low and high
         HighDateTime = LowValue.AddDays(1).AddMilliseconds(-1);
@@ -325,19 +326,19 @@ namespace Bug.Common.DateTimeTools
         HighDateTime = HighDateTime.AddHours(6);
 
       }
-      else if (Precision == FhirDateTimeSupport.DateTimePrecision.HourMin)
+      else if (Precision == DateTimePrecision.HourMin)
       {
         HighDateTime = LowValue.AddMinutes(1).AddMilliseconds(-1);
       }
-      else if (Precision == FhirDateTimeSupport.DateTimePrecision.Sec)
+      else if (Precision == DateTimePrecision.Sec)
       {
         HighDateTime = LowValue.AddSeconds(1).AddMilliseconds(-1);
       }
-      else if (Precision == FhirDateTimeSupport.DateTimePrecision.MilliSec)
+      else if (Precision == DateTimePrecision.MilliSec)
       {
         HighDateTime = LowValue.AddMilliseconds(1).AddTicks(-1);
       }
-      else if (Precision == FhirDateTimeSupport.DateTimePrecision.Tick)
+      else if (Precision == DateTimePrecision.Tick)
       {
         HighDateTime = LowValue;
       }

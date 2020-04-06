@@ -51,7 +51,7 @@ namespace Bug.Logic.Service.Indexing
       this.ILogger = ILogger;
     }
 
-    public async Task<IndexerOutcome> Process(FhirResource fhirResource, Bug.Common.Enums.ResourceType resourceType)
+    public async Task<IndexerOutcome> Process(Common.FhirTools.FhirResource fhirResource, Bug.Common.Enums.ResourceType resourceType)
     {
 
       var IndexerOutcome = new IndexerOutcome();

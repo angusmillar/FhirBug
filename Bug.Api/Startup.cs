@@ -116,12 +116,7 @@ namespace Bug.Api
       container.RegisterInstance<Common.ApplicationConfig.IEnforceResourceReferentialIntegrity>(fhirServerConfig);
       
       container.Register<Common.ApplicationConfig.IServiceBaseUrlConfi, Common.ApplicationConfig.ServiceBaseUrlConfig>(Lifestyle.Singleton);      
-      container.Register<Common.DateTimeTools.IServerDateTimeSupport, Common.DateTimeTools.ServerDateTimeSupport>(Lifestyle.Singleton);      
-
-      //var profiles =
-      //      from t in typeof(AutoMapperRegistry).Assembly.GetTypes()
-      //      where typeof(Profile).IsAssignableFrom(t)
-      //      select (Profile)Activator.CreateInstance(t);
+      container.Register<Common.DateTimeTools.IServerDateTimeSupport, Common.DateTimeTools.ServerDateTimeSupport>(Lifestyle.Singleton);            
 
       var MapperConfig = new MapperConfiguration(cfg =>
       {
@@ -133,9 +128,7 @@ namespace Bug.Api
         cfg.CreateMap<Bug.Common.Dto.Indexing.IndexToken, Bug.Logic.DomainModel.IndexToken>();
         cfg.CreateMap<Bug.Common.Dto.Indexing.IndexUri, Bug.Logic.DomainModel.IndexUri>();
         cfg.CreateMap<Bug.Common.Dto.Indexing.ServiceBaseUrl, Bug.Logic.DomainModel.ServiceBaseUrl>();
-        cfg.CreateMap<Bug.Logic.Service.Indexing.IndexerOutcome, Bug.Logic.DomainModel.ResourceStore>();
-
-        
+        cfg.CreateMap<Bug.Logic.Service.Indexing.IndexerOutcome, Bug.Logic.DomainModel.ResourceStore>();        
       });
 
       container.RegisterSingleton<IMapper>(() => MapperConfig.CreateMapper(container.GetInstance));
@@ -187,7 +180,29 @@ namespace Bug.Api
       container.Register<Bug.Logic.Service.Indexing.Setter.IQuantitySetterSupport, Bug.Logic.Service.Indexing.Setter.QuantitySetterSupport>(Lifestyle.Singleton);
       container.Register<Bug.Logic.Service.Indexing.Setter.IUriSetterSupport, Bug.Logic.Service.Indexing.Setter.UriSetterSupport>(Lifestyle.Singleton);
       container.Register<Bug.Logic.Service.Indexing.ITypedElementSupport, Bug.Logic.Service.Indexing.TypedElementSupport>(Lifestyle.Singleton);
-      
+
+      container.Register<Bug.Stu3Fhir.ResourceSupport.IStu3FhirResourceIdSupport, Bug.Stu3Fhir.ResourceSupport.FhirResourceSupport>(Lifestyle.Singleton);
+      container.Register<Bug.R4Fhir.ResourceSupport.IR4FhirResourceIdSupport, Bug.R4Fhir.ResourceSupport.FhirResourceSupport>(Lifestyle.Singleton);
+      container.Register<Logic.Service.Fhir.IFhirResourceIdSupport, Logic.Service.Fhir.FhirResourceIdSupport>(Lifestyle.Singleton);
+
+      container.Register<Bug.Stu3Fhir.ResourceSupport.IStu3FhirResourceLastUpdatedSupport, Bug.Stu3Fhir.ResourceSupport.FhirResourceSupport>(Lifestyle.Singleton);
+      container.Register<Bug.R4Fhir.ResourceSupport.IR4FhirResourceLastUpdatedSupport, Bug.R4Fhir.ResourceSupport.FhirResourceSupport>(Lifestyle.Singleton);
+      container.Register<Logic.Service.Fhir.IFhirResourceLastUpdatedSupport, Logic.Service.Fhir.FhirResourceLastUpdatedSupport>(Lifestyle.Singleton);
+
+      container.Register<Bug.Stu3Fhir.ResourceSupport.IStu3FhirResourceVersionSupport, Bug.Stu3Fhir.ResourceSupport.FhirResourceSupport>(Lifestyle.Singleton);
+      container.Register<Bug.R4Fhir.ResourceSupport.IR4FhirResourceVersionSupport, Bug.R4Fhir.ResourceSupport.FhirResourceSupport>(Lifestyle.Singleton);
+      container.Register<Logic.Service.Fhir.IFhirResourceVersionSupport, Logic.Service.Fhir.FhirResourceVersionSupport>(Lifestyle.Singleton);
+
+
+      container.Register<Bug.R4Fhir.ResourceSupport.IR4FhirResourceNameSupport, Bug.R4Fhir.ResourceSupport.FhirResourceSupport>(Lifestyle.Singleton);
+      container.Register<Bug.Stu3Fhir.ResourceSupport.IStu3FhirResourceNameSupport, Bug.Stu3Fhir.ResourceSupport.FhirResourceSupport>(Lifestyle.Singleton);
+      container.Register<Logic.Service.Fhir.IFhirResourceNameSupport, Logic.Service.Fhir.FhirResourceNameSupport>(Lifestyle.Singleton);
+
+      container.Register<Bug.R4Fhir.ResourceSupport.IR4IsKnownResource, Bug.R4Fhir.ResourceSupport.FhirResourceSupport>(Lifestyle.Singleton);
+      container.Register<Bug.Stu3Fhir.ResourceSupport.IStu3IsKnownResource, Bug.Stu3Fhir.ResourceSupport.FhirResourceSupport>(Lifestyle.Singleton);
+      container.Register<Bug.Logic.Service.Fhir.IKnownResource, Bug.Logic.Service.Fhir.KnownResource>(Lifestyle.Singleton);
+
+
 
       //-- Thread safe Indexing -------------
       container.Register<Bug.R4Fhir.Indexing.Setter.Support.IR4DateTimeIndexSupport, Bug.R4Fhir.Indexing.Setter.Support.R4DateTimeIndexSupport>(Lifestyle.Singleton);
@@ -250,18 +265,7 @@ namespace Bug.Api
 
 
 
-      //-- Fhir Version Supports ---------------      
-      container.Register<Bug.Stu3Fhir.ResourceSupport.IStu3FhirResourceIdSupport, Bug.Stu3Fhir.ResourceSupport.FhirResourceSupport>(Lifestyle.Scoped);
-      container.Register<Bug.R4Fhir.ResourceSupport.IR4FhirResourceIdSupport, Bug.R4Fhir.ResourceSupport.FhirResourceSupport>(Lifestyle.Scoped);
-
-      container.Register<Bug.Stu3Fhir.ResourceSupport.IStu3FhirResourceVersionSupport, Bug.Stu3Fhir.ResourceSupport.FhirResourceSupport>(Lifestyle.Scoped);
-      container.Register<Bug.R4Fhir.ResourceSupport.IR4FhirResourceVersionSupport, Bug.R4Fhir.ResourceSupport.FhirResourceSupport>(Lifestyle.Scoped);
-
-      container.Register<Bug.Stu3Fhir.ResourceSupport.IStu3FhirResourceLastUpdatedSupport, Bug.Stu3Fhir.ResourceSupport.FhirResourceSupport>(Lifestyle.Scoped);
-      container.Register<Bug.R4Fhir.ResourceSupport.IR4FhirResourceLastUpdatedSupport, Bug.R4Fhir.ResourceSupport.FhirResourceSupport>(Lifestyle.Scoped);
-
-      container.Register<Bug.R4Fhir.ResourceSupport.IR4FhirResourceNameSupport, Bug.R4Fhir.ResourceSupport.FhirResourceSupport>(Lifestyle.Scoped);
-      container.Register<Bug.Stu3Fhir.ResourceSupport.IStu3FhirResourceNameSupport, Bug.Stu3Fhir.ResourceSupport.FhirResourceSupport>(Lifestyle.Scoped);
+      //-- Fhir Version Supports ---------------           
 
       container.Register<Bug.Stu3Fhir.OperationOutCome.IStu3OperationOutComeSupport, Bug.Stu3Fhir.OperationOutCome.OperationOutComeSupport>(Lifestyle.Scoped);
       container.Register<Bug.R4Fhir.OperationOutCome.IR4OperationOutComeSupport, Bug.R4Fhir.OperationOutCome.OperationOutComeSupport>(Lifestyle.Scoped);
@@ -276,17 +280,16 @@ namespace Bug.Api
 
 
       //-- Scoped Fhir Services ---------------      
-      container.Register<Logic.Service.IUpdateResourceService, Logic.Service.UpdateResourceService>(Lifestyle.Scoped);
+      container.Register<Logic.Service.Fhir.IUpdateResourceService, Logic.Service.Fhir.UpdateResourceService>(Lifestyle.Scoped);
       container.Register<Logic.Service.ValidatorService.IValidateQueryService, Logic.Service.ValidatorService.ValidateQueryService>(Lifestyle.Scoped);      
-      container.Register<Logic.Service.IFhirResourceIdSupport, Logic.Service.FhirResourceIdSupport>(Lifestyle.Scoped);
-      container.Register<Logic.Service.IFhirResourceJsonSerializationService, Logic.Service.FhirResourceJsonSerializationService>(Lifestyle.Scoped);
-      container.Register<Logic.Service.IFhirResourceParseJsonService, Logic.Service.FhirResourceParseJsonService>(Lifestyle.Scoped);
-      container.Register<Logic.Service.IFhirResourceLastUpdatedSupport, Logic.Service.FhirResourceLastUpdatedSupport>(Lifestyle.Scoped);
-      container.Register<Logic.Service.IFhirResourceVersionSupport, Logic.Service.FhirResourceVersionSupport>(Lifestyle.Scoped);
-      container.Register<Logic.Service.IFhirResourceNameSupport, Logic.Service.FhirResourceNameSupport>(Lifestyle.Scoped);
-      container.Register<Logic.Service.IOperationOutcomeSupport, Logic.Service.OperationOutcomeSupport>(Lifestyle.Scoped);
-      container.Register<Logic.Service.IFhirResourceBundleSupport, Logic.Service.FhirResourceBundleSupport>(Lifestyle.Scoped);
-      container.Register<Logic.Service.FhirResourceService.IHistoryBundleService, Logic.Service.FhirResourceService.HistoryBundleService>(Lifestyle.Scoped);
+      
+      container.Register<Logic.Service.Fhir.IFhirResourceJsonSerializationService, Logic.Service.Fhir.FhirResourceJsonSerializationService>(Lifestyle.Scoped);
+      container.Register<Logic.Service.Fhir.IFhirResourceParseJsonService, Logic.Service.Fhir.FhirResourceParseJsonService>(Lifestyle.Scoped);
+      
+      
+      container.Register<Logic.Service.Fhir.IOperationOutcomeSupport, Logic.Service.Fhir.OperationOutcomeSupport>(Lifestyle.Scoped);
+      container.Register<Logic.Service.Fhir.IFhirResourceBundleSupport, Logic.Service.Fhir.FhirResourceBundleSupport>(Lifestyle.Scoped);
+      container.Register<Logic.Service.Fhir.IHistoryBundleService, Logic.Service.Fhir.HistoryBundleService>(Lifestyle.Scoped);
 
       //-- Scoped General Services -----------------
       container.Register<Logic.Service.ReferentialIntegrity.IReferentialIntegrityService, Logic.Service.ReferentialIntegrity.ReferentialIntegrityService>(Lifestyle.Scoped);
@@ -317,16 +320,20 @@ namespace Bug.Api
 
       container.Register<Stu3Fhir.Indexing.Setter.IStu3UriSetter, Stu3Fhir.Indexing.Setter.Stu3UriSetter>(Lifestyle.Scoped);
       container.Register<R4Fhir.Indexing.Setter.IR4UriSetter, R4Fhir.Indexing.Setter.R4UriSetter>(Lifestyle.Scoped);
+      
+      //Scoped Search Services -----------------
+      container.Register<Logic.Service.SearchQuery.ISearchQueryService, Logic.Service.SearchQuery.SearchQueryService>(Lifestyle.Scoped);
+      container.Register<Logic.Service.SearchQuery.SearchQueryEntity.ISearchQueryFactory, Logic.Service.SearchQuery.SearchQueryEntity.SearchQueryFactory>(Lifestyle.Scoped);
 
 
-      //-- Cache Services ---------------            
+      //-- Scoped Cache Services ---------------            
       container.Register<Logic.CacheService.IFhirVersionCache, Logic.CacheService.FhirVersionCache>(Lifestyle.Scoped);
       container.Register<Logic.CacheService.IMethodCache, Logic.CacheService.MethodCache>(Lifestyle.Scoped);
       container.Register<Logic.CacheService.IHttpStatusCodeCache, Logic.CacheService.HttpStatusCodeCache>(Lifestyle.Scoped);
       container.Register<Logic.CacheService.ISearchParameterCache, Logic.CacheService.SearchParameterCache>(Lifestyle.Scoped);
       container.Register<Common.Interfaces.CacheService.IServiceBaseUrlCache, Logic.CacheService.ServiceBaseUrlCache>(Lifestyle.Scoped);
 
-      //-- Repositories ---------------
+      //--Scoped Repositories ---------------
       container.Register<IUnitOfWork, Bug.Data.AppDbContext>(Lifestyle.Scoped);
       container.Register<IResourceStoreRepository, Bug.Data.Repository.ResourceStoreRepository>(Lifestyle.Scoped);
       container.Register<IFhirVersionRepository, Bug.Data.Repository.FhirVersionRepository>(Lifestyle.Scoped);
@@ -335,15 +342,15 @@ namespace Bug.Api
       container.Register<ISearchParameterRepository, Bug.Data.Repository.SearchParameterRepository>(Lifestyle.Scoped);
       container.Register<IIndexReferenceRepository, Bug.Data.Repository.IndexReferenceRepository>(Lifestyle.Scoped);
       container.Register<Common.Interfaces.Repository.IServiceBaseUrlRepository, Bug.Data.Repository.ServiceBaseUrlRepository>(Lifestyle.Scoped);
-      
+
 
       //container.Register<Bug.Stu3Fhir.ResourceSupport.IResourceNameSupport, Bug.Stu3Fhir.ResourceSupport.ResourceNameSupport>(Lifestyle.Scoped);
       //container.Register<Bug.R4Fhir.ResourceSupport.IResourceNameSupport, Bug.R4Fhir.ResourceSupport.ResourceNameSupport>(Lifestyle.Scoped);
 
 
       // ## Transient ###################################################################
-
-
+      
+      container.Register<Logic.Service.SearchQuery.Tools.IFhirSearchQuery, Logic.Service.SearchQuery.Tools.FhirSearchQuery>(Lifestyle.Transient);
 
     }
 

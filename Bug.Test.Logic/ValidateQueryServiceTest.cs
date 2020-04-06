@@ -27,14 +27,14 @@ namespace Bug.Test.Logic
   public class ValidateQueryServiceTest
   {
     [Theory]
-    [InlineData(FhirVersion.Stu3, "Patient", "10")]
-    [InlineData(FhirVersion.R4, "Patient", "10")]
-    public void CreateQueryTest(FhirVersion fhirVersion, string resourceName, string resourceId)
+    [InlineData(Common.Enums.FhirVersion.Stu3, "Patient", "10")]
+    [InlineData(Common.Enums.FhirVersion.R4, "Patient", "10")]
+    public void CreateQueryTest(Common.Enums.FhirVersion fhirVersion, string resourceName, string resourceId)
     {
       //Setup
       var IOperationOutcomeSupportMock = IOperationOutcomeSupport_MockFactory.Get();
       var IFhirResourceNameSupportMock = IFhirResourceNameSupport_MockFactory.Get(resourceName);
-      var IFhirResourceIdSupportMock = IFhirResourceIdSupport_MockFactory.Get(resourceId);
+      var IFhirResourceIdSupportMock = IFhirResourceIdSupport_MockFactory.Get(resourceId);      
 
       FhirUriFactory FhirUriFactory = GetFhirUriFactory(resourceName);
 
@@ -44,12 +44,13 @@ namespace Bug.Test.Logic
         HttpVerb.POST,
         fhirVersion,
         new Uri($"{TestData.BaseUrlServer}/{resourceName}"),
-        new Dictionary<string, Microsoft.Extensions.Primitives.StringValues>(),
+        new Dictionary<string, Microsoft.Extensions.Primitives.StringValues>(), //RequestQuery
+        new Dictionary<string, Microsoft.Extensions.Primitives.StringValues>(), //Headers
         resourceName,
-        new FhirResource(fhirVersion));
+        new Common.FhirTools.FhirResource(fhirVersion));
 
       //Act
-      bool Result = ValidateQueryService.IsValid(CreateQuery, out FhirResource? IsNotValidOperationOutCome);
+      bool Result = ValidateQueryService.IsValid(CreateQuery, out Common.FhirTools.FhirResource? IsNotValidOperationOutCome);
 
       //Assert
       Assert.True(Result);
@@ -57,9 +58,9 @@ namespace Bug.Test.Logic
     }
 
     [Theory]
-    [InlineData(FhirVersion.Stu3, "Patient", "10")]
-    [InlineData(FhirVersion.R4, "Patient", "10")]
-    public void UpdateQueryTest(FhirVersion fhirVersion, string resourceName, string resourceId)
+    [InlineData(Common.Enums.FhirVersion.Stu3, "Patient", "10")]
+    [InlineData(Common.Enums.FhirVersion.R4, "Patient", "10")]
+    public void UpdateQueryTest(Common.Enums.FhirVersion fhirVersion, string resourceName, string resourceId)
     {
       //Setup
       var IOperationOutcomeSupportMock = IOperationOutcomeSupport_MockFactory.Get();
@@ -75,12 +76,13 @@ namespace Bug.Test.Logic
         fhirVersion,
         new Uri($"{TestData.BaseUrlServer}/{resourceName}/{resourceId}"),
         new Dictionary<string, Microsoft.Extensions.Primitives.StringValues>(),
+        new Dictionary<string, Microsoft.Extensions.Primitives.StringValues>(),
         resourceName,
         resourceId,
-        new FhirResource(fhirVersion));
+        new Common.FhirTools.FhirResource(fhirVersion));
 
       //Act
-      bool Result = ValidateQueryService.IsValid(UpdateQuery, out FhirResource? IsNotValidOperationOutCome);
+      bool Result = ValidateQueryService.IsValid(UpdateQuery, out Common.FhirTools.FhirResource? IsNotValidOperationOutCome);
 
       //Assert
       Assert.True(Result);
@@ -88,9 +90,9 @@ namespace Bug.Test.Logic
     }
 
     [Theory]
-    [InlineData(FhirVersion.Stu3, "Patient", "10")]
-    [InlineData(FhirVersion.R4, "Patient", "10")]
-    public void ReadQueryTest(FhirVersion fhirVersion, string resourceName, string resourceId)
+    [InlineData(Common.Enums.FhirVersion.Stu3, "Patient", "10")]
+    [InlineData(Common.Enums.FhirVersion.R4, "Patient", "10")]
+    public void ReadQueryTest(Common.Enums.FhirVersion fhirVersion, string resourceName, string resourceId)
     {
       //Setup
       var IOperationOutcomeSupportMock = IOperationOutcomeSupport_MockFactory.Get();
@@ -106,11 +108,12 @@ namespace Bug.Test.Logic
         fhirVersion,
         new Uri($"{TestData.BaseUrlServer}/{resourceName}/{resourceId}"),
         new Dictionary<string, Microsoft.Extensions.Primitives.StringValues>(),
+        new Dictionary<string, Microsoft.Extensions.Primitives.StringValues>(),
         resourceName,
         resourceId);
 
       //Act
-      bool Result = ValidateQueryService.IsValid(ReadQuery, out FhirResource? IsNotValidOperationOutCome);
+      bool Result = ValidateQueryService.IsValid(ReadQuery, out Common.FhirTools.FhirResource? IsNotValidOperationOutCome);
 
       //Assert
       Assert.True(Result);
@@ -118,9 +121,9 @@ namespace Bug.Test.Logic
     }
 
     [Theory]
-    [InlineData(FhirVersion.Stu3, "Patient", "10")]
-    [InlineData(FhirVersion.R4, "Patient", "10")]
-    public void DeleteQueryTest(FhirVersion fhirVersion, string resourceName, string resourceId)
+    [InlineData(Common.Enums.FhirVersion.Stu3, "Patient", "10")]
+    [InlineData(Common.Enums.FhirVersion.R4, "Patient", "10")]
+    public void DeleteQueryTest(Common.Enums.FhirVersion fhirVersion, string resourceName, string resourceId)
     {
       //Setup
       var IOperationOutcomeSupportMock = IOperationOutcomeSupport_MockFactory.Get();
@@ -136,11 +139,12 @@ namespace Bug.Test.Logic
         fhirVersion,
         new Uri($"{TestData.BaseUrlServer}/{resourceName}/{resourceId}"),
         new Dictionary<string, Microsoft.Extensions.Primitives.StringValues>(),
+        new Dictionary<string, Microsoft.Extensions.Primitives.StringValues>(),
         resourceName,
         resourceId);
 
       //Act
-      bool Result = ValidateQueryService.IsValid(DeleteQuery, out FhirResource? IsNotValidOperationOutCome);
+      bool Result = ValidateQueryService.IsValid(DeleteQuery, out Common.FhirTools.FhirResource? IsNotValidOperationOutCome);
 
       //Assert
       Assert.True(Result);
@@ -148,9 +152,9 @@ namespace Bug.Test.Logic
     }
 
     [Theory]
-    [InlineData(FhirVersion.Stu3, "Patient", "10", 15)]
-    [InlineData(FhirVersion.R4, "Patient", "10", 15)]
-    public void VReadQueryTest(FhirVersion fhirVersion, string resourceName, string resourceId, int versionId)
+    [InlineData(Common.Enums.FhirVersion.Stu3, "Patient", "10", 15)]
+    [InlineData(Common.Enums.FhirVersion.R4, "Patient", "10", 15)]
+    public void VReadQueryTest(Common.Enums.FhirVersion fhirVersion, string resourceName, string resourceId, int versionId)
     {
       //Setup
       var IOperationOutcomeSupportMock = IOperationOutcomeSupport_MockFactory.Get();
@@ -166,12 +170,13 @@ namespace Bug.Test.Logic
         fhirVersion,
         new Uri($"{TestData.BaseUrlServer}/{resourceName}/{resourceId}/_history/{versionId.ToString()}"),
         new Dictionary<string, Microsoft.Extensions.Primitives.StringValues>(),
+        new Dictionary<string, Microsoft.Extensions.Primitives.StringValues>(),
         resourceName,
         resourceId,
         versionId);
 
       //Act
-      bool Result = ValidateQueryService.IsValid(VReadQuery, out FhirResource? IsNotValidOperationOutCome);
+      bool Result = ValidateQueryService.IsValid(VReadQuery, out Common.FhirTools.FhirResource? IsNotValidOperationOutCome);
 
       //Assert
       Assert.True(Result);
@@ -179,9 +184,9 @@ namespace Bug.Test.Logic
     }
 
     [Theory]
-    [InlineData(FhirVersion.Stu3)]
-    [InlineData(FhirVersion.R4)]
-    public void HistoryBaseQueryTest(FhirVersion fhirVersion)
+    [InlineData(Common.Enums.FhirVersion.Stu3)]
+    [InlineData(Common.Enums.FhirVersion.R4)]
+    public void HistoryBaseQueryTest(Common.Enums.FhirVersion fhirVersion)
     {
       //Setup
       var IOperationOutcomeSupportMock = IOperationOutcomeSupport_MockFactory.Get();
@@ -196,10 +201,12 @@ namespace Bug.Test.Logic
         HttpVerb.GET,
         fhirVersion,
         new Uri($"{TestData.BaseUrlServer}/_history"),
-        new Dictionary<string, Microsoft.Extensions.Primitives.StringValues>());
+        new Dictionary<string, Microsoft.Extensions.Primitives.StringValues>(),
+        new Dictionary<string, Microsoft.Extensions.Primitives.StringValues>()
+        );
 
       //Act
-      bool Result = ValidateQueryService.IsValid(HistoryBaseQuery, out FhirResource? IsNotValidOperationOutCome);
+      bool Result = ValidateQueryService.IsValid(HistoryBaseQuery, out Common.FhirTools.FhirResource? IsNotValidOperationOutCome);
 
       //Assert
       Assert.True(Result);
@@ -207,9 +214,9 @@ namespace Bug.Test.Logic
     }
 
     [Theory]
-    [InlineData(FhirVersion.Stu3, "Patient", "10")]
-    [InlineData(FhirVersion.R4, "Patient", "10")]
-    public void HistoryInstanceQueryTest(FhirVersion fhirVersion, string resourceName, string resourceId)
+    [InlineData(Common.Enums.FhirVersion.Stu3, "Patient", "10")]
+    [InlineData(Common.Enums.FhirVersion.R4, "Patient", "10")]
+    public void HistoryInstanceQueryTest(Common.Enums.FhirVersion fhirVersion, string resourceName, string resourceId)
     {
       //Setup
       var IOperationOutcomeSupportMock = IOperationOutcomeSupport_MockFactory.Get();
@@ -225,11 +232,12 @@ namespace Bug.Test.Logic
         fhirVersion,
         new Uri($"{TestData.BaseUrlServer}/{resourceName}/{resourceId}/_history"),
         new Dictionary<string, Microsoft.Extensions.Primitives.StringValues>(),
+        new Dictionary<string, Microsoft.Extensions.Primitives.StringValues>(),
         resourceName,
         resourceId);
 
       //Act
-      bool Result = ValidateQueryService.IsValid(HistoryInstanceQuery, out FhirResource? IsNotValidOperationOutCome);
+      bool Result = ValidateQueryService.IsValid(HistoryInstanceQuery, out Common.FhirTools.FhirResource? IsNotValidOperationOutCome);
 
       //Assert
       Assert.True(Result);
@@ -237,9 +245,9 @@ namespace Bug.Test.Logic
     }
 
     [Theory]
-    [InlineData(FhirVersion.Stu3, "Patient")]
-    [InlineData(FhirVersion.R4, "Patient")]
-    public void HistoryResourceQueryTest(FhirVersion fhirVersion, string resourceName)
+    [InlineData(Common.Enums.FhirVersion.Stu3, "Patient")]
+    [InlineData(Common.Enums.FhirVersion.R4, "Patient")]
+    public void HistoryResourceQueryTest(Common.Enums.FhirVersion fhirVersion, string resourceName)
     {      
       //Setup
       var IOperationOutcomeSupportMock = IOperationOutcomeSupport_MockFactory.Get();
@@ -255,10 +263,11 @@ namespace Bug.Test.Logic
         fhirVersion,
         new Uri($"{TestData.BaseUrlServer}/{resourceName}/_history"),
         new Dictionary<string, Microsoft.Extensions.Primitives.StringValues>(),
+        new Dictionary<string, Microsoft.Extensions.Primitives.StringValues>(),
         resourceName);
 
       //Act, 
-      bool Result = ValidateQueryService.IsValid(HistoryResourceQuery, out FhirResource? IsNotValidOperationOutCome);
+      bool Result = ValidateQueryService.IsValid(HistoryResourceQuery, out Common.FhirTools.FhirResource? IsNotValidOperationOutCome);
 
       //Assert
       Assert.True(Result);

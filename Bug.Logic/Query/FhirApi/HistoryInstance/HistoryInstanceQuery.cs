@@ -9,7 +9,7 @@ namespace Bug.Logic.Query.FhirApi.HistoryInstance
 {  
   public class HistoryInstanceQuery : FhirApiResourceInstanceQuery
   {
-    public HistoryInstanceQuery(HttpVerb HttpVerb, FhirVersion FhirVersion, Uri RequestUri, Dictionary<string, StringValues> HeaderDictionary, string ResourceName, string ResourceId)
-      : base(HttpVerb, FhirVersion, RequestUri, HeaderDictionary, ResourceName, ResourceId) { }
+    public HistoryInstanceQuery(HttpVerb HttpVerb, FhirVersion FhirVersion, Uri RequestUri, Dictionary<string, StringValues> RequestQuery, Dictionary<string, StringValues> HeaderDictionary, string ResourceName, string ResourceId)
+      : base(HttpVerb, FhirVersion, RequestUri, RequestQuery, HeaderDictionary, ResourceName, ResourceId) { }
   }
 }

@@ -7,7 +7,7 @@ using System.Text;
 
 namespace Bug.Stu3Fhir.ResourceSupport
 {
-  public class FhirResourceSupport : IStu3FhirResourceIdSupport, IStu3FhirResourceVersionSupport, IStu3FhirResourceLastUpdatedSupport, IStu3FhirResourceNameSupport
+  public class FhirResourceSupport : IStu3FhirResourceIdSupport, IStu3FhirResourceVersionSupport, IStu3FhirResourceLastUpdatedSupport, IStu3FhirResourceNameSupport, IStu3IsKnownResource
   {
     public void SetLastUpdated(DateTimeOffset dateTimeOffset, IFhirResourceStu3 fhirResource)
     {
@@ -99,6 +99,11 @@ namespace Bug.Stu3Fhir.ResourceSupport
     {
       NullCheck(fhirResource.Stu3, "resource");
       return fhirResource.Stu3.ResourceType.GetLiteral();
+    }
+
+    public bool IsKnownResource(string resourceName)
+    {
+      return ModelInfo.IsKnownResource(resourceName);
     }
 
     private void NullCheck(object instance, string name)

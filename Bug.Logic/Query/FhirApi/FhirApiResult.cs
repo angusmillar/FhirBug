@@ -11,7 +11,7 @@ namespace Bug.Logic.Query.FhirApi
 {
   public class FhirApiResult
   {
-    public FhirApiResult(HttpStatusCode HttpStatusCode, FhirVersion FhirVersion, string CorrelationId)
+    public FhirApiResult(HttpStatusCode HttpStatusCode, Common.Enums.FhirVersion FhirVersion, string CorrelationId)
     {
       this.HttpStatusCode = HttpStatusCode;
       this.FhirVersion = FhirVersion;
@@ -19,10 +19,10 @@ namespace Bug.Logic.Query.FhirApi
       this.Headers = new Dictionary<string, StringValues>();    
     }
     public HttpStatusCode HttpStatusCode { get; set; }
-    public FhirVersion FhirVersion { get; set; }
+    public Common.Enums.FhirVersion FhirVersion { get; set; }
     public string? ResourceId { get; set; }
     public int? VersionId { get; set; }    
-    public FhirResource? FhirResource { get; set; }
+    public Common.FhirTools.FhirResource? FhirResource { get; set; }
     public Dictionary<string, StringValues> Headers { get; set; }
     public string CorrelationId { get; set; }
     

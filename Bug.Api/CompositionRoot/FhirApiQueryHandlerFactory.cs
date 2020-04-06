@@ -7,6 +7,7 @@ using Bug.Logic.Query.FhirApi.HistoryBase;
 using Bug.Logic.Query.FhirApi.HistoryInstance;
 using Bug.Logic.Query.FhirApi.HistoryResource;
 using Bug.Logic.Query.FhirApi.Read;
+using Bug.Logic.Query.FhirApi.Search;
 using Bug.Logic.Query.FhirApi.Update;
 using Bug.Logic.Query.FhirApi.VRead;
 using SimpleInjector;
@@ -58,8 +59,11 @@ namespace Bug.Api.CompositionRoot
     {
       return (IQueryHandler<HistoryBaseQuery, FhirApiResult>)_container.GetInstance(typeof(IQueryHandler<HistoryBaseQuery, FhirApiResult>));
     }
+    public IQueryHandler<SearchQuery, FhirApiResult> GetSearchCommand()
+    {
+      return (IQueryHandler<SearchQuery, FhirApiResult>)_container.GetInstance(typeof(IQueryHandler<SearchQuery, FhirApiResult>));
+    }
 
-    
 
 
   }

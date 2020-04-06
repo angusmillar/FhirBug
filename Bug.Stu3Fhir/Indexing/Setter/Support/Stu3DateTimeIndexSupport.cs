@@ -114,25 +114,25 @@ namespace Bug.Stu3Fhir.Indexing.Setter.Support
 
         switch (FhirDateTimeSupport.Precision)
         {
-          case Bug.Common.DateTimeTools.FhirDateTimeSupport.DateTimePrecision.Year:
+          case Bug.Common.Enums.DateTimePrecision.Year:
             High = Low.AddYears(1).AddMilliseconds(-1);
             break;
-          case Bug.Common.DateTimeTools.FhirDateTimeSupport.DateTimePrecision.Month:
+          case Bug.Common.Enums.DateTimePrecision.Month:
             High = Low.AddMonths(1).AddMilliseconds(-1);
             break;
-          case Bug.Common.DateTimeTools.FhirDateTimeSupport.DateTimePrecision.Day:
+          case Bug.Common.Enums.DateTimePrecision.Day:
             High = Low.AddDays(1).AddMilliseconds(-1);
             break;
-          case Bug.Common.DateTimeTools.FhirDateTimeSupport.DateTimePrecision.HourMin:
+          case Bug.Common.Enums.DateTimePrecision.HourMin:
             High = Low.AddSeconds(1).AddMilliseconds(-1);
             break;
-          case Bug.Common.DateTimeTools.FhirDateTimeSupport.DateTimePrecision.Sec:
+          case Bug.Common.Enums.DateTimePrecision.Sec:
             High = Low.AddMilliseconds(999);
             break;
-          case Bug.Common.DateTimeTools.FhirDateTimeSupport.DateTimePrecision.MilliSec:
+          case Bug.Common.Enums.DateTimePrecision.MilliSec:
             High = Low.AddMilliseconds(1).AddTicks(-1);
             break;
-          case Bug.Common.DateTimeTools.FhirDateTimeSupport.DateTimePrecision.Tick:
+          case Bug.Common.Enums.DateTimePrecision.Tick:
             High = Low.AddTicks(1);
             break;
           default:

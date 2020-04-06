@@ -141,7 +141,7 @@ namespace Bug.Common.StringTools
     /// <returns></returns>
     public static bool IsEqualUri(this string left, string Uri)
     {
-      return (left.StripHttp() == Uri.StripHttp());
+      return string.Equals(left.StripHttp().TrimEnd('/'), Uri.StripHttp().TrimEnd('/'), StringComparison.OrdinalIgnoreCase);
     }
 
     public static string GetPropertyName<TValue>(Expression<Func<TValue>> propertyId)

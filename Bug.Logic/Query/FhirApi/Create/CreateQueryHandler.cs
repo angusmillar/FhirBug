@@ -5,7 +5,7 @@ using Bug.Common.FhirTools;
 using Bug.Logic.CacheService;
 using Bug.Logic.DomainModel;
 using Bug.Logic.Interfaces.Repository;
-using Bug.Logic.Service;
+using Bug.Logic.Service.Fhir;
 using Bug.Logic.Service.Indexing;
 using Bug.Logic.Service.ReferentialIntegrity;
 using Bug.Logic.Service.ValidatorService;
@@ -65,9 +65,9 @@ namespace Bug.Logic.Query.FhirApi.Create
       if (query.ResourceName is null)
         throw new ArgumentNullException(paramName: nameof(query.ResourceName));
 
-      if (!IValidateQueryService.IsValid(query, out FhirResource? IsNotValidOperationOutCome))
+      if (!IValidateQueryService.IsValid(query, out Common.FhirTools.FhirResource? IsNotValidOperationOutCome))
       {
-        return new FhirApiTransactionalResult(System.Net.HttpStatusCode.BadRequest, IsNotValidOperationOutCome!.FhirVersion, query.CorrelationId)
+        return new FhirApiTransactionalResult((System.Net.HttpStatusCode)System.Net.HttpStatusCode.BadRequest, (Common.Enums.FhirVersion)IsNotValidOperationOutCome!.FhirVersion, (string)query.CorrelationId)
         {
           ResourceId = null,
           FhirResource = IsNotValidOperationOutCome,
@@ -86,7 +86,7 @@ namespace Bug.Logic.Query.FhirApi.Create
         LastUpdated = IServerDefaultDateTimeOffSet.Now()
       };
 
-      FhirResource UpdatedFhirResource = IUpdateResourceService.Process(UpdateResource);
+      Common.FhirTools.FhirResource UpdatedFhirResource = IUpdateResourceService.Process(UpdateResource);
       byte[] ResourceBytes = IFhirResourceJsonSerializationService.SerializeToJsonBytes(UpdatedFhirResource);
 
       HttpStatusCode? HttpStatusCode = await IHttpStatusCodeCache.GetAsync(System.Net.HttpStatusCode.Created);

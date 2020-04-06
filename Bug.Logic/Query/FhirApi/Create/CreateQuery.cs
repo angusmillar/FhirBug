@@ -9,13 +9,13 @@ namespace Bug.Logic.Query.FhirApi.Create
 {  
   public class CreateQuery : FhirApiResourceQuery
   {
-    public CreateQuery(HttpVerb HttpVerb, FhirVersion FhirMajorVersion, Uri RequestUri, Dictionary<string, StringValues> HeaderDictionary, string ResourceName, FhirResource FhirResource)
-      : base(HttpVerb, FhirMajorVersion, RequestUri, HeaderDictionary, ResourceName)
+    public CreateQuery(HttpVerb HttpVerb, Common.Enums.FhirVersion FhirMajorVersion, Uri RequestUri, Dictionary<string, StringValues> RequestQuery, Dictionary<string, StringValues> HeaderDictionary, string ResourceName, Common.FhirTools.FhirResource FhirResource)
+      : base(HttpVerb, FhirMajorVersion, RequestUri, RequestQuery, HeaderDictionary, ResourceName)
     {
       this.FhirResource = FhirResource;      
     }
 
-    public FhirResource FhirResource { get; set; }
+    public Common.FhirTools.FhirResource FhirResource { get; set; }
     
   }
 }

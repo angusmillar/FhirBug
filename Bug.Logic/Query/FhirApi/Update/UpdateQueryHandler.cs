@@ -1,13 +1,12 @@
 ﻿using AutoMapper;
 using Bug.Common.Compression;
 using Bug.Common.DateTimeTools;
-using Bug.Common.Enums;
 using Bug.Common.FhirTools;
 using Bug.Logic.Attributes;
 using Bug.Logic.CacheService;
 using Bug.Logic.DomainModel;
 using Bug.Logic.Interfaces.Repository;
-using Bug.Logic.Service;
+using Bug.Logic.Service.Fhir;
 using Bug.Logic.Service.Headers;
 using Bug.Logic.Service.Indexing;
 using Bug.Logic.Service.ReferentialIntegrity;
@@ -67,9 +66,9 @@ namespace Bug.Logic.Query.FhirApi.Update
       if (query is null)
         throw new NullReferenceException();
       
-      if (!IValidateQueryService.IsValid(query, out FhirResource? IsNotValidOperationOutCome))
+      if (!IValidateQueryService.IsValid(query, out Common.FhirTools.FhirResource? IsNotValidOperationOutCome))
       {
-        return new FhirApiTransactionalResult(System.Net.HttpStatusCode.BadRequest, IsNotValidOperationOutCome!.FhirVersion, query.CorrelationId)
+        return new FhirApiTransactionalResult((System.Net.HttpStatusCode)System.Net.HttpStatusCode.BadRequest, (Common.Enums.FhirVersion)IsNotValidOperationOutCome!.FhirVersion, (string)query.CorrelationId)
         {
           ResourceId = null,
           FhirResource = IsNotValidOperationOutCome,
@@ -96,8 +95,8 @@ namespace Bug.Logic.Query.FhirApi.Update
         IResourceStoreRepository.UpdateCurrent(PreviousResourseStore);
       }
 
-      
-      FhirResource UpdatedFhirResource = IUpdateResourceService.Process(
+
+      Common.FhirTools.FhirResource UpdatedFhirResource = IUpdateResourceService.Process(
         new UpdateResource(query.FhirResource)
         {          
           VersionId = NewVersionId,

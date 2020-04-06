@@ -10,7 +10,7 @@ namespace Bug.Logic.Query.FhirApi.HistoryBase
   
   public class HistoryBaseQuery : FhirBaseApiQuery
   {
-    public HistoryBaseQuery(HttpVerb HttpVerb, FhirVersion FhirVersion, Uri RequestUri, Dictionary<string, StringValues> HeaderDictionary)
-      : base(HttpVerb, FhirVersion, RequestUri, HeaderDictionary) { }
+    public HistoryBaseQuery(HttpVerb HttpVerb, FhirVersion FhirVersion, Uri RequestUri, Dictionary<string, StringValues> RequestQuery, Dictionary<string, StringValues> HeaderDictionary)
+      : base(HttpVerb, FhirVersion, RequestUri, RequestQuery, HeaderDictionary) { }
   }
 }

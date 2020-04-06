@@ -1,16 +1,10 @@
-﻿using Bug.Common.Compression;
-using Bug.Common.Enums;
-using Bug.Common.Exceptions;
+﻿using Bug.Common.FhirTools;
 using Bug.Logic.DomainModel;
 using Bug.Logic.Interfaces.Repository;
-using Bug.Logic.Service;
+using Bug.Logic.Service.Fhir;
 using Bug.Logic.Service.ValidatorService;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Bug.Common.FhirTools.Bundle;
-using Bug.Common.FhirTools;
-using Bug.Common.DateTimeTools;
-using Bug.Logic.Service.FhirResourceService;
 
 namespace Bug.Logic.Query.FhirApi.HistoryResource
 {
@@ -39,7 +33,7 @@ namespace Bug.Logic.Query.FhirApi.HistoryResource
     public async Task<FhirApiResult> Handle(HistoryResourceQuery query)
     {
 
-      if (!IValidateQueryService.IsValid(query, out FhirResource? IsNotValidOperationOutCome))
+      if (!IValidateQueryService.IsValid(query, out Common.FhirTools.FhirResource? IsNotValidOperationOutCome))
       {
         return new FhirApiResult(System.Net.HttpStatusCode.BadRequest, IsNotValidOperationOutCome!.FhirVersion, query.CorrelationId)
         {
