@@ -71,7 +71,19 @@ namespace Bug.Logic.Service.SearchQuery.SearchQueryEntity
             {
               TokenSearchType = SearchQueryTokenValue.TokenSearchType.MatchCodeAndSystem;
             }
-            this.ValueList.Add(new SearchQueryTokenValue(false, TokenSearchType, Code, System));
+
+            if (!string.IsNullOrWhiteSpace(Code) && !string.IsNullOrWhiteSpace(System))
+            {
+              this.ValueList.Add(new SearchQueryTokenValue(false, TokenSearchType, Code, System));
+            }
+            else if (!string.IsNullOrWhiteSpace(System))
+            {
+              this.ValueList.Add(new SearchQueryTokenValue(false, TokenSearchType, null, System));
+            }
+            else if (string.IsNullOrWhiteSpace(Code))
+            {
+              this.ValueList.Add(new SearchQueryTokenValue(false, TokenSearchType, Code, null));
+            }
           }
           else
           {

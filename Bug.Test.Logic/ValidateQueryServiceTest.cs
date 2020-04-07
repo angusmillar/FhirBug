@@ -27,8 +27,8 @@ namespace Bug.Test.Logic
   public class ValidateQueryServiceTest
   {
     [Theory]
-    [InlineData(Common.Enums.FhirVersion.Stu3, "Patient", "10")]
-    [InlineData(Common.Enums.FhirVersion.R4, "Patient", "10")]
+    [InlineData(Common.Enums.FhirVersion.Stu3, "Patient", "")]
+    [InlineData(Common.Enums.FhirVersion.R4, "Patient", "")]
     public void CreateQueryTest(Common.Enums.FhirVersion fhirVersion, string resourceName, string resourceId)
     {
       //Setup

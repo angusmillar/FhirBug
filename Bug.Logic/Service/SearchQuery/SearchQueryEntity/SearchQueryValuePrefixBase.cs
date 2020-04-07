@@ -54,7 +54,7 @@ namespace Bug.Logic.Service.SearchQuery.SearchQueryEntity
       {
         if (value.Length > 2)
         {
-          return value.Substring(0, prefix.GetCode().Length);
+          return value.Substring(prefix.GetCode().Length, value.Length - prefix.GetCode().Length);
         }
         else
         {

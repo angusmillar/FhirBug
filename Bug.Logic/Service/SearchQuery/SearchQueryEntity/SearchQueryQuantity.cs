@@ -1,10 +1,12 @@
-﻿using Bug.Common.Enums;
+﻿using Bug.Common.DecimalTools;
+using Bug.Common.Enums;
 using Bug.Common.StringTools;
 using Bug.Logic.DomainModel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using static Bug.Common.DecimalTools.DecimalSupport;
 
 namespace Bug.Logic.Service.SearchQuery.SearchQueryEntity
 { 
@@ -74,19 +76,20 @@ namespace Bug.Logic.Service.SearchQuery.SearchQueryEntity
             this.InvalidMessage = $"The search parameter had an unsupported prefix of '{Prefix.Value.GetCode()}'. ";
             return false;
           }
-          string NumberAsString = SearchQueryDateTimeValue.RemovePrefix(Split[0], Prefix);
+          string NumberAsString = SearchQueryDateTimeValue.RemovePrefix(Split[0], Prefix).Trim();
           if (Split.Count() == 1)
           {
-            decimal TempDouble;
-            if (Decimal.TryParse(NumberAsString, out TempDouble))
+            decimal TempDecimal;
+            if (Decimal.TryParse(NumberAsString, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out TempDecimal))
             {
+              DecimalInfo DecimalInfo = DecimalSupport.GetDecimalInfo(TempDecimal);
               var DtoSearchParameterNumber = new SearchQueryQuantityValue(false,
                 Prefix,
                 null, 
-                null, 
-                StringSupport.GetPrecisionFromDecimal(NumberAsString), 
-                StringSupport.GetScaleFromDecimal(NumberAsString), 
-                TempDouble);
+                null,
+                DecimalInfo.Precision,
+                DecimalInfo.Scale,
+                TempDecimal);
               this.ValueList.Add(DtoSearchParameterNumber);
             }
             else
@@ -97,8 +100,8 @@ namespace Bug.Logic.Service.SearchQuery.SearchQueryEntity
           }
           else if (Split.Count() == 2)
           {
-            decimal TempDouble;
-            if (Decimal.TryParse(NumberAsString, out TempDouble))
+            decimal TempDecimal;
+            if (Decimal.TryParse(NumberAsString, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out TempDecimal))
             {
               string? System;
               if (!string.IsNullOrWhiteSpace(Split[1].Trim()))
@@ -109,14 +112,14 @@ namespace Bug.Logic.Service.SearchQuery.SearchQueryEntity
               {
                 System = null;
               }
-              
+              DecimalInfo DecimalInfo = DecimalSupport.GetDecimalInfo(TempDecimal);
               var DtoSearchParameterNumber = new SearchQueryQuantityValue(false,
                 Prefix,
                 System,
                 null,
-                StringSupport.GetPrecisionFromDecimal(NumberAsString),
-                StringSupport.GetScaleFromDecimal(NumberAsString),
-                TempDouble);
+                DecimalInfo.Precision,
+                DecimalInfo.Scale,
+                TempDecimal);
 
               this.ValueList.Add(DtoSearchParameterNumber);
             }
@@ -127,9 +130,9 @@ namespace Bug.Logic.Service.SearchQuery.SearchQueryEntity
             }
           }
           else if (Split.Count() == 3)
-          {             
-            decimal TempDouble;
-            if (Decimal.TryParse(NumberAsString, out TempDouble))
+          {            
+            decimal TempDecimal;
+            if (Decimal.TryParse(NumberAsString, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out TempDecimal))
             {
               string? System = null;
               if (!string.IsNullOrWhiteSpace(Split[1].Trim()))
@@ -142,14 +145,14 @@ namespace Bug.Logic.Service.SearchQuery.SearchQueryEntity
               {
                 Code = Split[2].Trim();
               }
-              
+              DecimalInfo DecimalInfo = DecimalSupport.GetDecimalInfo(TempDecimal);
               var DtoSearchParameterNumber = new SearchQueryQuantityValue(false,
                 Prefix,
                 System,
                 Code,
-                StringSupport.GetPrecisionFromDecimal(NumberAsString),
-                StringSupport.GetScaleFromDecimal(NumberAsString),
-                TempDouble);
+                DecimalInfo.Precision,
+                DecimalInfo.Scale,
+                TempDecimal);
 
               this.ValueList.Add(DtoSearchParameterNumber);
             }
@@ -171,7 +174,8 @@ namespace Bug.Logic.Service.SearchQuery.SearchQueryEntity
       else
         return true;
     }
-    
 
+
+ 
   }
 }

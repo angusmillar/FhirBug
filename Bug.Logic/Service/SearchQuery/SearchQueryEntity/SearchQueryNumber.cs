@@ -1,4 +1,5 @@
-﻿using Bug.Common.Enums;
+﻿using Bug.Common.DecimalTools;
+using Bug.Common.Enums;
 using Bug.Common.FhirTools;
 using Bug.Common.StringTools;
 using Bug.Logic.DomainModel;
@@ -60,14 +61,15 @@ namespace Bug.Logic.Service.SearchQuery.SearchQueryEntity
             return false;
           }
 
-          string Number = SearchQueryDateTimeValue.RemovePrefix(Value, Prefix);                    
-          if (Decimal.TryParse(Number, out TempDouble))
+          string NumberAsString = SearchQueryDateTimeValue.RemovePrefix(Value, Prefix);
+          if (Decimal.TryParse(NumberAsString, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out decimal TempDecimal))
           {
+            var DecimalInfo = DecimalSupport.GetDecimalInfo(TempDecimal);
             var SearchQueryNumberValue = new SearchQueryNumberValue(false,
               Prefix,
-              StringSupport.GetPrecisionFromDecimal(Number), 
-              StringSupport.GetScaleFromDecimal(Number),
-              TempDouble);
+              DecimalInfo.Precision,
+              DecimalInfo.Scale,
+              TempDecimal);
             this.ValueList.Add(SearchQueryNumberValue);
           }
           else

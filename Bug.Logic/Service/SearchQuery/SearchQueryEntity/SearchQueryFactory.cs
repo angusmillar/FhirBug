@@ -60,8 +60,7 @@ namespace Bug.Logic.Service.SearchQuery.SearchQueryEntity
         else if (SearchQueryBase.SearchParamTypeId == Common.Enums.SearchParamType.Composite)
         {
           if (SearchQueryBase is SearchQueryComposite SearchQueryComposite)
-          {
-            
+          {            
             List<Bug.Logic.DomainModel.SearchParameter> SearchParameterList = await ISearchParameterCache.GetForIndexingAsync(searchParameter.FhirVersionId, ResourceContext);
             List<ISearchQueryBase> SearchParameterBaseList = new List<ISearchQueryBase>();
             
@@ -94,7 +93,6 @@ namespace Bug.Logic.Service.SearchQuery.SearchQueryEntity
           {
             throw new InvalidCastException($"Unable to cast a {nameof(SearchQueryBase)} to {typeof(SearchQueryComposite).Name} when the {nameof(SearchQueryBase)}.{nameof(SearchQueryBase.SearchParamTypeId)} = {SearchQueryBase.SearchParamTypeId.GetCode()}");
           }
-
         }
         else
         {

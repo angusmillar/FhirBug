@@ -24,35 +24,72 @@ using Bug.Common.Enums;
 
 namespace Bug.Test.Logic
 {
+  
   public class SearchQueryFactoryTest
   {
     private Mock<ISearchParameterCache>? ISearchParameterCacheMock;
     private ISearchQueryFactory? SearchQueryFactory;
 
     [Theory]
+    //String
     [InlineData(Common.Enums.FhirVersion.R4, Common.Enums.ResourceType.Patient, Common.Enums.SearchParamType.String, "family", "Millar")]
     [InlineData(Common.Enums.FhirVersion.Stu3, Common.Enums.ResourceType.Patient, Common.Enums.SearchParamType.String, "family", "Millar")]
-
     [InlineData(Common.Enums.FhirVersion.R4, Common.Enums.ResourceType.Patient, Common.Enums.SearchParamType.String, "family", "Millar,Smith")]
     [InlineData(Common.Enums.FhirVersion.Stu3, Common.Enums.ResourceType.Patient, Common.Enums.SearchParamType.String, "family", "Millar,Smith")]
-
+    
+    //Reference
     [InlineData(Common.Enums.FhirVersion.R4, Common.Enums.ResourceType.Observation, Common.Enums.SearchParamType.Reference, "subject", "Patient/11")]
-    [InlineData(Common.Enums.FhirVersion.Stu3, Common.Enums.ResourceType.Observation, Common.Enums.SearchParamType.Reference, "subject", "Device/22")]
-
     [InlineData(Common.Enums.FhirVersion.R4, Common.Enums.ResourceType.Observation, Common.Enums.SearchParamType.Reference, "subject", TestData.BaseUrlRemote + "/Patient/11")]
     [InlineData(Common.Enums.FhirVersion.Stu3, Common.Enums.ResourceType.Observation, Common.Enums.SearchParamType.Reference, "subject", TestData.BaseUrlRemote + "/Patient/11")]
-
     [InlineData(Common.Enums.FhirVersion.R4, Common.Enums.ResourceType.Observation, Common.Enums.SearchParamType.Reference, "subject", TestData.BaseUrlServer + "/Patient/11")]
     [InlineData(Common.Enums.FhirVersion.Stu3, Common.Enums.ResourceType.Observation, Common.Enums.SearchParamType.Reference, "subject", TestData.BaseUrlServer + "/Patient/11")]
-
     [InlineData(Common.Enums.FhirVersion.R4, Common.Enums.ResourceType.Observation, Common.Enums.SearchParamType.Reference, "encounter", "11")]
     [InlineData(Common.Enums.FhirVersion.Stu3, Common.Enums.ResourceType.Observation, Common.Enums.SearchParamType.Reference, "encounter", "22")]
 
-    [InlineData(Common.Enums.FhirVersion.R4, Common.Enums.ResourceType.Observation, Common.Enums.SearchParamType.Token, "code", "System|Code")]
-    [InlineData(Common.Enums.FhirVersion.Stu3, Common.Enums.ResourceType.Observation, Common.Enums.SearchParamType.Token, "code", "System|Code")]
+    //Token
+    [InlineData(Common.Enums.FhirVersion.R4, Common.Enums.ResourceType.Observation, Common.Enums.SearchParamType.Token, "code", "system|code")]
+    [InlineData(Common.Enums.FhirVersion.Stu3, Common.Enums.ResourceType.Observation, Common.Enums.SearchParamType.Token, "code", "system|code")]
+    [InlineData(Common.Enums.FhirVersion.Stu3, Common.Enums.ResourceType.Observation, Common.Enums.SearchParamType.Token, "code", "code")]
+    [InlineData(Common.Enums.FhirVersion.Stu3, Common.Enums.ResourceType.Observation, Common.Enums.SearchParamType.Token, "code", "system|")]
 
+    //Composite
     [InlineData(Common.Enums.FhirVersion.R4, Common.Enums.ResourceType.Observation, Common.Enums.SearchParamType.Composite, "code-value-concept", "SystemOne|CodeOne$SystemTwo|CodeTwo")]
     [InlineData(Common.Enums.FhirVersion.Stu3, Common.Enums.ResourceType.Observation, Common.Enums.SearchParamType.Composite, "code-value-concept", "SystemOne|CodeOne$SystemTwo|CodeTwo")]
+    
+    //Quantity
+    [InlineData(Common.Enums.FhirVersion.R4, Common.Enums.ResourceType.Observation, Common.Enums.SearchParamType.Quantity, "value-quantity", "5.4|http://unitsofmeasure.org|mg")]
+    [InlineData(Common.Enums.FhirVersion.Stu3, Common.Enums.ResourceType.Observation, Common.Enums.SearchParamType.Quantity, "value-quantity", "5.4|http://unitsofmeasure.org|mg")]
+    [InlineData(Common.Enums.FhirVersion.R4, Common.Enums.ResourceType.Observation, Common.Enums.SearchParamType.Quantity, "value-quantity", "5.40e-3|http://unitsofmeasure.org|g")]
+    [InlineData(Common.Enums.FhirVersion.Stu3, Common.Enums.ResourceType.Observation, Common.Enums.SearchParamType.Quantity, "value-quantity", "5.40e-3|http://unitsofmeasure.org|g")]
+    [InlineData(Common.Enums.FhirVersion.R4, Common.Enums.ResourceType.Observation, Common.Enums.SearchParamType.Quantity, "value-quantity", "5.40e+10|http://unitsofmeasure.org|g")]
+    [InlineData(Common.Enums.FhirVersion.Stu3, Common.Enums.ResourceType.Observation, Common.Enums.SearchParamType.Quantity, "value-quantity", "5.40e+10|http://unitsofmeasure.org|g")]
+    [InlineData(Common.Enums.FhirVersion.R4, Common.Enums.ResourceType.Observation, Common.Enums.SearchParamType.Quantity, "value-quantity", "-5.40e+10|http://unitsofmeasure.org|g")]
+    [InlineData(Common.Enums.FhirVersion.Stu3, Common.Enums.ResourceType.Observation, Common.Enums.SearchParamType.Quantity, "value-quantity", "-5.40e+10|http://unitsofmeasure.org|g")]
+    
+    //Date
+    [InlineData(Common.Enums.FhirVersion.R4, Common.Enums.ResourceType.Observation, Common.Enums.SearchParamType.Date, "date", "2020")]
+    [InlineData(Common.Enums.FhirVersion.Stu3, Common.Enums.ResourceType.Observation, Common.Enums.SearchParamType.Date, "date", "2020")]
+    [InlineData(Common.Enums.FhirVersion.R4, Common.Enums.ResourceType.Observation, Common.Enums.SearchParamType.Date, "date", "2020-04")]
+    [InlineData(Common.Enums.FhirVersion.Stu3, Common.Enums.ResourceType.Observation, Common.Enums.SearchParamType.Date, "date", "2020-04")]
+    [InlineData(Common.Enums.FhirVersion.R4, Common.Enums.ResourceType.Observation, Common.Enums.SearchParamType.Date, "date", "2020-04-07")]
+    [InlineData(Common.Enums.FhirVersion.Stu3, Common.Enums.ResourceType.Observation, Common.Enums.SearchParamType.Date, "date", "2020-04-07")]
+    [InlineData(Common.Enums.FhirVersion.R4, Common.Enums.ResourceType.Observation, Common.Enums.SearchParamType.Date, "date", "gt2020-04-07")]
+    [InlineData(Common.Enums.FhirVersion.Stu3, Common.Enums.ResourceType.Observation, Common.Enums.SearchParamType.Date, "date", "gt2020-04-07")]
+    [InlineData(Common.Enums.FhirVersion.R4, Common.Enums.ResourceType.Observation, Common.Enums.SearchParamType.Date, "date", "2020-04-07T10:00")]
+    [InlineData(Common.Enums.FhirVersion.Stu3, Common.Enums.ResourceType.Observation, Common.Enums.SearchParamType.Date, "date", "2020-04-07T10:00")]
+    [InlineData(Common.Enums.FhirVersion.R4, Common.Enums.ResourceType.Observation, Common.Enums.SearchParamType.Date, "date", "2020-04-07T10:00:10")]
+    [InlineData(Common.Enums.FhirVersion.Stu3, Common.Enums.ResourceType.Observation, Common.Enums.SearchParamType.Date, "date", "2020-04-07T10:00:10")]
+    [InlineData(Common.Enums.FhirVersion.R4, Common.Enums.ResourceType.Observation, Common.Enums.SearchParamType.Date, "date", "2020-04-07T10:00:10+05:00")]
+    [InlineData(Common.Enums.FhirVersion.Stu3, Common.Enums.ResourceType.Observation, Common.Enums.SearchParamType.Date, "date", "2020-04-07T10:00:10+05:00")]
+
+    //Number
+    [InlineData(Common.Enums.FhirVersion.Stu3, Common.Enums.ResourceType.RiskAssessment, Common.Enums.SearchParamType.Number, "probability", "100")]
+    [InlineData(Common.Enums.FhirVersion.R4, Common.Enums.ResourceType.RiskAssessment, Common.Enums.SearchParamType.Number, "probability", "100.00")]
+    [InlineData(Common.Enums.FhirVersion.Stu3, Common.Enums.ResourceType.RiskAssessment, Common.Enums.SearchParamType.Number, "probability", "lt100")]
+    [InlineData(Common.Enums.FhirVersion.R4, Common.Enums.ResourceType.RiskAssessment, Common.Enums.SearchParamType.Number, "probability", "gt100")]
+    //Uri
+    [InlineData(Common.Enums.FhirVersion.R4, Common.Enums.ResourceType.CodeSystem, Common.Enums.SearchParamType.Uri, "url", "http://somerandom/url/to/somewhere")]
+    [InlineData(Common.Enums.FhirVersion.Stu3, Common.Enums.ResourceType.CodeSystem, Common.Enums.SearchParamType.Uri, "url", "http://somerandom/url/to/somewhere")]
 
     public void TestQueryTypesPositive(Common.Enums.FhirVersion fhirVersion, Common.Enums.ResourceType ResourceContext, Common.Enums.SearchParamType SearchParamType, string searchParameterName, string queryValue)
     {
@@ -148,7 +185,6 @@ namespace Bug.Test.Logic
           Assert.Equal(queryValue.Split('/')[0], SearchQueryReference.ValueList[0].FhirUri!.ResourseName);
           Assert.Equal(queryValue.Split('/')[1], SearchQueryReference.ValueList[0].FhirUri!.ResourceId);
         }
-        
         else
         {
           Assert.Equal(Common.Enums.ResourceType.Encounter.GetCode(), SearchQueryReference.ValueList[0].FhirUri!.ResourseName);
@@ -157,8 +193,135 @@ namespace Bug.Test.Logic
       }
       else if (SearchQueryResult is SearchQueryToken SearchQueryToken)
       {
-        Assert.Equal(queryValue.Split('|')[0], SearchQueryToken.ValueList[0].System);
-        Assert.Equal(queryValue.Split('|')[1], SearchQueryToken.ValueList[0].Code);
+        if (queryValue.StartsWith("code"))
+        {
+          Assert.Null(SearchQueryToken.ValueList[0].System);
+          Assert.Equal(queryValue, SearchQueryToken.ValueList[0].Code);
+        }
+        else if (queryValue.EndsWith("|"))
+        {
+          Assert.Null(SearchQueryToken.ValueList[0].Code);
+          Assert.Equal(queryValue.TrimEnd('|'), SearchQueryToken.ValueList[0].System);
+        }
+        else
+        {
+          Assert.Equal(queryValue.Split('|')[0], SearchQueryToken.ValueList[0].System);
+          Assert.Equal(queryValue.Split('|')[1], SearchQueryToken.ValueList[0].Code);
+          
+        }
+
+      }
+      else if (SearchQueryResult is SearchQueryQuantity SearchQueryQuantity)
+      {
+        Assert.Equal(queryValue.Split('|')[1], SearchQueryQuantity.ValueList[0].System);
+        Assert.Equal(queryValue.Split('|')[2], SearchQueryQuantity.ValueList[0].Code);
+        if (queryValue.Split('|')[0].Contains("e+10") && queryValue.Split('|')[0].StartsWith('-'))
+        {
+          Assert.Equal(-54000000000m, SearchQueryQuantity.ValueList[0].Value);
+          Assert.Equal(0, SearchQueryQuantity.ValueList[0].Scale);
+          Assert.Equal(11, SearchQueryQuantity.ValueList[0].Precision);
+        }
+        else if (queryValue.Split('|')[0].Contains("e-3"))
+        {
+          Assert.Equal(0.00540m, SearchQueryQuantity.ValueList[0].Value);
+          Assert.Equal(5, SearchQueryQuantity.ValueList[0].Scale);
+          Assert.Equal(5, SearchQueryQuantity.ValueList[0].Precision);
+        }
+        else if (queryValue.Split('|')[0].Contains("e+10"))
+        {
+          Assert.Equal(54000000000m, SearchQueryQuantity.ValueList[0].Value);
+          Assert.Equal(0, SearchQueryQuantity.ValueList[0].Scale);
+          Assert.Equal(11, SearchQueryQuantity.ValueList[0].Precision);
+        }
+        else
+        {
+          Assert.Equal(Decimal.Parse(queryValue.Split('|')[0]), SearchQueryQuantity.ValueList[0].Value);
+          Assert.Equal(1, SearchQueryQuantity.ValueList[0].Scale);
+          Assert.Equal(2, SearchQueryQuantity.ValueList[0].Precision);
+        }
+
+      }
+      else if (SearchQueryResult is SearchQueryNumber SearchQueryNumber)
+      {
+        if (queryValue.StartsWith("gt"))
+        {
+          Assert.Equal(100, SearchQueryNumber.ValueList[0].Value);
+          Assert.Equal(0, SearchQueryNumber.ValueList[0].Scale);
+          Assert.Equal(3, SearchQueryNumber.ValueList[0].Precision);
+          Assert.Equal(SearchComparator.Gt, SearchQueryNumber.ValueList[0].Prefix);
+        }
+        else if (queryValue.StartsWith("lt"))
+        {
+          Assert.Equal(100, SearchQueryNumber.ValueList[0].Value);
+          Assert.Equal(0, SearchQueryNumber.ValueList[0].Scale);
+          Assert.Equal(3, SearchQueryNumber.ValueList[0].Precision);
+          Assert.Equal(SearchComparator.Lt, SearchQueryNumber.ValueList[0].Prefix);
+        }
+        else if (queryValue == "100")
+        {
+          Assert.Equal(100, SearchQueryNumber.ValueList[0].Value);
+          Assert.Equal(0, SearchQueryNumber.ValueList[0].Scale);
+          Assert.Equal(3, SearchQueryNumber.ValueList[0].Precision);
+          Assert.Null(SearchQueryNumber.ValueList[0].Prefix);
+        }
+        else if (queryValue == "100.00")
+        {
+          Assert.Equal(100.00m, SearchQueryNumber.ValueList[0].Value);
+          Assert.Equal(2, SearchQueryNumber.ValueList[0].Scale);
+          Assert.Equal(5, SearchQueryNumber.ValueList[0].Precision);
+          Assert.Null(SearchQueryNumber.ValueList[0].Prefix);
+        }
+
+      }
+      else if (SearchQueryResult is SearchQueryDateTime SearchQueryDateTime)
+      {
+        if (queryValue.StartsWith("gt"))
+        {
+          var testDate = new DateTimeOffset(new DateTime(2020, 04, 07), TimeSpan.FromHours(10));
+          Assert.Equal(testDate.ToUniversalTime(), SearchQueryDateTime.ValueList[0].Value);
+          Assert.Equal(DateTimePrecision.Day, SearchQueryDateTime.ValueList[0].Precision);
+          Assert.Equal(SearchComparator.Gt, SearchQueryDateTime.ValueList[0].Prefix);
+        }
+        else if (queryValue.Length == 16)
+        {
+          var testDate = new DateTimeOffset(new DateTime(2020, 04, 07, 10, 00, 00), TimeSpan.FromHours(10));
+          Assert.Equal(testDate.ToUniversalTime(), SearchQueryDateTime.ValueList[0].Value);
+          Assert.Equal(DateTimePrecision.HourMin, SearchQueryDateTime.ValueList[0].Precision);
+        }
+        else if (queryValue.Length == 4)
+        {
+          var testDate = new DateTimeOffset(new DateTime(2020, 01, 01), TimeSpan.FromHours(10));
+          Assert.Equal(testDate.ToUniversalTime(), SearchQueryDateTime.ValueList[0].Value);
+          Assert.Equal(DateTimePrecision.Year, SearchQueryDateTime.ValueList[0].Precision);
+        }
+        else if (queryValue.Length == 7)
+        {
+          var testDate = new DateTimeOffset(new DateTime(2020, 04, 01), TimeSpan.FromHours(10));
+          Assert.Equal(testDate.ToUniversalTime(), SearchQueryDateTime.ValueList[0].Value);
+          Assert.Equal(DateTimePrecision.Month, SearchQueryDateTime.ValueList[0].Precision);
+        }
+        else if (queryValue.Length == 10)
+        {
+          var testDate = new DateTimeOffset(new DateTime(2020, 04, 07), TimeSpan.FromHours(10));
+          Assert.Equal(testDate.ToUniversalTime(), SearchQueryDateTime.ValueList[0].Value);
+          Assert.Equal(DateTimePrecision.Day, SearchQueryDateTime.ValueList[0].Precision);
+        }
+        else if (queryValue.Length == 19)
+        {
+          var testDate = new DateTimeOffset(new DateTime(2020, 04, 07, 10, 00, 10), TimeSpan.FromHours(10));
+          Assert.Equal(testDate.ToUniversalTime(), SearchQueryDateTime.ValueList[0].Value);
+          Assert.Equal(DateTimePrecision.Sec, SearchQueryDateTime.ValueList[0].Precision);
+        }
+        else if (queryValue.Length == 25)
+        {
+          var testDate = new DateTimeOffset(new DateTime(2020, 04, 07, 10, 00, 10), TimeSpan.FromHours(5));
+          Assert.Equal(testDate.ToUniversalTime(), SearchQueryDateTime.ValueList[0].Value);
+          Assert.Equal(DateTimePrecision.Sec, SearchQueryDateTime.ValueList[0].Precision);
+        }
+      }
+      else if (SearchQueryResult is SearchQueryUri SearchQueryUri)
+      {
+        Assert.Equal(new Uri(queryValue), SearchQueryUri.ValueList[0].Value);
       }
       else
       {
@@ -168,7 +331,6 @@ namespace Bug.Test.Logic
 
     [Theory]
     [InlineData("11")]
-
     public void TestCompositeType(string Thing)
     {
       //Prepare
@@ -205,188 +367,10 @@ namespace Bug.Test.Logic
 
     private void Setup()
     {
-      Bug.Common.Interfaces.IFhirUriFactory IFhirUriFactory = GetFhirUriFactory(TestData.BaseUrlServer, new string[]
-      {
-      Common.Enums.ResourceType.Observation.GetCode(),
-      Common.Enums.ResourceType.Patient.GetCode(),
-      Common.Enums.ResourceType.Device.GetCode(),
-      Common.Enums.ResourceType.Encounter.GetCode()
-      });
-
-      IResourceTypeSupport IResourceTypeSupport = new ResourceTypeSupport();
-      ISearchParameterCacheMock = ISearchParameterCache_MockFactory.Get(GetSearchParameterList(Common.Enums.FhirVersion.Stu3), GetSearchParameterList(Common.Enums.FhirVersion.R4));
-      Mock<IKnownResource> IKnownResourceMock = IKnownResource_MockFactory.Get();
-      SearchQueryFactory = new SearchQueryFactory(IFhirUriFactory, IResourceTypeSupport, ISearchParameterCacheMock.Object, IKnownResourceMock.Object);
-    }
-
-    private static FhirUriFactory GetFhirUriFactory(string ServersBaseServiceRoot, string[] validResourceNameList)
-    {
-      Mock<IServiceBaseUrlConfi> IServiceBaseUrlMock = IServiceBaseUrl_MockFactory.Get(ServersBaseServiceRoot, ServersBaseServiceRoot);
-      Mock<IR4ValidateResourceName> IR4ValidateResourceNameMock = IR4ValidateResourceName_MockFactory.Get(validResourceNameList);
-      Mock<IStu3ValidateResourceName> IStu3ValidateResourceNameMock = IStu3ValidateResourceName_MockFactory.Get(validResourceNameList);
-      Mock<IValidateResourceNameFactory> IValidateResourceNameFactoryMock = IValidateResourceNameFactory_MockFactory.Get(IStu3ValidateResourceNameMock.Object, IR4ValidateResourceNameMock.Object);
-
-      FhirUriFactory FhirUriFactory = new FhirUriFactory(IServiceBaseUrlMock.Object, IValidateResourceNameFactoryMock.Object);
-      return FhirUriFactory;
-    }
-
-    private static List<SearchParameter> GetSearchParameterList(Bug.Common.Enums.FhirVersion fhirVersion)
-    {
-      return new List<SearchParameter>()
-        {
-          new SearchParameter()
-          {
-             Id = 1,
-             Name = "code",
-             Description = "Bla bla bla",
-             FhirPath = "AllergyIntolerance.code | AllergyIntolerance.reaction.substance | Condition.code | (DeviceRequest.code as CodeableConcept) | DiagnosticReport.code | FamilyMemberHistory.condition.code | List.code | Medication.code | (MedicationAdministration.medication as CodeableConcept) | (MedicationDispense.medication as CodeableConcept) | (MedicationRequest.medication as CodeableConcept) | (MedicationStatement.medication as CodeableConcept) | Observation.code | Procedure.code | ServiceRequest.code",
-             Url = "http://hl7.org/fhir/SearchParameter/clinical-code",
-             SearchParamTypeId = Common.Enums.SearchParamType.Token,
-             FhirVersionId = fhirVersion,
-             ResourceTypeList = new List<SearchParameterResourceType>()
-             {
-               new SearchParameterResourceType() { Id = 1, ResourceTypeId = Common.Enums.ResourceType.Observation},
-               new SearchParameterResourceType() { Id = 1, ResourceTypeId = Common.Enums.ResourceType.DiagnosticReport},
-               new SearchParameterResourceType() { Id = 1, ResourceTypeId = Common.Enums.ResourceType.Medication}
-             },
-             TargetResourceTypeList = new List<SearchParameterTargetResourceType>()
-             { 
-               //new SearchParameterTargetResourceType() { ResourceTypeId = Common.Enums.ResourceType.Organization } 
-             },
-             ComponentList = new List<SearchParameterComponent>()
-             {
-               //new SearchParameterComponent() {  Id = 1,  Expression = "Expression", Definition= "Url Definition" } 
-             },
-             Created = System.DateTime.Now,
-             Updated = System.DateTime.Now
-          },
-          new SearchParameter()
-          {
-             Id = 2,
-             Name = "value-concept",
-             Description = "Bla bla bla",
-             FhirPath = "(Observation.value as CodeableConcept)",
-             Url = "http://hl7.org/fhir/SearchParameter/Observation-value-concept",
-             SearchParamTypeId = Common.Enums.SearchParamType.Token,
-             FhirVersionId = fhirVersion,
-             ResourceTypeList = new List<SearchParameterResourceType>()
-             {
-               new SearchParameterResourceType() { Id = 1, ResourceTypeId = Common.Enums.ResourceType.Observation},
-             },
-             TargetResourceTypeList = new List<SearchParameterTargetResourceType>()
-             { 
-               //new SearchParameterTargetResourceType() { ResourceTypeId = Common.Enums.ResourceType.Organization } 
-             },
-             ComponentList = new List<SearchParameterComponent>()
-             {
-               //new SearchParameterComponent() {  Id = 1,  Expression = "Expression", Definition= "Url Definition" } 
-             },
-             Created = System.DateTime.Now,
-             Updated = System.DateTime.Now
-          },
-          new SearchParameter()
-          {
-             Id = 3,
-             Name = "code-value-concept",
-             Description = "Bla bla bla",
-             FhirPath = "Observation",
-             Url = "http://hl7.org/fhir/SearchParameter/Observation-code-value-concept",
-             SearchParamTypeId = Common.Enums.SearchParamType.Composite,
-             FhirVersionId = fhirVersion,
-             ResourceTypeList = new List<SearchParameterResourceType>()
-             {
-               new SearchParameterResourceType() { Id = 1, ResourceTypeId = Common.Enums.ResourceType.Observation},
-             },
-             TargetResourceTypeList = new List<SearchParameterTargetResourceType>()
-             { 
-               //new SearchParameterTargetResourceType() { ResourceTypeId = Common.Enums.ResourceType.Organization } 
-             },
-             ComponentList = new List<SearchParameterComponent>()
-             {
-               new SearchParameterComponent() {  Id = 1,  Expression = "code", Definition= "http://hl7.org/fhir/SearchParameter/clinical-code" },
-               new SearchParameterComponent() {  Id = 1,  Expression = "value.as(CodeableConcept)", Definition= "http://hl7.org/fhir/SearchParameter/Observation-value-concept" }
-             },
-             Created = System.DateTime.Now,
-             Updated = System.DateTime.Now
-          },
-          new SearchParameter()
-          {
-             Id = 4,
-             Name = "family",
-             Description = "Bla bla bla",
-             FhirPath = "Patient.name.family | Practitioner.name.family",
-             Url = "http://hl7.org/fhir/SearchParameter/individual-family",
-             SearchParamTypeId = Common.Enums.SearchParamType.String,
-             FhirVersionId = fhirVersion,
-             ResourceTypeList = new List<SearchParameterResourceType>()
-             {
-               new SearchParameterResourceType() { Id = 1, ResourceTypeId = Common.Enums.ResourceType.Patient},
-               new SearchParameterResourceType() { Id = 1, ResourceTypeId = Common.Enums.ResourceType.Practitioner},
-             },
-             TargetResourceTypeList = new List<SearchParameterTargetResourceType>()
-             { 
-               //new SearchParameterTargetResourceType() { ResourceTypeId = Common.Enums.ResourceType.Organization } 
-             },
-             ComponentList = new List<SearchParameterComponent>()
-             {
-               //new SearchParameterComponent() {  Id = 1,  Expression = "code", Definition= "http://hl7.org/fhir/SearchParameter/clinical-code" },               
-             },
-             Created = System.DateTime.Now,
-             Updated = System.DateTime.Now
-          },
-          new SearchParameter()
-          {
-             Id = 5,
-             Name = "subject",
-             Description = "Bla bla bla",
-             FhirPath = "Observation.subject",
-             Url = "http://hl7.org/fhir/SearchParameter/Observation-subject",
-             SearchParamTypeId = Common.Enums.SearchParamType.Reference,
-             FhirVersionId = fhirVersion,
-             ResourceTypeList = new List<SearchParameterResourceType>()
-             {
-               new SearchParameterResourceType() { Id = 1, ResourceTypeId = Common.Enums.ResourceType.Observation},
-             },
-             TargetResourceTypeList = new List<SearchParameterTargetResourceType>()
-             {
-               new SearchParameterTargetResourceType() { Id = 1, ResourceTypeId = Common.Enums.ResourceType.Group},
-               new SearchParameterTargetResourceType() { Id = 1, ResourceTypeId = Common.Enums.ResourceType.Device},
-               new SearchParameterTargetResourceType() { Id = 1, ResourceTypeId = Common.Enums.ResourceType.Patient},
-               new SearchParameterTargetResourceType() { Id = 1, ResourceTypeId = Common.Enums.ResourceType.Location},
-             },
-             ComponentList = new List<SearchParameterComponent>()
-             {
-               //new SearchParameterComponent() {  Id = 1,  Expression = "code", Definition= "http://hl7.org/fhir/SearchParameter/clinical-code" },               
-             },
-             Created = System.DateTime.Now,
-             Updated = System.DateTime.Now
-          },
-          new SearchParameter()
-          {
-             Id = 6,
-             Name = "encounter",
-             Description = "Bla bla bla",
-             FhirPath = "Composition.encounter | DeviceRequest.encounter | DiagnosticReport.encounter | DocumentReference.context.encounter | Flag.encounter | List.encounter | NutritionOrder.encounter | Observation.encounter | Procedure.encounter | RiskAssessment.encounter | ServiceRequest.encounter | VisionPrescription.encounter",
-             Url = "http://hl7.org/fhir/SearchParameter/clinical-encounter",
-             SearchParamTypeId = Common.Enums.SearchParamType.Reference,
-             FhirVersionId = fhirVersion,
-             ResourceTypeList = new List<SearchParameterResourceType>()
-             {
-               new SearchParameterResourceType() { Id = 1, ResourceTypeId = Common.Enums.ResourceType.Observation},
-               new SearchParameterResourceType() { Id = 1, ResourceTypeId = Common.Enums.ResourceType.Procedure},
-             },
-             TargetResourceTypeList = new List<SearchParameterTargetResourceType>()
-             {
-               new SearchParameterTargetResourceType() { Id = 1, ResourceTypeId = Common.Enums.ResourceType.Encounter}
-             },
-             ComponentList = new List<SearchParameterComponent>()
-             {
-               //new SearchParameterComponent() {  Id = 1,  Expression = "code", Definition= "http://hl7.org/fhir/SearchParameter/clinical-code" },               
-             },
-             Created = System.DateTime.Now,
-             Updated = System.DateTime.Now
-          }
-        };
+      var SearchParameterListStu3 = Support.SearchParameterData.GetSearchParameterList(Common.Enums.FhirVersion.Stu3);
+      var SearchParameterListR4 = Support.SearchParameterData.GetSearchParameterList(Common.Enums.FhirVersion.R4);
+      ISearchParameterCacheMock = ISearchParameterCache_MockFactory.Get(SearchParameterListStu3, SearchParameterListR4);
+      SearchQueryFactory = SearchQueryFactory_Factory.Get(ISearchParameterCacheMock.Object);     
     }
 
   }

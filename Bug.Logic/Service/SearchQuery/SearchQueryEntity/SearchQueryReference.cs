@@ -97,8 +97,10 @@ namespace Bug.Logic.Service.SearchQuery.SearchQueryEntity
           }
         }
       }
+
       if (this.ValueList.Count() > 1)
         this.HasLogicalOrProperties = true;
+
       if (this.IsChained || this.ValueList.Count > 0)
       {
         return true;

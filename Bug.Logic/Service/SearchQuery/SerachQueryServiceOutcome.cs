@@ -18,9 +18,9 @@ namespace Bug.Logic.Service.SearchQuery
       this.InvalidSearchQueryList = new List<Tools.InvalidSearchQueryParameter>();
     }
 
-    private ResourceType ResourceContext { get; set; }
-    private int? CountRequested { get; set; }
-    SummaryType? SummaryType { get; }
+    public ResourceType ResourceContext { get; set; }
+    public int? CountRequested { get; set; }
+    public SummaryType? SummaryType { get; }
     public IList<ISearchQueryBase> SearchQueryList { get; set; }
     public IList<Tools.InvalidSearchQueryParameter> InvalidSearchQueryList { get; set; }
     public Common.FhirTools.FhirResource? OperationOutcome { get; set; }  
