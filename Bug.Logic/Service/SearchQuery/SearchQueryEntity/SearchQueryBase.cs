@@ -100,13 +100,13 @@ namespace Bug.Logic.Service.SearchQuery.SearchQueryEntity
         SearchModifierCode[] oSupportedModifierArray = SearchQuerySupport.GetModifiersForSearchType(this.SearchParamTypeId);
         if (!oSupportedModifierArray.Any(x => x == this.Modifier.Value))
         {
-          this.InvalidMessage = this.InvalidMessage + $"The parameter's modifier: '{this.Modifier.GetCode()}' is not supported by this server for this search parameter type '{this.SearchParamTypeId.GetCode()}', the whole parameter was : '{this.RawValue}', ";
+          this.InvalidMessage += $"The parameter's modifier: '{this.Modifier.GetCode()}' is not supported by this server for this search parameter type '{this.SearchParamTypeId.GetCode()}', the whole parameter was : '{this.RawValue}', ";
           this.IsValid = false;
         }
 
       }
     }
-    public abstract bool TryParseValue(string Value);    
+    public abstract void ParseValue(string Value);    
     public abstract object CloneDeep();
     public virtual object CloneDeep(SearchQueryBase Clone)
     {
@@ -121,17 +121,39 @@ namespace Bug.Logic.Service.SearchQuery.SearchQueryEntity
       if (this.ResourceTypeList is object)
       {
         Clone.ResourceTypeList = new List<SearchParameterResourceType>();
-        Clone.ResourceTypeList.ToList().AddRange(this.ResourceTypeList);
+        this.ResourceTypeList.ToList().ForEach(x => Clone.ResourceTypeList.Add(
+          new SearchParameterResourceType()
+          {
+            Id = x.Id,
+            ResourceTypeId = x.ResourceTypeId,
+            SearchParameterId = x.SearchParameterId,
+            Created = x.Created,
+            Updated = x.Updated
+          }));        
       }
       if (this.TargetResourceTypeList != null)
       {
         Clone.TargetResourceTypeList = new List<SearchParameterTargetResourceType>();
-        Clone.TargetResourceTypeList.ToList().AddRange(this.TargetResourceTypeList);
+        this.TargetResourceTypeList.ToList().ForEach(x => Clone.TargetResourceTypeList.Add(
+          new SearchParameterTargetResourceType()
+          {
+            Id = x.Id,
+            ResourceTypeId = x.ResourceTypeId,
+            SearchParameterId = x.SearchParameterId,
+            Created = x.Created,
+            Updated = x.Updated
+          }));        
       }
       if (this.ComponentList != null)
       {
         Clone.ComponentList = new List<SearchParameterComponent>();
-        Clone.ComponentList.ToList().AddRange(this.ComponentList);
+        this.ComponentList.ToList().ForEach(x => Clone.ComponentList.Add(
+          new SearchParameterComponent()
+          {
+            Id = x.Id,
+            Definition = x.Definition,
+            Expression = x.Expression,
+          }));        
       }
       Clone.FhirVersionId = this.FhirVersionId;
       Clone.FhirVersion = this.FhirVersion;

@@ -245,7 +245,54 @@ namespace Bug.Test.Logic.Support
              {
                //new SearchParameterComponent() {  Id = 1,  Expression = "code", Definition= "http://hl7.org/fhir/SearchParameter/clinical-code" },               
              }
+          },
+          new SearchParameter()
+          {
+             Id = 12,
+             Name = "organization",
+             Description = "Bla bla bla",
+             FhirPath = "Patient.managingOrganization",
+             Url = "http://hl7.org/fhir/SearchParameter/Patient-organization",
+             SearchParamTypeId = Common.Enums.SearchParamType.Reference,
+             FhirVersionId = fhirVersion,
+             ResourceTypeList = new List<SearchParameterResourceType>()
+             {
+               new SearchParameterResourceType() { Id = 1, ResourceTypeId = Common.Enums.ResourceType.Patient},               
+               //..and others
+             },
+             TargetResourceTypeList = new List<SearchParameterTargetResourceType>()
+             {
+               new SearchParameterTargetResourceType() { Id = 1, ResourceTypeId = Common.Enums.ResourceType.Organization}
+             },
+             ComponentList = new List<SearchParameterComponent>()
+             {
+               //new SearchParameterComponent() {  Id = 1,  Expression = "code", Definition= "http://hl7.org/fhir/SearchParameter/clinical-code" },               
+             }
+          },
+          new SearchParameter()
+          {
+             Id = 13,
+             Name = "name",
+             Description = "Bla bla bla",
+             FhirPath = "Organization.name | Organization.alias",
+             Url = "http://hl7.org/fhir/SearchParameter/Organization-name",
+             SearchParamTypeId = Common.Enums.SearchParamType.String,
+             FhirVersionId = fhirVersion,
+             ResourceTypeList = new List<SearchParameterResourceType>()
+             {
+               new SearchParameterResourceType() { Id = 1, ResourceTypeId = Common.Enums.ResourceType.Organization},               
+               //..and others
+             },
+             TargetResourceTypeList = new List<SearchParameterTargetResourceType>()
+             {
+              //new SearchParameterTargetResourceType() { Id = 1, ResourceTypeId = Common.Enums.ResourceType.Organization}
+             },
+             ComponentList = new List<SearchParameterComponent>()
+             {
+               //new SearchParameterComponent() {  Id = 1,  Expression = "code", Definition= "http://hl7.org/fhir/SearchParameter/clinical-code" },               
+             }
           }
+
         };
     }
   }

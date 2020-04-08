@@ -23,8 +23,6 @@ namespace Bug.Test.Logic.MockSupport
       });
 
       IResourceTypeSupport IResourceTypeSupport = new ResourceTypeSupport();
-      var SearchParameterListStu3 = Support.SearchParameterData.GetSearchParameterList(FhirVersion.Stu3);
-      var SearchParameterListR4 = Support.SearchParameterData.GetSearchParameterList(FhirVersion.R4);      
       Mock<IKnownResource> IKnownResourceMock = IKnownResource_MockFactory.Get();
       return new SearchQueryFactory(IFhirUriFactory, IResourceTypeSupport, ISearchParameterCache, IKnownResourceMock.Object);
     }

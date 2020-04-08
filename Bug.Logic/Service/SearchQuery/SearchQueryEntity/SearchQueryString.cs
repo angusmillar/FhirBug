@@ -29,8 +29,9 @@ namespace Bug.Logic.Service.SearchQuery.SearchQueryEntity
     }
 
 
-    public override bool TryParseValue(string Values)
+    public override void ParseValue(string Values)
     {
+      this.IsValid = true;
       this.ValueList.Clear();
       foreach (string Value in Values.Split(OrDelimiter))
       {
@@ -39,31 +40,68 @@ namespace Bug.Logic.Service.SearchQuery.SearchQueryEntity
         {
           bool? IsMissing = SearchQueryStringValue.ParseModifierEqualToMissing(Value);
           if (IsMissing.HasValue)
-          {            
+          {
             this.ValueList.Add(new SearchQueryStringValue(IsMissing.Value, null));
           }
           else
           {
             this.InvalidMessage = $"Found the {SearchModifierCode.Missing.GetCode()} Modifier yet the value was expected to be true or false yet found '{Value}'. ";
-            return false;
+            this.IsValid = false;
+            break;
           }
         }
         else
-        {          
+        {
           this.ValueList.Add(new SearchQueryStringValue(false, StringSupport.ToLowerTrimRemoveDiacriticsTruncate(Value, DatabaseMetaData.FieldLength.StringMaxLength)));
         }
       }
-      if (this.ValueList.Count() > 1)
+
+      if (ValueList.Count > 1)
+      {
         this.HasLogicalOrProperties = true;
-      if (this.ValueList.Count > 0)
-      {
-        return true;
       }
-      else
+
+      if (this.ValueList.Count == 0)
       {
-        return false;
+        this.InvalidMessage = $"Unable to parse any values into a {this.GetType().Name} from the string: {Values}.";
+        this.IsValid = false;
       }
     }
+    //public override bool ParseValue(string Values)
+    //{
+    //  this.ValueList.Clear();
+    //  foreach (string Value in Values.Split(OrDelimiter))
+    //  {
+    //    //var SearchQueryStringValue = new SearchQueryStringValue();
+    //    if (this.Modifier.HasValue && this.Modifier == SearchModifierCode.Missing)
+    //    {
+    //      bool? IsMissing = SearchQueryStringValue.ParseModifierEqualToMissing(Value);
+    //      if (IsMissing.HasValue)
+    //      {            
+    //        this.ValueList.Add(new SearchQueryStringValue(IsMissing.Value, null));
+    //      }
+    //      else
+    //      {
+    //        this.InvalidMessage = $"Found the {SearchModifierCode.Missing.GetCode()} Modifier yet the value was expected to be true or false yet found '{Value}'. ";
+    //        return false;
+    //      }
+    //    }
+    //    else
+    //    {          
+    //      this.ValueList.Add(new SearchQueryStringValue(false, StringSupport.ToLowerTrimRemoveDiacriticsTruncate(Value, DatabaseMetaData.FieldLength.StringMaxLength)));
+    //    }
+    //  }
+    //  if (this.ValueList.Count() > 1)
+    //    this.HasLogicalOrProperties = true;
+    //  if (this.ValueList.Count > 0)
+    //  {
+    //    return true;
+    //  }
+    //  else
+    //  {
+    //    return false;
+    //  }
+    //}
    
   }
 }

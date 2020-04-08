@@ -19,7 +19,7 @@ namespace Bug.Logic.Service.SearchQuery.SearchQueryEntity
     object CloneDeep();
     object CloneDeep(SearchQueryBase Clone);
     void ParseModifier(string parameterName, IResourceTypeSupport IResourceTypeSupport, IKnownResource IKnownResource);
-    bool TryParseValue(string Value);   
+    void ParseValue(string Value);   
     Bug.Common.Enums.ResourceType ResourceContext { get; set; }
   }
 }

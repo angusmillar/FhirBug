@@ -9,24 +9,27 @@ using Xunit;
 using Bug.Logic.Service.SearchQuery;
 using Bug.Logic.Service.SearchQuery.Tools;
 using Microsoft.Extensions.Primitives;
+using Bug.Common.FhirTools;
 
 namespace Bug.Test.Logic
 {
   public class SearchQueryServiceTest
   {
-    [Theory]
-    [InlineData("11")]
-    public void One(string versionId)
+    [Fact]
+    public void One()
     {
       //Prepare
       ISearchParameterCache ISearchParameterCache = SetupSearchParameterCache();
       SearchQueryFactory SearchQueryFactory = SetupSearchQueryFactory(ISearchParameterCache);
       var IOperationOutcomeSupportMock = IOperationOutcomeSupport_MockFactory.Get();
-      SearchQueryService SearchQueryService = new SearchQueryService(ISearchParameterCache, SearchQueryFactory, IOperationOutcomeSupportMock.Object);
+      IResourceTypeSupport IResourceTypeSupport = new ResourceTypeSupport();
+      var IKnownResourceMock = IKnownResource_MockFactory.Get();
+      SearchQueryService SearchQueryService = new SearchQueryService(ISearchParameterCache, SearchQueryFactory, IOperationOutcomeSupportMock.Object, IResourceTypeSupport, IKnownResourceMock.Object);
 
-      Dictionary<string, StringValues> QueryDictonary = new Dictionary<string, StringValues>();
-      QueryDictonary.Add("subject:Patient.family", new StringValues("millar"));
-      QueryDictonary.Add("code", new StringValues("system|code"));
+      Dictionary<string, StringValues> QueryDictonary = new Dictionary<string, StringValues>
+      {
+        { "subject:Patient.organization.name", new StringValues("acmehealth") },        
+      };
 
       FhirSearchQuery FhirSearchQuery = new FhirSearchQuery();
       FhirSearchQuery.Parse(QueryDictonary);
@@ -38,11 +41,23 @@ namespace Bug.Test.Logic
       Assert.NotNull(Outcome);
       Assert.Equal(0, Outcome.InvalidSearchQueryList.Count);
       Assert.Null(Outcome.CountRequested);
-      Assert.Equal(2, Outcome.SearchQueryList.Count);
-
-
-
+      Assert.Equal(1, Outcome.SearchQueryList.Count);
       Assert.Equal(Common.Enums.ResourceType.Observation, Outcome.ResourceContext);
+
+      var ChainSearchQuery = Outcome.SearchQueryList[0];
+      Assert.NotNull(ChainSearchQuery);
+
+      Assert.Equal("subject", ChainSearchQuery.Name);
+      Assert.NotNull(ChainSearchQuery.ChainedSearchParameter);
+      Assert.Equal("organization", ChainSearchQuery.ChainedSearchParameter!.Name);
+      Assert.NotNull(ChainSearchQuery.ChainedSearchParameter!.ChainedSearchParameter);
+      Assert.Equal("name", ChainSearchQuery.ChainedSearchParameter!.ChainedSearchParameter!.Name);
+      if (ChainSearchQuery.ChainedSearchParameter!.ChainedSearchParameter is SearchQueryString SearchQueryString)
+      {
+        Assert.Single(SearchQueryString.ValueList);
+        Assert.Equal("acmehealth", SearchQueryString.ValueList[0].Value);
+      }
+
     }
 
     private SearchQueryFactory SetupSearchQueryFactory(ISearchParameterCache ISearchParameterCache)

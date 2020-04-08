@@ -15,31 +15,16 @@ namespace Bug.Logic.Query.FhirApi.Search
   public class SearchQueryHandler : IQueryHandler<SearchQuery, FhirApiResult>
   {
     private readonly IValidateQueryService IValidateQueryService;
-    private readonly IResourceStoreRepository IResourceStoreRepository;
-    private readonly IFhirResourceParseJsonService IFhirResourceParseJsonService;
     private readonly IResourceTypeSupport IResourceTypeSupport;
-    private readonly IGZipper IGZipper;
-    private readonly IServerDateTimeSupport IServerDateTimeSupport;
-    private readonly IHeaderService IHeaderService;
     private readonly ISearchQueryService ISearchQueryService;
 
     public SearchQueryHandler(
       IValidateQueryService IValidateQueryService,
-      IResourceStoreRepository IResourceStoreRepository,
-      IFhirResourceParseJsonService IFhirResourceParseJsonService,
       IResourceTypeSupport IResourceTypeSupport,
-      IGZipper IGZipper,
-      IServerDateTimeSupport IServerDateTimeSupport,
-      IHeaderService IHeaderService,
       ISearchQueryService ISearchQueryService)
     {
       this.IValidateQueryService = IValidateQueryService;
-      this.IResourceStoreRepository = IResourceStoreRepository;
-      this.IFhirResourceParseJsonService = IFhirResourceParseJsonService;
       this.IResourceTypeSupport = IResourceTypeSupport;
-      this.IGZipper = IGZipper;
-      this.IServerDateTimeSupport = IServerDateTimeSupport;
-      this.IHeaderService = IHeaderService;
       this.ISearchQueryService = ISearchQueryService;
     }
 

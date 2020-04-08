@@ -32,8 +32,9 @@ namespace Bug.Logic.Service.SearchQuery.SearchQueryEntity
       return Clone;
     }
 
-    public override bool TryParseValue(string Values)
+    public override void ParseValue(string Values)
     {
+      this.IsValid = true;
       this.ValueList = new List<SearchQueryNumberValue>();
       foreach (var Value in Values.Split(OrDelimiter))
       {
@@ -48,17 +49,18 @@ namespace Bug.Logic.Service.SearchQuery.SearchQueryEntity
           else
           {
             this.InvalidMessage = $"Found the {SearchModifierCode.Missing.GetCode()} Modifier yet is value was expected to be true or false yet found '{Value}'. ";
-            return false;
+            this.IsValid = false;
+            break;            
           }
         }
         else
-        {
-          decimal TempDouble;          
+        {          
           SearchComparator? Prefix = SearchQueryDateTimeValue.GetPrefix(Value);
           if (!SearchQueryQuantityValue.ValidatePreFix(this.SearchParamTypeId, Prefix) && Prefix.HasValue)
           {
             this.InvalidMessage = $"The search parameter had an unsupported prefix of '{Prefix.Value.GetCode()}'. ";
-            return false;
+            this.IsValid = false;
+            break;
           }
 
           string NumberAsString = SearchQueryDateTimeValue.RemovePrefix(Value, Prefix);
@@ -74,15 +76,74 @@ namespace Bug.Logic.Service.SearchQuery.SearchQueryEntity
           }
           else
           {
-            return false;
+            this.InvalidMessage = $"Unable to parse the value of : {NumberAsString} to a DateTime.";
+            this.IsValid = false;
+            break;
           }
         }
       }
+      if (ValueList.Count > 1)
+      {
+        this.HasLogicalOrProperties = true;
+      }
+
       if (this.ValueList.Count == 0)
-        return false;
-      else
-        return true;
+      {
+        this.InvalidMessage = $"Unable to parse any values into a {this.GetType().Name} from the string: {Values}.";
+        this.IsValid = false;
+      }      
     }
+    //public override bool ParseValue(string Values)
+    //{
+    //  this.ValueList = new List<SearchQueryNumberValue>();
+    //  foreach (var Value in Values.Split(OrDelimiter))
+    //  {
+    //    //var DtoSearchParameterNumber = new SearchQueryNumberValue();
+    //    if (this.Modifier.HasValue && this.Modifier == SearchModifierCode.Missing)
+    //    {
+    //      bool? IsMissing = SearchQueryNumberValue.ParseModifierEqualToMissing(Value);
+    //      if (IsMissing.HasValue)
+    //      {
+    //        this.ValueList.Add(new SearchQueryNumberValue(IsMissing.Value, null, null, null, null));
+    //      }
+    //      else
+    //      {
+    //        this.InvalidMessage = $"Found the {SearchModifierCode.Missing.GetCode()} Modifier yet is value was expected to be true or false yet found '{Value}'. ";
+    //        return false;
+    //      }
+    //    }
+    //    else
+    //    {
+    //      decimal TempDouble;          
+    //      SearchComparator? Prefix = SearchQueryDateTimeValue.GetPrefix(Value);
+    //      if (!SearchQueryQuantityValue.ValidatePreFix(this.SearchParamTypeId, Prefix) && Prefix.HasValue)
+    //      {
+    //        this.InvalidMessage = $"The search parameter had an unsupported prefix of '{Prefix.Value.GetCode()}'. ";
+    //        return false;
+    //      }
+
+    //      string NumberAsString = SearchQueryDateTimeValue.RemovePrefix(Value, Prefix);
+    //      if (Decimal.TryParse(NumberAsString, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out decimal TempDecimal))
+    //      {
+    //        var DecimalInfo = DecimalSupport.GetDecimalInfo(TempDecimal);
+    //        var SearchQueryNumberValue = new SearchQueryNumberValue(false,
+    //          Prefix,
+    //          DecimalInfo.Precision,
+    //          DecimalInfo.Scale,
+    //          TempDecimal);
+    //        this.ValueList.Add(SearchQueryNumberValue);
+    //      }
+    //      else
+    //      {
+    //        return false;
+    //      }
+    //    }
+    //  }
+    //  if (this.ValueList.Count == 0)
+    //    return false;
+    //  else
+    //    return true;
+    //}
    
 
   }

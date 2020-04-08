@@ -45,7 +45,8 @@ namespace Bug.Logic.Service.SearchQuery.SearchQueryEntity
           else
           {
             this.InvalidMessage = $"Found the {SearchModifierCode.Missing.GetCode()} Modifier yet is value was expected to be true or false yet found '{Value}'. ";
-            this.IsValid = false;           
+            this.IsValid = false;
+            break;
           }
         }
         else
@@ -72,13 +73,15 @@ namespace Bug.Logic.Service.SearchQuery.SearchQueryEntity
             }
             this.InvalidMessage = sb.ToString();
             this.IsValid = false;
+            break;
           }
 
           var SearchQueryCompositeValue = new SearchQueryCompositeValue(false);
           for (int i = 0; i < CompositeSplit.Length; i++)
           {
             SearchParameterBaseList[i].RawValue = SearchParameterBaseList[i].Name + ParameterValueDelimiter + CompositeSplit[i];
-            if (!SearchParameterBaseList[i].TryParseValue(CompositeSplit[i]))
+            SearchParameterBaseList[i].ParseValue(CompositeSplit[i]);
+            if (!SearchParameterBaseList[i].IsValid)
             {
               string ResourceNameList = string.Empty;
               foreach (SearchParameterResourceType SearchParameterResourceType in SearchParameterBaseList[i].ResourceTypeList)
@@ -101,16 +104,19 @@ namespace Bug.Logic.Service.SearchQuery.SearchQueryEntity
           this.ValueList.Add(SearchQueryCompositeValue);
         }
       }
-      if (this.ValueList.Count() > 1)
+      if (ValueList.Count > 1)
+      {
         this.HasLogicalOrProperties = true;
+      }
+
       if (this.ValueList.Count == 0)
       {
-        this.InvalidMessage = $"No values were found for the search parameter name {this.Name}";
-        this.IsValid = false;        
-      }      
+        this.InvalidMessage = $"Unable to parse any values into a {this.GetType().Name} from the string: {Values}.";
+        this.IsValid = false;
+      }
     }
 
-    public override bool TryParseValue(string Values)
+    public override void ParseValue(string Values)
     {
       throw new ApplicationException("Internal Server Error: Composite Search Parameters values must be parsed with the specialized method 'TryParseCompositeValue'");
     }
