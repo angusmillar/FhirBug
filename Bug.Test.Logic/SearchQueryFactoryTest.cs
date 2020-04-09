@@ -1,30 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Linq;
+﻿using Bug.Common.DatabaseTools;
+using Bug.Common.Enums;
+using Bug.Common.StringTools;
+using Bug.Logic.CacheService;
+using Bug.Logic.DomainModel;
+using Bug.Logic.Service.SearchQuery.SearchQueryEntity;
+using Bug.Test.Logic.MockSupport;
+using Microsoft.Extensions.Primitives;
 using Moq;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Xunit;
-using Bug.Logic.Service.SearchQuery.SearchQueryEntity;
-using Bug.Logic.UriSupport;
-using Bug.Common.ApplicationConfig;
-using Bug.R4Fhir.ResourceSupport;
-using Bug.Stu3Fhir.ResourceSupport;
-using Bug.Logic.Interfaces.CompositionRoot;
-using Bug.Test.Logic.MockSupport;
-using Bug.Common.FhirTools;
-using Bug.Logic.CacheService;
-using Bug.Logic.Service.Fhir;
-using System.Threading.Tasks;
-using Bug.Logic.DomainModel;
-using Microsoft.Extensions.Primitives;
-using Bug.Common.DatabaseTools;
-using Bug.Common.StringTools;
-using Bug.Common.Enums;
 
 namespace Bug.Test.Logic
 {
-  
+
   public class SearchQueryFactoryTest
   {
     private Mock<ISearchParameterCache>? ISearchParameterCacheMock;
@@ -329,9 +319,8 @@ namespace Bug.Test.Logic
       }
     }
 
-    [Theory]
-    [InlineData("11")]
-    public void TestCompositeType(string Thing)
+    [Fact]
+    public void TestCompositeType()
     {
       //Prepare
       Setup();

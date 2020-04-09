@@ -5,6 +5,7 @@ using System.Text;
 using System.Linq;
 using Bug.Common.Enums;
 using Bug.Common.StringTools;
+using static Bug.Logic.Service.SearchQuery.SearchQueryEntity.SearchQueryInclude;
 
 namespace Bug.Logic.Service.SearchQuery.Tools
 {
@@ -12,6 +13,8 @@ namespace Bug.Logic.Service.SearchQuery.Tools
   {
     public const string TermInclude = "_include";
     public const string TermRevInclude = "_revinclude";
+    public const string TermIncludeIterate = "iterate";
+    public const string TermIncludeRecurse = "recurse";
     public const string TermSort = "_sort";
     public const string TermCount = "_count";
     public const string TermContained = "_contained";
@@ -27,8 +30,8 @@ namespace Bug.Logic.Service.SearchQuery.Tools
 
     public int? Count { get; set; }
     public int? Page { get; set; }
-    public IList<string> RevInclude { get; set; }
-    public IList<string> Include { get; set; }
+    public IList<IncludeParameter> RevInclude { get; set; }
+    public IList<IncludeParameter> Include { get; set; }
     public IList<SortParameter> Sort { get; set; }
     public IList<InvalidSearchQueryParameter> InvalidParameterList { get; set; }
     public ContainedSearch? Contained { get; set; }
@@ -44,8 +47,8 @@ namespace Bug.Logic.Service.SearchQuery.Tools
     public FhirSearchQuery()
     {
       this.InvalidParameterList = new List<InvalidSearchQueryParameter>();
-      this.RevInclude = new List<string>();
-      this.Include = new List<string>();
+      this.RevInclude = new List<IncludeParameter>();
+      this.Include = new List<IncludeParameter>();
       this.Sort = new List<SortParameter>();
       this.ParametersDictionary = new Dictionary<string, StringValues>();
       this.QueryItemProcessed = false;
@@ -54,8 +57,8 @@ namespace Bug.Logic.Service.SearchQuery.Tools
     public bool Parse(Dictionary<string, StringValues> query)
     {
       this.InvalidParameterList = new List<InvalidSearchQueryParameter>();
-      this.RevInclude = new List<string>();
-      this.Include = new List<string>();
+      this.RevInclude = new List<IncludeParameter>();
+      this.Include = new List<IncludeParameter>();
       this.Sort = new List<SortParameter>();
       this.ParametersDictionary = new Dictionary<string, StringValues>();
       this.QueryItemProcessed = false;
@@ -65,15 +68,12 @@ namespace Bug.Logic.Service.SearchQuery.Tools
         this.QueryItemProcessed = false;
         //Count                
         this.Count = TryParseIntegerParameter(Item, TermCount);
-        
+
         //Page
         this.Page = TryParseIntegerParameter(Item, TermPage);
 
-        //Include
-        this.Include = ParseStringList(Item, TermInclude);
-
-        //RevInclude
-        this.RevInclude = ParseStringList(Item, TermRevInclude);
+        //Include & RevInclude
+        ParseIncludes(Item);
 
         //Sort
         ParseSortParameter(Item);
@@ -215,18 +215,39 @@ namespace Bug.Logic.Service.SearchQuery.Tools
       }
     }
 
-    private IList<string> ParseStringList(KeyValuePair<string, StringValues> Item, string Term)
+    private void ParseIncludes(KeyValuePair<string, StringValues> Item)
     {
-      var Result = new List<string>();
-      if (Item.Key == Term)
+
+      if (Item.Key.Equals($"{TermInclude}{TermSearchModifierDelimiter}{TermIncludeRecurse}", StringComparison.Ordinal))
       {
         this.QueryItemProcessed = true;
-        foreach (var IncludeValue in Item.Value)
-        {
-          Result.Add(IncludeValue);
-        }
+        this.Include.Add(new IncludeParameter(false, true, IncludeType.Include, Item.Value));
       }
-      return Result;
+      else if (Item.Key.Equals($"{TermInclude}{TermSearchModifierDelimiter}{TermIncludeIterate}", StringComparison.Ordinal))
+      {
+        this.QueryItemProcessed = true;
+        this.Include.Add(new IncludeParameter(true, false, IncludeType.Include, Item.Value));
+      }
+      else if (Item.Key.Equals($"{TermInclude}", StringComparison.Ordinal))
+      {
+        this.QueryItemProcessed = true;
+        this.Include.Add(new IncludeParameter(false, false, IncludeType.Include, Item.Value));
+      }
+      else if (Item.Key.Equals($"{TermRevInclude}{TermSearchModifierDelimiter}{TermIncludeRecurse}", StringComparison.Ordinal))
+      {
+        this.QueryItemProcessed = true;
+        this.Include.Add(new IncludeParameter(false, true, IncludeType.Revinclude, Item.Value));
+      }
+      else if (Item.Key.Equals($"{TermRevInclude}{TermSearchModifierDelimiter}{TermIncludeIterate}", StringComparison.Ordinal))
+      {
+        this.QueryItemProcessed = true;
+        this.Include.Add(new IncludeParameter(true, false, IncludeType.Revinclude, Item.Value));
+      }
+      else if (Item.Key.Equals($"{TermRevInclude}", StringComparison.Ordinal))
+      {
+        this.QueryItemProcessed = true;
+        this.Include.Add(new IncludeParameter(false, false, IncludeType.Revinclude, Item.Value));
+      }
     }
 
     private int? TryParseIntegerParameter(KeyValuePair<string, StringValues> Item, string Term)
@@ -261,6 +282,21 @@ namespace Bug.Logic.Service.SearchQuery.Tools
       }
     }
 
-    
+    public class IncludeParameter
+    {
+      public IncludeType Type { get; set; }
+      public bool Recurse { get; set; }
+      public bool Iterate { get; set; }
+      public string Value { get; set; }
+      public IncludeParameter(bool Iterate, bool Recurse, IncludeType Type, string Value)
+      {
+        this.Type = Type;
+        this.Iterate = Iterate;
+        this.Recurse = Recurse;
+        this.Value = Value;
+      }
+    }
+
+
   }
 }

@@ -46,7 +46,7 @@ namespace Bug.Logic.Query.FhirApi.Search
         throw new System.ArgumentNullException(nameof(ResourceType));
 
 
-      SerachQueryServiceOutcome SerachQueryServiceOutcome = await ISearchQueryService.Process(query.FhirVersion, ResourceType.Value, query.RequestQuery);
+      ISerachQueryServiceOutcome SerachQueryServiceOutcome = await ISearchQueryService.Process(query.FhirVersion, ResourceType.Value, query.RequestQuery);
 
 
     

@@ -6,6 +6,6 @@ namespace Bug.Logic.Service.SearchQuery
 {
   public interface ISearchQueryService
   {
-    Task<SerachQueryServiceOutcome> Process(FhirVersion fhirVersion, ResourceType resourceTypeContext, IFhirSearchQuery searchQuery);
+    Task<ISerachQueryServiceOutcome> Process(FhirVersion fhirVersion, ResourceType resourceTypeContext, IFhirSearchQuery searchQuery);
   }
 }
