@@ -408,6 +408,11 @@ namespace Bug.Data.Migrations
                         .HasColumnType("integer")
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
+                    b.Property<string>("ContainedId")
+                        .HasColumnName("contained_id")
+                        .HasColumnType("character varying(128)")
+                        .HasMaxLength(128);
+
                     b.Property<DateTime>("Created")
                         .HasColumnName("created")
                         .HasColumnType("timestamp without time zone");
@@ -469,9 +474,9 @@ namespace Bug.Data.Migrations
 
                     b.HasIndex("ResourceTypeId");
 
-                    b.HasIndex("FhirVersionId", "ResourceTypeId", "ResourceId", "VersionId")
+                    b.HasIndex("FhirVersionId", "ResourceTypeId", "ResourceId", "ContainedId", "VersionId")
                         .IsUnique()
-                        .HasName("UniqueIx_ResourceStore_FhirVer_ResType_ResId_ResVer");
+                        .HasName("UniqueIx_ResourceStore_FhirVer_ResType_ResId_ContId_ResVer");
 
                     b.ToTable("ResourceStore");
                 });

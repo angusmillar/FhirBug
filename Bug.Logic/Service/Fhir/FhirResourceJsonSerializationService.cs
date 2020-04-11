@@ -32,5 +32,18 @@ namespace Bug.Logic.Service.Fhir
           throw new FhirVersionFatalException(fhirResource.FhirVersion);
       }
     }
+
+    public byte[] SerializeToJsonBytes(Common.FhirTools.FhirContainedResource FhirContainedResource)
+    {
+      switch (FhirContainedResource.FhirVersion)
+      {
+        case Common.Enums.FhirVersion.Stu3:
+          return IStu3SerializationToJsonBytes.SerializeToJsonBytes(FhirContainedResource);
+        case Common.Enums.FhirVersion.R4:
+          return IR4SerializationToJsonBytes.SerializeToJsonBytes(FhirContainedResource);
+        default:
+          throw new FhirVersionFatalException(FhirContainedResource.FhirVersion);
+      }
+    }
   }
 }

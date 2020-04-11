@@ -7,6 +7,7 @@ using Bug.Logic.Interfaces.Repository;
 using Bug.Logic.Service.Fhir;
 using Bug.Logic.Service.Headers;
 using Bug.Logic.Service.SearchQuery;
+using Bug.Logic.Service.Serach;
 using Bug.Logic.Service.ValidatorService;
 using System.Threading.Tasks;
 
@@ -18,17 +19,20 @@ namespace Bug.Logic.Query.FhirApi.Search
     private readonly IResourceTypeSupport IResourceTypeSupport;
     private readonly ISearchQueryService ISearchQueryService;
     private readonly IOperationOutcomeSupport IOperationOutcomeSupport;
+    private readonly ISearchService ISearchService;
 
     public SearchQueryHandler(
       IValidateQueryService IValidateQueryService,
       IResourceTypeSupport IResourceTypeSupport,
       ISearchQueryService ISearchQueryService,
-      IOperationOutcomeSupport IOperationOutcomeSupport)
+      IOperationOutcomeSupport IOperationOutcomeSupport,
+      ISearchService ISearchService)
     {
       this.IValidateQueryService = IValidateQueryService;
       this.IResourceTypeSupport = IResourceTypeSupport;
       this.ISearchQueryService = ISearchQueryService;
       this.IOperationOutcomeSupport = IOperationOutcomeSupport;
+      this.ISearchService = ISearchService;
     }
 
     public async Task<FhirApiResult> Handle(SearchQuery query)
@@ -68,10 +72,12 @@ namespace Bug.Logic.Query.FhirApi.Search
           VersionId = null
         };
       }
-      
-    
 
-      
+      ISearchService.Process(SerachQueryServiceOutcome);
+
+
+
+
       throw new System.NotImplementedException();
 
     }

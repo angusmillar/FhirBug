@@ -58,7 +58,8 @@ namespace Bug.Data
       builder.Entity<ResourceStore>(entity =>
       {
         SetupBaseIntKeyProperties(entity);
-        entity.Property(e => e.ResourceId).HasColumnName("resource_id").IsRequired(true).HasMaxLength(DatabaseMetaData.FieldLength.FhirIdMaxLength); ;
+        entity.Property(e => e.ResourceId).HasColumnName("resource_id").IsRequired(true).HasMaxLength(DatabaseMetaData.FieldLength.FhirIdMaxLength);
+        entity.Property(e => e.ContainedId).HasColumnName("contained_id").IsRequired(false).HasMaxLength(DatabaseMetaData.FieldLength.FhirIdMaxLength);
         entity.Property(e => e.VersionId).HasColumnName("version_id").IsRequired(true);
         entity.Property(e => e.IsCurrent).HasColumnName("is_current").IsRequired(true); ;
         entity.Property(e => e.IsDeleted).HasColumnName("is_deleted").IsRequired(true); ;
@@ -82,8 +83,8 @@ namespace Bug.Data
         entity.HasMany(x => x.UriIndexList).WithOne(v => v.ResourceStore).HasForeignKey(x => x.ResourceStoreId);
 
         //Ensure that no two resources have the same ResourceId, VersionId, for the same FHIR Version and Resource Name
-        entity.HasIndex(x => new { x.FhirVersionId, x.ResourceTypeId, x.ResourceId, x.VersionId, })
-          .HasName("UniqueIx_ResourceStore_FhirVer_ResType_ResId_ResVer")
+        entity.HasIndex(x => new { x.FhirVersionId, x.ResourceTypeId, x.ResourceId, x.ContainedId, x.VersionId, })
+          .HasName("UniqueIx_ResourceStore_FhirVer_ResType_ResId_ContId_ResVer")
           .IsUnique();
 
         //We often order by LastUpdated

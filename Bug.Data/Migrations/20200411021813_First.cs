@@ -106,6 +106,7 @@ namespace Bug.Data.Migrations
                     created = table.Column<DateTime>(nullable: false),
                     updated = table.Column<DateTime>(nullable: false),
                     resource_id = table.Column<string>(maxLength: 128, nullable: false),
+                    contained_id = table.Column<string>(maxLength: 128, nullable: true),
                     version_id = table.Column<int>(nullable: false),
                     is_deleted = table.Column<bool>(nullable: false),
                     is_current = table.Column<bool>(nullable: false),
@@ -617,9 +618,9 @@ namespace Bug.Data.Migrations
                 column: "resourcetype_id");
 
             migrationBuilder.CreateIndex(
-                name: "UniqueIx_ResourceStore_FhirVer_ResType_ResId_ResVer",
+                name: "UniqueIx_ResourceStore_FhirVer_ResType_ResId_ContId_ResVer",
                 table: "ResourceStore",
-                columns: new[] { "fhirversion_id", "resourcetype_id", "resource_id", "version_id" },
+                columns: new[] { "fhirversion_id", "resourcetype_id", "resource_id", "contained_id", "version_id" },
                 unique: true);
 
             migrationBuilder.CreateIndex(

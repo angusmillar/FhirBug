@@ -63,6 +63,8 @@ namespace Bug.Logic.Query.FhirApi.Delete
       if (!ResourceType.HasValue)
         throw new ArgumentNullException(nameof(ResourceType));
 
+      DateTime Now = DateTimeOffset.Now.ToZulu();
+
       int? NewVersionId = null;
       ResourceStore? PreviousResourseStore = await IResourceStoreRepository.GetCurrentMetaAsync(query.FhirVersion, ResourceType.Value, query.ResourceId);
       if (PreviousResourseStore is object)
@@ -79,10 +81,11 @@ namespace Bug.Logic.Query.FhirApi.Delete
         }
 
         PreviousResourseStore.IsCurrent = false;
+        PreviousResourseStore.Updated = Now;
         NewVersionId = PreviousResourseStore.VersionId + 1;
-        IResourceStoreRepository.UpdateCurrent(PreviousResourseStore);
+        await IResourceStoreRepository.UpdateCurrentAsync(PreviousResourseStore);
 
-        DateTime Now = DateTimeOffset.Now.ToZulu();
+        
         var ResourceStore = new ResourceStore()
         {
           ResourceId = query.ResourceId,

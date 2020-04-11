@@ -60,6 +60,7 @@ CREATE TABLE "ResourceStore" (
     created timestamp without time zone NOT NULL,
     updated timestamp without time zone NOT NULL,
     resource_id character varying(128) NOT NULL,
+    contained_id character varying(128) NULL,
     version_id integer NOT NULL,
     is_deleted boolean NOT NULL,
     is_current boolean NOT NULL,
@@ -269,7 +270,7 @@ CREATE INDEX "IX_ResourceStore_method_id" ON "ResourceStore" (method_id);
 
 CREATE INDEX "IX_ResourceStore_resourcetype_id" ON "ResourceStore" (resourcetype_id);
 
-CREATE UNIQUE INDEX "UniqueIx_ResourceStore_FhirVer_ResType_ResId_ResVer" ON "ResourceStore" (fhirversion_id, resourcetype_id, resource_id, version_id);
+CREATE UNIQUE INDEX "UniqueIx_ResourceStore_FhirVer_ResType_ResId_ContId_ResVer" ON "ResourceStore" (fhirversion_id, resourcetype_id, resource_id, contained_id, version_id);
 
 CREATE INDEX "IX_SearchParameter_fhirversion_id" ON "SearchParameter" (fhirversion_id);
 
@@ -290,5 +291,5 @@ CREATE INDEX "IX_SearchParameterTargetResourceType_searchparameter_id" ON "Searc
 CREATE UNIQUE INDEX "Ix_ServiceBaseUrl_Url_FhirVersionId" ON "ServiceBaseUrl" (url, fhirversion_id);
 
 INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
-VALUES ('20200329055547_First', '3.1.1');
+VALUES ('20200411021813_First', '3.1.1');
 

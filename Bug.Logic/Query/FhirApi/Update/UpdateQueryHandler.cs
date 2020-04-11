@@ -12,6 +12,7 @@ using Bug.Logic.Service.Indexing;
 using Bug.Logic.Service.ReferentialIntegrity;
 using Bug.Logic.Service.ValidatorService;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Bug.Logic.Query.FhirApi.Update
@@ -31,6 +32,7 @@ namespace Bug.Logic.Query.FhirApi.Update
     private readonly IIndexer IIndexer;
     private readonly IMapper IMapper;
     private readonly IHeaderService IHeaderService;
+    private readonly IFhirResourceContainedSupport IFhirResourceContainedSupport;
 
 
     public UpdateQueryHandler(
@@ -45,7 +47,8 @@ namespace Bug.Logic.Query.FhirApi.Update
       IGZipper IGZipper,
       IIndexer IIndexer,
       IMapper IMapper,
-      IHeaderService IHeaderService)
+      IHeaderService IHeaderService,
+      IFhirResourceContainedSupport IFhirResourceContainedSupport)
     {
       this.IValidateQueryService = IValidateQueryService;
       this.IResourceStoreRepository = IResourceStoreRepository;      
@@ -59,6 +62,7 @@ namespace Bug.Logic.Query.FhirApi.Update
       this.IIndexer = IIndexer;
       this.IMapper = IMapper;
       this.IHeaderService = IHeaderService;
+      this.IFhirResourceContainedSupport = IFhirResourceContainedSupport;
     }
 
     public async Task<FhirApiTransactionalResult> Handle(UpdateQuery query)
@@ -92,23 +96,63 @@ namespace Bug.Logic.Query.FhirApi.Update
         PreviousResourseStore.IsCurrent = false;
         PreviousResourseStore.Updated = NewLastUpdated.ToZulu();
         NewVersionId = PreviousResourseStore.VersionId + 1;        
-        IResourceStoreRepository.UpdateCurrent(PreviousResourseStore);
+        await IResourceStoreRepository.UpdateCurrentAsync(PreviousResourseStore);
       }
 
-
-      Common.FhirTools.FhirResource UpdatedFhirResource = IUpdateResourceService.Process(
+      Common.FhirTools.FhirResource UpdatedResource = IUpdateResourceService.Process(
         new UpdateResource(query.FhirResource)
         {          
           VersionId = NewVersionId,
           LastUpdated = NewLastUpdated
-        });
-      
+        });      
       
       HttpStatusCode? HttpStatusCode = await IHttpStatusCodeCache.GetAsync(FinalyHttpStatusCode);
       if (HttpStatusCode is null)
         throw new ArgumentNullException($"Unable to locate {nameof(HttpStatusCode)} of type {FinalyHttpStatusCode.ToString()} in the database.");
 
-      
+
+      //Add any Contained resources and indexes
+      IList<FhirContainedResource> ContainedResourceList = IFhirResourceContainedSupport.GetContainedResourceDictionary(UpdatedResource);
+
+      foreach (var Contained in ContainedResourceList)
+      {
+        byte[] ContainedResourceBytes = IFhirResourceJsonSerializationService.SerializeToJsonBytes(Contained);
+
+        var ContainedResourceStore = new ResourceStore()
+        {
+          ResourceId = query.ResourceId,
+          ContainedId = Contained.ResourceId,
+          IsCurrent = true,
+          IsDeleted = false,
+          VersionId = NewVersionId,
+          LastUpdated = NewLastUpdated.ToZulu(),
+          ResourceBlob = IGZipper.Compress(ContainedResourceBytes),
+          ResourceTypeId = Contained.ResourceType,
+          FhirVersionId = Contained.FhirVersion,
+          MethodId = query.Method,
+          HttpStatusCodeId = HttpStatusCode.Id,
+          Created = NewLastUpdated.ToZulu(),
+          Updated = NewLastUpdated.ToZulu()
+        };
+
+        IndexerOutcome ContainedIndexerOutcome = await IIndexer.Process(Contained, Contained.ResourceType);
+
+        var ContainedReferentialIntegrityOutcome = await IReferentialIntegrityService.CheckOnCommit(Contained.FhirVersion, ContainedIndexerOutcome.ReferenceIndexList);
+        if (ContainedReferentialIntegrityOutcome.IsError)
+        {
+          return new FhirApiTransactionalResult(System.Net.HttpStatusCode.Conflict, Contained.FhirVersion, query.CorrelationId)
+          {
+            ResourceId = null,
+            FhirResource = ContainedReferentialIntegrityOutcome.FhirResource,
+            VersionId = null
+          };
+        }
+
+        IMapper.Map(ContainedIndexerOutcome, ContainedResourceStore);
+        IResourceStoreRepository.Add(ContainedResourceStore);
+      }
+
+      //Add the main resource and indexes
       var ResourceStore = new ResourceStore()
       {
         ResourceId = query.ResourceId,
@@ -116,7 +160,7 @@ namespace Bug.Logic.Query.FhirApi.Update
         IsDeleted = false,
         VersionId = NewVersionId,
         LastUpdated = NewLastUpdated.ToZulu(),
-        ResourceBlob = IGZipper.Compress(IFhirResourceJsonSerializationService.SerializeToJsonBytes(UpdatedFhirResource)),
+        ResourceBlob = IGZipper.Compress(IFhirResourceJsonSerializationService.SerializeToJsonBytes(UpdatedResource)),
         ResourceTypeId = ResourceType.Value,
         FhirVersionId = query.FhirVersion,
         HttpStatusCodeId = HttpStatusCode.Id,

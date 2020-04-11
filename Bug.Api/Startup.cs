@@ -149,11 +149,7 @@ namespace Bug.Api
       container.Register<Bug.Logic.Interfaces.CompositionRoot.IFhirIndexNumberSetterSupportFactory, Bug.Api.CompositionRoot.FhirIndexNumberSetterSupportFactory>(Lifestyle.Singleton);
       container.Register<Bug.Logic.Interfaces.CompositionRoot.IFhirIndexTokenSetterSupportFactory, Bug.Api.CompositionRoot.FhirIndexTokenSetterSupportFactory>(Lifestyle.Singleton);
       container.Register<Bug.Logic.Interfaces.CompositionRoot.IFhirTypedElementSupportFactory, Bug.Api.CompositionRoot.FhirTypedElementSupportFactory>(Lifestyle.Singleton);
-
-      
-
-
-
+      container.Register<Bug.Logic.Interfaces.CompositionRoot.IFhirContainedSupportFactory, Bug.Api.CompositionRoot.FhirContainedSupportFactory>(Lifestyle.Singleton);
 
       //-- Singleton Factories ---------------
       container.Register<Bug.Common.Interfaces.IFhirUriFactory, Bug.Logic.UriSupport.FhirUriFactory>(Lifestyle.Singleton);
@@ -202,6 +198,9 @@ namespace Bug.Api
       container.Register<Bug.Stu3Fhir.ResourceSupport.IStu3IsKnownResource, Bug.Stu3Fhir.ResourceSupport.FhirResourceSupport>(Lifestyle.Singleton);
       container.Register<Bug.Logic.Service.Fhir.IKnownResource, Bug.Logic.Service.Fhir.KnownResource>(Lifestyle.Singleton);
 
+      container.Register<Bug.Stu3Fhir.ResourceSupport.IStu3ContainedResourceDictionary, Bug.Stu3Fhir.ResourceSupport.FhirResourceSupport>(Lifestyle.Singleton);
+      container.Register<Bug.R4Fhir.ResourceSupport.IR4ContainedResourceDictionary, Bug.R4Fhir.ResourceSupport.FhirResourceSupport>(Lifestyle.Singleton);
+      container.Register<Logic.Service.Fhir.IFhirResourceContainedSupport, Logic.Service.Fhir.FhirResourceContainedSupport>(Lifestyle.Singleton);
 
 
       //-- Thread safe Indexing -------------
@@ -325,6 +324,8 @@ namespace Bug.Api
       container.Register<Logic.Service.SearchQuery.ISearchQueryService, Logic.Service.SearchQuery.SearchQueryService>(Lifestyle.Scoped);
       container.Register<Logic.Service.SearchQuery.ChainQuery.IChainQueryProcessingService, Logic.Service.SearchQuery.ChainQuery.ChainQueryProcessingService>(Lifestyle.Scoped);
       container.Register<Logic.Service.SearchQuery.SearchQueryEntity.ISearchQueryFactory, Logic.Service.SearchQuery.SearchQueryEntity.SearchQueryFactory>(Lifestyle.Scoped);
+      container.Register<Logic.Service.Serach.ISearchService, Logic.Service.Serach.SearchService>(Lifestyle.Scoped);
+      
 
       //-- Scoped Cache Services ---------------            
       container.Register<Logic.CacheService.IFhirVersionCache, Logic.CacheService.FhirVersionCache>(Lifestyle.Scoped);

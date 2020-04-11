@@ -16,6 +16,6 @@ namespace Bug.Logic.Interfaces.Repository
     Task<IList<ResourceStore>> GetInstanceHistoryListAsync(Common.Enums.FhirVersion fhirMajorVersion, Common.Enums.ResourceType resourceType, string resourceId);
     Task<IList<ResourceStore>> GetBaseHistoryListAsync(Common.Enums.FhirVersion fhirMajorVersion);
     Task<bool> ReferentialIntegrityCheckAsync(Common.Enums.FhirVersion fhirVersion, Common.Enums.ResourceType resourceTypeId, string resourceId, int? versionId = null);
-    void UpdateCurrent(ResourceStore resourceStore);
+    public Task UpdateCurrentAsync(ResourceStore resourceStore);
   }
 }

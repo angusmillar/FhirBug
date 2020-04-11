@@ -9,6 +9,7 @@ namespace Bug.Logic.DomainModel
   public class ResourceStore : BaseIntKey
   {
     public string ResourceId { get; set; }
+    public string? ContainedId { get; set; }
     public int VersionId { get; set; }
     public bool IsDeleted { get; set; }
     public bool IsCurrent { get; set; }

@@ -7,8 +7,21 @@ using System.Text;
 
 namespace Bug.R4Fhir.ResourceSupport
 {
-  public class FhirResourceSupport : IR4FhirResourceIdSupport, IR4FhirResourceVersionSupport, IR4FhirResourceLastUpdatedSupport, IR4FhirResourceNameSupport, IR4IsKnownResource
+  public class FhirResourceSupport : 
+    IR4FhirResourceIdSupport, 
+    IR4FhirResourceVersionSupport, 
+    IR4FhirResourceLastUpdatedSupport, 
+    IR4FhirResourceNameSupport, 
+    IR4IsKnownResource, 
+    IR4ContainedResourceDictionary
   {
+    private Bug.Common.Enums.FhirVersion FhirVersion { get; set; }
+    public FhirResourceSupport()
+    {
+      this.FhirVersion = Common.Enums.FhirVersion.R4;
+    }
+
+
     public void SetLastUpdated(DateTimeOffset dateTimeOffset, IFhirResourceR4 fhirResource)
     {
       NullCheck(fhirResource.R4, "resource");
@@ -112,6 +125,22 @@ namespace Bug.R4Fhir.ResourceSupport
     public bool IsKnownResource(string resourceName)
     {
       return ModelInfo.IsKnownResource(resourceName);
+    }
+
+    public IList<FhirContainedResource> GetContainedResourceDictionary(IFhirResourceR4 fhirResource)
+    {
+      List<FhirContainedResource> ResultList = new List<FhirContainedResource>();
+      Resource Resource = fhirResource.R4;
+      var ResourceTypeDic = Common.Enums.StringToEnumMap<Bug.Common.Enums.ResourceType>.GetDictionary();
+      if (Resource is DomainResource DomainResource)
+      {
+        foreach (Resource ContainedResource in DomainResource.Contained)
+        {
+          Bug.Common.Enums.ResourceType ResourceType = ResourceTypeDic[ContainedResource.ResourceType.GetLiteral()];
+          ResultList.Add(new FhirContainedResource(this.FhirVersion, ResourceType, ContainedResource.Id) { R4 = ContainedResource });
+        }
+      }
+      return ResultList;
     }
 
     private void NullCheck(object instance, string name)

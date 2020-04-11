@@ -13,6 +13,7 @@ using System;
 using System.Threading.Tasks;
 using Bug.Logic.Attributes;
 using Bug.Logic.Service.Headers;
+using System.Collections.Generic;
 
 namespace Bug.Logic.Query.FhirApi.Create
 {
@@ -31,6 +32,7 @@ namespace Bug.Logic.Query.FhirApi.Create
     private readonly IIndexer IIndexer;
     private readonly IMapper IMapper;
     private readonly IHeaderService IHeaderService;
+    private readonly IFhirResourceContainedSupport IFhirResourceContainedSupport;
 
     public CreateQueryHandler(
       IValidateQueryService IValidateQueryService,
@@ -44,7 +46,8 @@ namespace Bug.Logic.Query.FhirApi.Create
       IGZipper IGZipper,
       IIndexer IIndexer,
       IMapper IMapper,
-      IHeaderService IHeaderService)
+      IHeaderService IHeaderService,
+      IFhirResourceContainedSupport IFhirResourceContainedSupport)
     {
       this.IValidateQueryService = IValidateQueryService;
       this.IResourceStoreRepository = IResourceStoreRepository;
@@ -58,6 +61,7 @@ namespace Bug.Logic.Query.FhirApi.Create
       this.IIndexer = IIndexer;
       this.IMapper = IMapper;
       this.IHeaderService = IHeaderService;
+      this.IFhirResourceContainedSupport = IFhirResourceContainedSupport;
     }
 
     public async Task<FhirApiTransactionalResult> Handle(CreateQuery query)
@@ -79,34 +83,75 @@ namespace Bug.Logic.Query.FhirApi.Create
       if (!ResourceType.HasValue)
         throw new ArgumentNullException(nameof(ResourceType));
 
-      var UpdateResource = new UpdateResource(query.FhirResource)
+      var UpdatedResource = new UpdateResource(query.FhirResource)
       {
         ResourceId = FhirGuidSupport.NewFhirGuid(),
         VersionId = 1,
         LastUpdated = IServerDefaultDateTimeOffSet.Now()
       };
 
-      Common.FhirTools.FhirResource UpdatedFhirResource = IUpdateResourceService.Process(UpdateResource);
-      byte[] ResourceBytes = IFhirResourceJsonSerializationService.SerializeToJsonBytes(UpdatedFhirResource);
-
       HttpStatusCode? HttpStatusCode = await IHttpStatusCodeCache.GetAsync(System.Net.HttpStatusCode.Created);
       if (HttpStatusCode is null)
         throw new ArgumentNullException(nameof(HttpStatusCode));
 
+      Common.FhirTools.FhirResource UpdatedFhirResource = IUpdateResourceService.Process(UpdatedResource);
+      byte[] ResourceBytes = IFhirResourceJsonSerializationService.SerializeToJsonBytes(UpdatedFhirResource);
+
+      IList<FhirContainedResource> ContainedResourceList = IFhirResourceContainedSupport.GetContainedResourceDictionary(UpdatedFhirResource);
+
+      foreach(var Contained in ContainedResourceList)
+      {
+        byte[] ContainedResourceBytes = IFhirResourceJsonSerializationService.SerializeToJsonBytes(Contained);
+        
+        var ContainedResourceStore = new ResourceStore()
+        {
+          ResourceId = UpdatedResource.ResourceId,
+          ContainedId = Contained.ResourceId,
+          IsCurrent = true,
+          IsDeleted = false,
+          VersionId = UpdatedResource.VersionId.Value,
+          LastUpdated = UpdatedResource.LastUpdated.Value.ToZulu(),
+          ResourceBlob = IGZipper.Compress(ContainedResourceBytes),
+          ResourceTypeId = Contained.ResourceType,
+          FhirVersionId = Contained.FhirVersion,
+          MethodId = query.Method,
+          HttpStatusCodeId = HttpStatusCode.Id,
+          Created = UpdatedResource.LastUpdated.Value.ToZulu(),
+          Updated = UpdatedResource.LastUpdated.Value.ToZulu()
+        };
+
+        IndexerOutcome ContainedIndexerOutcome = await IIndexer.Process(Contained, Contained.ResourceType);
+
+        var ContainedReferentialIntegrityOutcome = await IReferentialIntegrityService.CheckOnCommit(Contained.FhirVersion, ContainedIndexerOutcome.ReferenceIndexList);
+        if (ContainedReferentialIntegrityOutcome.IsError)
+        {
+          return new FhirApiTransactionalResult(System.Net.HttpStatusCode.Conflict, Contained.FhirVersion, query.CorrelationId)
+          {
+            ResourceId = null,
+            FhirResource = ContainedReferentialIntegrityOutcome.FhirResource,
+            VersionId = null
+          };
+        }
+
+        IMapper.Map(ContainedIndexerOutcome, ContainedResourceStore);
+        IResourceStoreRepository.Add(ContainedResourceStore);
+      }
+
       var ResourceStore = new ResourceStore()
       {
-        ResourceId = UpdateResource.ResourceId,
+        ResourceId = UpdatedResource.ResourceId,
+        ContainedId = null,
         IsCurrent = true,
         IsDeleted = false,
-        VersionId = UpdateResource.VersionId.Value,
-        LastUpdated = UpdateResource.LastUpdated.Value.ToZulu(),
+        VersionId = UpdatedResource.VersionId.Value,
+        LastUpdated = UpdatedResource.LastUpdated.Value.ToZulu(),
         ResourceBlob = IGZipper.Compress(ResourceBytes),
         ResourceTypeId = ResourceType.Value,
         FhirVersionId = UpdatedFhirResource.FhirVersion,
         MethodId = query.Method,
         HttpStatusCodeId = HttpStatusCode.Id,
-        Created = UpdateResource.LastUpdated.Value.ToZulu(),
-        Updated = UpdateResource.LastUpdated.Value.ToZulu()
+        Created = UpdatedResource.LastUpdated.Value.ToZulu(),
+        Updated = UpdatedResource.LastUpdated.Value.ToZulu()
       };
 
       IndexerOutcome IndexerOutcome = await IIndexer.Process(query.FhirResource, ResourceType.Value);
@@ -129,15 +174,15 @@ namespace Bug.Logic.Query.FhirApi.Create
 
       var OutCome = new FhirApiTransactionalResult(System.Net.HttpStatusCode.Created, query.FhirVersion, query.CorrelationId)
       {
-        ResourceId = UpdateResource.ResourceId,
+        ResourceId = UpdatedResource.ResourceId,
         FhirResource = UpdatedFhirResource,
-        VersionId = UpdateResource.VersionId,
+        VersionId = UpdatedResource.VersionId,
         Headers = await IHeaderService.AddForCreateAsync(
           UpdatedFhirResource.FhirVersion,
           query.RequestUri.Scheme,
-          UpdateResource.LastUpdated.Value,
-          UpdateResource.ResourceId,
-          UpdateResource.VersionId.Value),
+          UpdatedResource.LastUpdated.Value,
+          UpdatedResource.ResourceId,
+          UpdatedResource.VersionId.Value),
         CommitTransaction = true
       };
            
