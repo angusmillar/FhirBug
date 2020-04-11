@@ -26,6 +26,7 @@ namespace Bug.Logic.Service.SearchQuery.ChainQuery
     private ISearchQueryBase? PreviousChainSearchParameter;
     private bool ErrorInSearchParameterProcessing = false;
     private readonly List<InvalidSearchQueryParameter> InvalidSearchQueryParameterList;
+    private readonly List<InvalidSearchQueryParameter> UnsupportedSearchQueryParameterList;
     private string RawParameter = string.Empty;
 
     public ChainQueryProcessingService(IResourceTypeSupport IResourceTypeSupport,
@@ -39,6 +40,7 @@ namespace Bug.Logic.Service.SearchQuery.ChainQuery
       this.ISearchQueryFactory = ISearchQueryFactory;
 
       this.InvalidSearchQueryParameterList = new List<InvalidSearchQueryParameter>();
+      this.UnsupportedSearchQueryParameterList = new List<InvalidSearchQueryParameter>();
     }
 
 
@@ -84,7 +86,28 @@ namespace Bug.Logic.Service.SearchQuery.ChainQuery
             else
             {
               ErrorInSearchParameterProcessing = true;
-              InvalidSearchQueryParameterList.Add(new InvalidSearchQueryParameter(this.RawParameter, $"The resource type modifier: {ParameterModifierSplit[1].Trim()} within the chained search query of {this.RawParameter} is not a known resource for FHIR version: {this.FhirVersion.GetCode()} within this server"));
+              //If the Parent is ok then we can assume that any error further down the chain is an invalid search term rather than an unsupported term
+              //as it is clear that this is a FHIR search term and not some other search parameter forgen to FHIR
+              if (ParentChainSearchParameter is object)
+              {
+                InvalidSearchQueryParameterList.Add(new InvalidSearchQueryParameter(this.RawParameter, $"The resource type modifier: {ParameterModifierSplit[1].Trim()} within the chained search query of {this.RawParameter} is not a known resource for FHIR version: {this.FhirVersion.GetCode()} within this server"));
+              }
+              else
+              {
+                //Here we are only looking up the ParameterName to check weather this should be an unsupported parameter or an invalid parameter.
+                //If we know the ParameterName then it is invalid whereas if we don't then it is unsupported and both are not known.
+                List<Bug.Logic.DomainModel.SearchParameter> TempSearchParameterList = await ISearchParameterCache.GetForIndexingAsync(this.FhirVersion, this.ResourceContext);
+                var TempSearchParameter = TempSearchParameterList.SingleOrDefault(x => x.Name == ParameterName);
+                if (TempSearchParameter is null)
+                {
+                  string Message = $"Both the search parameter name: {ParameterName} for the resource type: {this.ResourceContext.GetCode()} and its resource type modifier: {ParameterModifierSplit[1].Trim()} within the chained search query of {this.RawParameter} are unsupported within this server for FHIR version: {this.FhirVersion.GetCode()}.";
+                  UnsupportedSearchQueryParameterList.Add(new InvalidSearchQueryParameter(this.RawParameter, Message));
+                }
+                else
+                {
+                  InvalidSearchQueryParameterList.Add(new InvalidSearchQueryParameter(this.RawParameter, $"The resource type modifier: {ParameterModifierSplit[1].Trim()} within the chained search query of {this.RawParameter} is not a known resource type for this server and FHIR version {this.FhirVersion.GetCode()}."));
+                }
+              }                            
               break;
             }
           }
@@ -106,11 +129,14 @@ namespace Bug.Logic.Service.SearchQuery.ChainQuery
         else
         {
           ErrorInSearchParameterProcessing = true;
-          InvalidSearchQueryParameterList.Add(new InvalidSearchQueryParameter(RawParameter, $"The resource search parameter name of: {ParameterName} within the chained search query of: {this.RawParameter} is not a known search parameter for the resource: {this.ResourceContext} for this server in FHIR version: {this.FhirVersion.GetCode()}"));
+          if (this.InvalidSearchQueryParameterList.Count == 0 && this.UnsupportedSearchQueryParameterList.Count == 0)
+          {
+            throw new ApplicationException("Internal Server Error: When processing a chain search query we failed to resolve a search parameter for the query string however their are " +
+              $"no items found in either the {nameof(InvalidSearchQueryParameterList)} or the {nameof(UnsupportedSearchQueryParameterList)}. This is an error in its self.");
+          }          
           break;
         }
       }
-
 
       //End of Chain loop
       if (!ErrorInSearchParameterProcessing)
@@ -128,6 +154,7 @@ namespace Bug.Logic.Service.SearchQuery.ChainQuery
       else
       {
         InvalidSearchQueryParameterList.ForEach(x => Outcome!.InvalidSearchQueryList.Add(x));
+        UnsupportedSearchQueryParameterList.ForEach(x => Outcome!.UnsupportedSearchQueryList.Add(x));
         return Outcome;
       }
 
@@ -195,7 +222,7 @@ namespace Bug.Logic.Service.SearchQuery.ChainQuery
         if (SearchParameter is null)
         {
           ErrorInSearchParameterProcessing = true;
-          InvalidSearchQueryParameterList.Add(new InvalidSearchQueryParameter(this.RawParameter, $"The resource search parameter name of: {parameterName} within the chained search query of: {this.RawParameter} is not a known search parameter for the resource: {this.ResourceContext} for this server in FHIR version: {this.FhirVersion.GetCode()}"));
+          UnsupportedSearchQueryParameterList.Add(new InvalidSearchQueryParameter(this.RawParameter, $"The resource search parameter name of: {parameterName} within the chained search query of: {this.RawParameter} is not a known search parameter for the resource: {this.ResourceContext} for this server in FHIR version: {this.FhirVersion.GetCode()}"));
           return null;
         }
         else
@@ -286,22 +313,32 @@ namespace Bug.Logic.Service.SearchQuery.ChainQuery
                 ErrorInSearchParameterProcessing = true;
                 InvalidSearchQueryParameterList.Add(new InvalidSearchQueryParameter(this.RawParameter, Message));
                 return null;
-
-              }
-              
-              
+              }                           
             }
           }
         }
         else if (CheckModifierTypeResourceValidForSearchParameter(PreviousChainSearchParameter.TypeModifierResource, PreviousChainSearchParameter.TargetResourceTypeList))
         {
+          //PreviousChainSearchParameter.TypeModifierResource = PreviousChainSearchParameter.TypeModifierResource;
           //Double check the final Type modifier resource resolved is valid for the previous search parameter, the user could have got it wrong in the query.
           ResourceType ResourceTypeTest = IResourceTypeSupport.GetTypeFromName(PreviousChainSearchParameter.TypeModifierResource)!.Value;
           FhirVersion FhirVersionTest = this.FhirVersion;
           var TempSearchParameterList = await this.ISearchParameterCache.GetForIndexingAsync(FhirVersionTest, ResourceTypeTest);
           SearchParameter = TempSearchParameterList.SingleOrDefault(x => x.Name == parameterName);
-          PreviousChainSearchParameter.TypeModifierResource = PreviousChainSearchParameter.TypeModifierResource;
-          return SearchParameter;
+          if (SearchParameter is object)
+          {
+            return SearchParameter;
+          }
+          else
+          {
+            string ResourceName = ResourceTypeTest.GetCode();
+            string Message = $"The chained search query part: {parameterName} is not a supported search parameter name for the resource type: {ResourceName} for this server in FHIR version {this.FhirVersion.GetCode()}. ";
+            Message += $"Additional information: ";
+            Message += $"This search parameter was a chained search parameter. The part that was not recognized was: {parameterName}.";
+            ErrorInSearchParameterProcessing = true;
+            InvalidSearchQueryParameterList.Add(new InvalidSearchQueryParameter(this.RawParameter, Message));
+            return null;
+          }          
         }
         else
         {

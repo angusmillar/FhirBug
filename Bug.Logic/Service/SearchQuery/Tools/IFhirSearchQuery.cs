@@ -19,13 +19,8 @@ namespace Bug.Logic.Service.SearchQuery.Tools
     Dictionary<string, StringValues> ParametersDictionary { get; }
     string? Query { get; }    
     IList<FhirSearchQuery.SortParameter> Sort { get; }
+    IList<HasParameter> Has { get; set; }
     SummaryType? SummaryType { get; }
-    string? Text { get; }
-    /// <summary>
-    /// If false then the InvalidParameterList property will have at least one error.
-    /// </summary>
-    /// <param name="query"></param>
-    /// <returns></returns>
-    bool Parse(Dictionary<string, StringValues> query);
+    string? Text { get; }    
   }
 }

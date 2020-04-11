@@ -11,9 +11,12 @@ namespace Bug.Logic.Service.SearchQuery.ChainQuery
     {
       this.SearchQueryList = new List<ISearchQueryBase>();
       this.InvalidSearchQueryList = new List<Tools.InvalidSearchQueryParameter>();
+      this.UnsupportedSearchQueryList = new List<Tools.InvalidSearchQueryParameter>();
     }
 
     public List<ISearchQueryBase> SearchQueryList { get; set; }
     public List<Tools.InvalidSearchQueryParameter> InvalidSearchQueryList { get; set; }
+    public List<Tools.InvalidSearchQueryParameter> UnsupportedSearchQueryList { get; set; }
+
   }
 }

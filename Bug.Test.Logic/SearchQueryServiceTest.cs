@@ -18,16 +18,16 @@ namespace Bug.Test.Logic
   public class SearchQueryServiceTest
   {
     [Theory]
-    [InlineData(FhirVersion.R4, ResourceType.Observation, "subject.organizationXX.name", "acmehealth")]
-    [InlineData(FhirVersion.Stu3, ResourceType.Observation, "subject.organizationXX.name", "acmehealth")]
-    [InlineData(FhirVersion.Stu3, ResourceType.Observation, "subjectXX.organization.name", "acmehealth")]    
-    [InlineData(FhirVersion.Stu3, ResourceType.Observation, "subject.organization.nameXX", "acmehealth")]
-    [InlineData(FhirVersion.Stu3, ResourceType.Observation, "subject..organization.nameXX", "acmehealth")]
-    [InlineData(FhirVersion.Stu3, ResourceType.Observation, "subject.organization..nameXX", "acmehealth")]
-    [InlineData(FhirVersion.Stu3, ResourceType.Observation, "subject:PatientXXX.organization..nameXX", "acmehealth")]
-    [InlineData(FhirVersion.Stu3, ResourceType.Observation, "subject:Patient.organization:OrganizationXXX.name", "acmehealth")]
+    [InlineData(FhirVersion.R4, ResourceType.Observation, "subject.organizationXX.name", "acmehealth", "Invalid")]
+    [InlineData(FhirVersion.Stu3, ResourceType.Observation, "subject.organizationXX.name", "acmehealth", "Invalid")]
+    [InlineData(FhirVersion.Stu3, ResourceType.Observation, "subjectXX.organization.name", "acmehealth", "Unsupported")]
+    [InlineData(FhirVersion.Stu3, ResourceType.Observation, "subject.organization.nameXX", "acmehealth", "Invalid")]
+    [InlineData(FhirVersion.Stu3, ResourceType.Observation, "subject..organization.nameXX", "acmehealth", "Invalid")]
+    [InlineData(FhirVersion.Stu3, ResourceType.Observation, "subject.organization..nameXX", "acmehealth", "Invalid")]
+    [InlineData(FhirVersion.Stu3, ResourceType.Observation, "subject:PatientXXX.organization..nameXX", "acmehealth", "Unsupported")]
+    [InlineData(FhirVersion.Stu3, ResourceType.Observation, "subject:Patient.organization:OrganizationXXX.name", "acmehealth", "Invalid")]
 
-    public void ChainQueryNegative(FhirVersion fhirVersion, ResourceType resourceContext, string parameterName, string parameterValue)
+    public void ChainQueryNegative(FhirVersion fhirVersion, ResourceType resourceContext, string parameterName, string parameterValue, string InvalidUnsupported)
     {
       //Prepare
       SearchQueryService SearchQueryService = SetupSearchQueryService();
@@ -44,17 +44,31 @@ namespace Bug.Test.Logic
       ISerachQueryServiceOutcome Outcome = SearchQueryService.Process(fhirVersion, resourceContext, FhirSearchQuery).Result;
 
       //Assert
-      Assert.NotNull(Outcome);
-      Assert.True(Outcome.InvalidSearchQueryList.Count > 0);
+      Assert.NotNull(Outcome);      
       Assert.Null(Outcome.CountRequested);
       Assert.Equal(0, Outcome.SearchQueryList.Count);
       Assert.Equal(Common.Enums.ResourceType.Observation, Outcome.ResourceContext);
-
-      foreach (var Error in Outcome.InvalidSearchQueryList)
+      if (InvalidUnsupported.ToLower() == "invalid")
       {
-        Assert.Equal(parameterName, Error.Name);
-        Assert.Equal(parameterValue, Error.Value);
-        Assert.True(Error.ErrorMessage.Length > 5);
+        Assert.True(Outcome.InvalidSearchQueryList.Count > 0);
+      }
+      else
+      {
+        Assert.True(Outcome.UnsupportedSearchQueryList.Count > 0);
+      }
+      
+      foreach (var InvalidItem in Outcome.InvalidSearchQueryList)
+      {
+        Assert.Equal(parameterName, InvalidItem.Name);
+        Assert.Equal(parameterValue, InvalidItem.Value);
+        Assert.True(InvalidItem.ErrorMessage.Length > 5);
+      }
+      
+      foreach (var UnsupportedItem in Outcome.UnsupportedSearchQueryList)
+      {
+        Assert.Equal(parameterName, UnsupportedItem.Name);
+        Assert.Equal(parameterValue, UnsupportedItem.Value);
+        Assert.True(UnsupportedItem.ErrorMessage.Length > 5);
       }
     }
 
@@ -119,7 +133,7 @@ namespace Bug.Test.Logic
     {
       //Prepare
       SearchQueryService SearchQueryService = SetupSearchQueryService();
-      Dictionary<string, StringValues> QueryDictonary; 
+      Dictionary<string, StringValues> QueryDictonary;
       if (!string.IsNullOrWhiteSpace(isRecurseIterate))
       {
         if (modifierResource.HasValue)
@@ -136,7 +150,7 @@ namespace Bug.Test.Logic
             { $"{parameterInclude.GetCode()}:{isRecurseIterate}", new StringValues($"{sourceResource.GetCode()}:{searchParameterName}") },
           };
         }
-        
+
       }
       else
       {
@@ -154,7 +168,7 @@ namespace Bug.Test.Logic
             { $"{parameterInclude.GetCode()}", new StringValues($"{sourceResource.GetCode()}:{searchParameterName}") },
           };
         }
-         
+
       }
 
       FhirSearchQuery FhirSearchQuery = new FhirSearchQuery();
@@ -201,17 +215,75 @@ namespace Bug.Test.Logic
       {
         Assert.Null(IncludeItem.SearchParameterTargetResourceType);
       }
-      
+
       Assert.Single(IncludeItem.SearchParameterList);
       var SearchParameter = IncludeItem.SearchParameterList[0];
       Assert.Equal(searchParameterName, SearchParameter.Name);
 
     }
 
+
+    [Theory]
+    //_include:recurse=Observation:subject:Patient"
+
+    [InlineData(FhirVersion.Stu3, ResourceType.Patient, "_has:Observation:patient:code=1234-5")]
+    [InlineData(FhirVersion.Stu3, ResourceType.Patient, "_has:Observation:patient:_has:AuditEvent:entity:entity-name=MyUserId")]    
+    public void HasQueryPositive(FhirVersion fhirVersion, ResourceType resourceContext, string Query)
+    {
+      //Prepare
+      SearchQueryService SearchQueryService = SetupSearchQueryService();
+      Dictionary<string, StringValues> QueryDictonary;
+
+      QueryDictonary = new Dictionary<string, StringValues>
+      {
+        { Query.Split('=')[0], new StringValues(Query.Split('=')[1]) },
+      };
+
+
+      FhirSearchQuery FhirSearchQuery = new FhirSearchQuery();
+      FhirSearchQuery.Parse(QueryDictonary);
+
+      //Act
+      ISerachQueryServiceOutcome Outcome = SearchQueryService.Process(fhirVersion, resourceContext, FhirSearchQuery).Result;
+
+      //Assert
+      Assert.NotNull(Outcome);
+      Assert.Equal(1, Outcome.HasList.Count);
+      Assert.Equal(0, Outcome.InvalidSearchQueryList.Count);
+      Assert.Equal(0, Outcome.UnsupportedSearchQueryList.Count);
+      Assert.Equal(0, Outcome.SearchQueryList.Count);
+      Assert.Equal(resourceContext, Outcome.ResourceContext);
+      var HasItem = Outcome.HasList[0];
+      Assert.Equal("Observation", HasItem.TargetResourceForSearchQuery.GetCode());
+      if (Query.Split("_has").Length == 2)
+      {
+        Assert.Null(HasItem.ChildSearchQueryHas);
+        Assert.Equal("patient", HasItem.BackReferenceSearchParameter.Name);
+        Assert.Equal("code", HasItem.SearchQuery.Name);
+        if (HasItem.SearchQuery is SearchQueryString SearchQueryString)
+          Assert.Equal("1234-5", SearchQueryString.ValueList[0].Value);
+      }
+      else
+      {
+        Assert.Equal("patient", HasItem.BackReferenceSearchParameter.Name);        
+        Assert.Null(HasItem.SearchQuery);
+        Assert.NotNull(HasItem.ChildSearchQueryHas);
+        Assert.Equal("AuditEvent", HasItem.ChildSearchQueryHas!.TargetResourceForSearchQuery.GetCode());
+        Assert.Equal("entity", HasItem.ChildSearchQueryHas!.BackReferenceSearchParameter.Name);
+        Assert.Equal("entity-name", HasItem.ChildSearchQueryHas!.SearchQuery.Name);
+        if (HasItem.ChildSearchQueryHas!.SearchQuery is object)
+        {
+          if (HasItem.ChildSearchQueryHas.SearchQuery is SearchQueryString SearchQueryString)
+            Assert.Equal("MyUserId".ToLower(), SearchQueryString.ValueList[0].Value);
+        }        
+      }   
+    }
+
+
     private SearchQueryService SetupSearchQueryService()
     {
       ISearchParameterCache ISearchParameterCache = SetupSearchParameterCache();
-      SearchQueryFactory SearchQueryFactory = SetupSearchQueryFactory(ISearchParameterCache);      
+      SearchQueryFactory SearchQueryFactory = SetupSearchQueryFactory(ISearchParameterCache);
       IResourceTypeSupport IResourceTypeSupport = new ResourceTypeSupport();
       var IKnownResourceMock = IKnownResource_MockFactory.Get();
       IChainQueryProcessingService IChainQueryProcessingService = new ChainQueryProcessingService(IResourceTypeSupport, IKnownResourceMock.Object, ISearchParameterCache, SearchQueryFactory);

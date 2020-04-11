@@ -291,6 +291,78 @@ namespace Bug.Test.Logic.Support
              {
                //new SearchParameterComponent() {  Id = 1,  Expression = "code", Definition= "http://hl7.org/fhir/SearchParameter/clinical-code" },               
              }
+          },
+          new SearchParameter()
+          {
+             Id = 14,
+             Name = "patient",
+             Description = "Bla bla bla",
+             FhirPath = "AllergyIntolerance.patient | CarePlan.subject.where(resolve() is Patient) | CareTeam.subject.where(resolve() is Patient) | ClinicalImpression.subject.where(resolve() is Patient) | Composition.subject.where(resolve() is Patient) | Condition.subject.where(resolve() is Patient) | Consent.patient | DetectedIssue.patient | DeviceRequest.subject.where(resolve() is Patient) | DeviceUseStatement.subject | DiagnosticReport.subject.where(resolve() is Patient) | DocumentManifest.subject.where(resolve() is Patient) | DocumentReference.subject.where(resolve() is Patient) | Encounter.subject.where(resolve() is Patient) | EpisodeOfCare.patient | FamilyMemberHistory.patient | Flag.subject.where(resolve() is Patient) | Goal.subject.where(resolve() is Patient) | ImagingStudy.subject.where(resolve() is Patient) | Immunization.patient | List.subject.where(resolve() is Patient) | MedicationAdministration.subject.where(resolve() is Patient) | MedicationDispense.subject.where(resolve() is Patient) | MedicationRequest.subject.where(resolve() is Patient) | MedicationStatement.subject.where(resolve() is Patient) | NutritionOrder.patient | Observation.subject.where(resolve() is Patient) | Procedure.subject.where(resolve() is Patient) | RiskAssessment.subject.where(resolve() is Patient) | ServiceRequest.subject.where(resolve() is Patient) | SupplyDelivery.patient | VisionPrescription.patient",
+             Url = "http://hl7.org/fhir/SearchParameter/clinical-patient",
+             SearchParamTypeId = Common.Enums.SearchParamType.Reference,
+             FhirVersionId = fhirVersion,
+             ResourceTypeList = new List<SearchParameterResourceType>()
+             {
+               new SearchParameterResourceType() { Id = 1, ResourceTypeId = Common.Enums.ResourceType.Observation},
+               new SearchParameterResourceType() { Id = 1, ResourceTypeId = Common.Enums.ResourceType.MedicationRequest},               
+               //..and others
+             },
+             TargetResourceTypeList = new List<SearchParameterTargetResourceType>()
+             {
+              new SearchParameterTargetResourceType() { Id = 1, ResourceTypeId = Common.Enums.ResourceType.Patient},
+              new SearchParameterTargetResourceType() { Id = 1, ResourceTypeId = Common.Enums.ResourceType.Group}
+             },
+             ComponentList = new List<SearchParameterComponent>()
+             {
+               //new SearchParameterComponent() {  Id = 1,  Expression = "code", Definition= "http://hl7.org/fhir/SearchParameter/clinical-code" },               
+             }
+          },
+          new SearchParameter()
+          {
+             Id = 15,
+             Name = "entity",
+             Description = "Bla bla bla",
+             FhirPath = "AuditEvent.entity.what",
+             Url = "http://hl7.org/fhir/SearchParameter/AuditEvent-entity",
+             SearchParamTypeId = Common.Enums.SearchParamType.Reference,
+             FhirVersionId = fhirVersion,
+             ResourceTypeList = new List<SearchParameterResourceType>()
+             {
+               new SearchParameterResourceType() { Id = 1, ResourceTypeId = Common.Enums.ResourceType.AuditEvent},
+               //..and others
+             },
+             TargetResourceTypeList = new List<SearchParameterTargetResourceType>()
+             {
+              new SearchParameterTargetResourceType() { Id = 1, ResourceTypeId = Common.Enums.ResourceType.Observation},
+              new SearchParameterTargetResourceType() { Id = 1, ResourceTypeId = Common.Enums.ResourceType.Patient}
+             },
+             ComponentList = new List<SearchParameterComponent>()
+             {
+               //new SearchParameterComponent() {  Id = 1,  Expression = "code", Definition= "http://hl7.org/fhir/SearchParameter/clinical-code" },               
+             }
+          },
+          new SearchParameter()
+          {
+             Id = 16,
+             Name = "entity-name",
+             Description = "Bla bla bla",
+             FhirPath = "AuditEvent.entity.name",
+             Url = "http://hl7.org/fhir/SearchParameter/AuditEvent-entity-name",
+             SearchParamTypeId = Common.Enums.SearchParamType.String,
+             FhirVersionId = fhirVersion,
+             ResourceTypeList = new List<SearchParameterResourceType>()
+             {
+               new SearchParameterResourceType() { Id = 1, ResourceTypeId = Common.Enums.ResourceType.AuditEvent},
+               //..and others
+             },
+             TargetResourceTypeList = new List<SearchParameterTargetResourceType>()
+             {
+              //new SearchParameterTargetResourceType() { Id = 1, ResourceTypeId = Common.Enums.ResourceType.Observation},              
+             },
+             ComponentList = new List<SearchParameterComponent>()
+             {
+               //new SearchParameterComponent() {  Id = 1,  Expression = "code", Definition= "http://hl7.org/fhir/SearchParameter/clinical-code" },               
+             }
           }
 
         };

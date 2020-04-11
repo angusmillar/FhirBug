@@ -27,12 +27,14 @@ namespace Bug.Logic.Service.SearchQuery.Tools
     public const string TermPage = "page";
     public const char TermChainDelimiter = '.';
     public const char TermSearchModifierDelimiter = ':';
+    public const string TermHas = "_has";
 
     public int? Count { get; set; }
     public int? Page { get; set; }
     public IList<IncludeParameter> RevInclude { get; set; }
     public IList<IncludeParameter> Include { get; set; }
     public IList<SortParameter> Sort { get; set; }
+    public IList<HasParameter> Has { get; set; }
     public IList<InvalidSearchQueryParameter> InvalidParameterList { get; set; }
     public ContainedSearch? Contained { get; set; }
     public ContainedType? ContainedType { get; set; }
@@ -50,6 +52,7 @@ namespace Bug.Logic.Service.SearchQuery.Tools
       this.RevInclude = new List<IncludeParameter>();
       this.Include = new List<IncludeParameter>();
       this.Sort = new List<SortParameter>();
+      this.Has = new List<HasParameter>();
       this.ParametersDictionary = new Dictionary<string, StringValues>();
       this.QueryItemProcessed = false;
     }
@@ -77,6 +80,9 @@ namespace Bug.Logic.Service.SearchQuery.Tools
 
         //Sort
         ParseSortParameter(Item);
+
+        //Has
+        ParseHasParameter(Item);
 
         //ContainedType       
         if (TryParseSingleEnumTerm(Item, TermContained, out ContainedSearch Contained))
@@ -152,7 +158,6 @@ namespace Bug.Logic.Service.SearchQuery.Tools
       return false;
     }
 
-
     private bool TryParseSingleEnumTerm<EnumType>(KeyValuePair<string, StringValues> Item, string Term, out EnumType EnumValue)
       where EnumType : Enum
     {
@@ -194,6 +199,63 @@ namespace Bug.Logic.Service.SearchQuery.Tools
       EnumValue = default;
 #pragma warning restore CS8653 // A default expression introduces a null value for a type parameter.
       return false;
+    }
+
+    private void ParseHasParameter(KeyValuePair<string, StringValues> Item)
+    {
+      //GET [base]/Patient?_has:Observation:patient:code=1234-5
+      //or
+      //GET [base]/Patient?_has:Observation:patient:_has:AuditEvent:entity:user=MyUserId
+      if (Item.Key.StartsWith($"{TermHas}{TermSearchModifierDelimiter}"))
+      {
+        this.QueryItemProcessed = true;
+        var HasSplit = Item.Key.Split(TermHas);
+        FhirSearchQuery.HasParameter? RootHasParameter = null;
+        FhirSearchQuery.HasParameter? PreviousHasParameter = null;        
+        for (int i = 1; i < HasSplit.Length; i++)
+        {
+          var ModifierSplit = HasSplit[i].Split(TermSearchModifierDelimiter);
+          if (ModifierSplit.Length == 4 && RootHasParameter is null)
+          {
+            if (ModifierSplit[3] == string.Empty)
+            {
+              RootHasParameter = new HasParameter(ModifierSplit[1], ModifierSplit[2]);
+              RootHasParameter.RawHasParameter = $"{Item.Key}={ Item.Value}";
+              PreviousHasParameter = RootHasParameter;
+            }
+            else
+            {
+              RootHasParameter = new HasParameter(ModifierSplit[1], ModifierSplit[2]);
+              RootHasParameter.SearchQuery = new KeyValuePair<string, StringValues>(ModifierSplit[3], Item.Value);
+              RootHasParameter.RawHasParameter = $"{Item.Key}={ Item.Value}";
+              PreviousHasParameter = RootHasParameter;
+            }            
+          }  
+          else if (ModifierSplit.Length == 4 && RootHasParameter is object)
+          {
+            if (ModifierSplit[3] == string.Empty)
+            {
+              PreviousHasParameter!.ChildHasParameter = new HasParameter(ModifierSplit[1], ModifierSplit[2]);
+              PreviousHasParameter = PreviousHasParameter!.ChildHasParameter;
+            }
+            else
+            {
+              PreviousHasParameter!.ChildHasParameter = new HasParameter(ModifierSplit[1], ModifierSplit[2]);
+              PreviousHasParameter!.ChildHasParameter.SearchQuery = new KeyValuePair<string, StringValues>(ModifierSplit[3], Item.Value);
+              PreviousHasParameter = PreviousHasParameter!.ChildHasParameter;
+            }
+          }
+          else
+          {
+            this.InvalidParameterList.Add(new InvalidSearchQueryParameter(Item.Key, Item.Value, $"The {TermHas} query must contain a resource name followed by a reference search parameter name followed by another {TermHas} parameter or a search parameter and value where each is separated by a colon {TermSearchModifierDelimiter}. For instance: _has:Observation:patient:code=1234-5 or _has:Observation:patient:_has:AuditEvent:entity:user=MyUserId. The {TermHas} qery found was : {Item.Key}={Item.Value} "));
+          }
+        }
+
+        if (RootHasParameter is object)
+        {
+          this.Has.Add(RootHasParameter);
+        }
+      }
     }
 
     private void ParseSortParameter(KeyValuePair<string, StringValues> Item)
@@ -297,6 +359,21 @@ namespace Bug.Logic.Service.SearchQuery.Tools
       }
     }
 
+    public class HasParameter
+    {
+      public string RawHasParameter { get; set; }
+      public HasParameter? ChildHasParameter { get; set; }
+      public string TargetResourceForSearchQuery { get; set; }
+      public string BackReferenceSearchParameterName { get; set; }
+      public KeyValuePair<string, StringValues>? SearchQuery { get; set; }
+
+      public HasParameter(string TargetResource, string ReferenceSearchParameterName)
+      {
+        this.TargetResourceForSearchQuery = TargetResource;
+        this.BackReferenceSearchParameterName = ReferenceSearchParameterName;
+      }
+
+    }
 
   }
 }

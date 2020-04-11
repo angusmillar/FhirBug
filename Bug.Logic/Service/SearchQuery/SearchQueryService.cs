@@ -46,10 +46,11 @@ namespace Bug.Logic.Service.SearchQuery
       this.FhirVersion = fhirVersion;
       this.ResourceContext = resourceTypeContext;
       this.SearchQuery = searchQuery;
-      Outcome = new SerachQueryServiceOutcome(this.ResourceContext, searchQuery);
+      Outcome = new SerachQueryServiceOutcome(this.FhirVersion ,this.ResourceContext, searchQuery);
       //Parse Include and RevInclude parameters
       await ProcessIncludeSearchParameters(this.SearchQuery.Include);
       await ProcessIncludeSearchParameters(this.SearchQuery.RevInclude);
+      await ProccessHasList(this.SearchQuery.Has);
 
       foreach (var Parameter in searchQuery.ParametersDictionary)
       {
@@ -61,6 +62,7 @@ namespace Bug.Logic.Service.SearchQuery
             ChainQueryProcessingOutcome ChainQueryProcessingOutcome = await IChainQueryProcessingService.Process(this.FhirVersion, this.ResourceContext, Parameter);
             ChainQueryProcessingOutcome.SearchQueryList.ForEach(x => Outcome.SearchQueryList.Add(x));
             ChainQueryProcessingOutcome.InvalidSearchQueryList.ForEach(x => Outcome.InvalidSearchQueryList.Add(x));
+            ChainQueryProcessingOutcome.UnsupportedSearchQueryList.ForEach(x => Outcome.UnsupportedSearchQueryList.Add(x));
           }
           else
           {
@@ -69,6 +71,100 @@ namespace Bug.Logic.Service.SearchQuery
         }
       }
       return Outcome;
+    }
+
+    private async Task ProccessHasList(IList<HasParameter> HasList)
+    {
+      foreach(var Has in HasList)
+      {
+        SearchQueryHas? Result = await ProccessHas(Has, Has.RawHasParameter);
+        if (Result is object)
+        {
+          Outcome!.HasList.Add(Result);
+        }
+      }      
+    }
+
+    private async Task<SearchQueryHas?> ProccessHas(HasParameter Has, string RawHasParameter)
+    {
+      var Result = new SearchQueryHas();
+
+      ResourceType? TargetResourceForSearchQuery = IResourceTypeSupport.GetTypeFromName(Has.TargetResourceForSearchQuery);
+      if (TargetResourceForSearchQuery.HasValue && IKnownResource.IsKnownResource(this.FhirVersion, Has.TargetResourceForSearchQuery))
+      {
+        Result.TargetResourceForSearchQuery = TargetResourceForSearchQuery.Value;
+      }
+      else
+      {
+        Outcome!.InvalidSearchQueryList.Add(new InvalidSearchQueryParameter(RawHasParameter, $"The resource type name of: {Has.TargetResourceForSearchQuery} in a {FhirSearchQuery.TermHas} parameter could not be resolved to a resource type supported by this server for FHIR version {this.FhirVersion.GetCode()}."));
+        return null;
+      }
+
+      List<Bug.Logic.DomainModel.SearchParameter> SearchParameterList = await ISearchParameterCache.GetForIndexingAsync(this.FhirVersion, Result.TargetResourceForSearchQuery);
+      Bug.Logic.DomainModel.SearchParameter BackReferenceSearchParameter = SearchParameterList.SingleOrDefault(x => x.Name == Has.BackReferenceSearchParameterName);
+      if (BackReferenceSearchParameter is object && BackReferenceSearchParameter.SearchParamTypeId == SearchParamType.Reference)
+      {
+        Result.BackReferenceSearchParameter = BackReferenceSearchParameter;
+      }
+      else
+      {
+        if (BackReferenceSearchParameter is null)
+        {
+          string Message = $"The reference search parameter back to the target resource type of: {Has.BackReferenceSearchParameterName} is not a supported search parameter for the resource type {this.ResourceContext.GetCode()} for FHIR version {this.FhirVersion.GetCode()} within this server.";           
+          Outcome!.InvalidSearchQueryList.Add(new InvalidSearchQueryParameter(RawHasParameter, Message));
+          return null;
+        }
+      }
+
+      if (Has.ChildHasParameter is object)
+      {
+        Result.ChildSearchQueryHas = await ProccessHas(Has.ChildHasParameter, RawHasParameter);
+        return Result;
+      }
+      else
+      {
+        if (Has.SearchQuery.HasValue)
+        {
+          SearchParameterList = await ISearchParameterCache.GetForIndexingAsync(this.FhirVersion, Result.TargetResourceForSearchQuery);
+          Bug.Logic.DomainModel.SearchParameter SearchParameter = SearchParameterList.SingleOrDefault(x => x.Name == Has.SearchQuery.Value.Key);
+          if (SearchParameter is object)
+          {
+            IList<ISearchQueryBase> SearchQueryBaseList = await ISearchQueryFactory.Create(this.ResourceContext, SearchParameter, Has.SearchQuery.Value);
+            if (SearchQueryBaseList.Count == 1)
+            {
+              if (SearchQueryBaseList[0].IsValid)
+              {
+                Result.SearchQuery = SearchQueryBaseList[0];
+                return Result;
+              }
+              else
+              {
+                string Message = $"Error parsing the search parameter found at the end of a {FhirSearchQuery.TermHas} query. The search parameter name was : {Has.SearchQuery.Value.Key} with the value of {Has.SearchQuery.Value.Value}. " +
+                  $"Additional information: {SearchQueryBaseList[0].InvalidMessage}";
+                Outcome!.InvalidSearchQueryList.Add(new InvalidSearchQueryParameter(RawHasParameter, Message));
+                return null;
+              }
+            }
+            else
+            {
+              throw new ApplicationException($"The {FhirSearchQuery.TermHas} parameter seems to end with more then one search parameter, this should not be possible.");
+            }           
+          }
+          else
+          {
+            string Message = $"The {FhirSearchQuery.TermHas} query finish with a search parameter: {Has.SearchQuery.Value.Key} for the resource type of: {Result.TargetResourceForSearchQuery.GetCode()}. " +
+              $"However, the search parameter: {Has.SearchQuery.Value.Key} is not a supported search parameter for this resource type in this server for FHIR version {this.FhirVersion.GetCode()}.";
+            Outcome!.InvalidSearchQueryList.Add(new InvalidSearchQueryParameter(RawHasParameter, Message));
+            return null;
+          }
+        }
+        else
+        {
+          string Message = $"The {FhirSearchQuery.TermHas} query does not finish with a search parameter and value.";
+          Outcome!.InvalidSearchQueryList.Add(new InvalidSearchQueryParameter(RawHasParameter, Message));
+          return null;
+        }
+      }
     }
 
     private async Task NormalSearchProcessing(KeyValuePair<string, StringValues> Parameter)
@@ -98,7 +194,7 @@ namespace Bug.Logic.Service.SearchQuery
         foreach (var ParamValue in Parameter.Value)
         {
           string Message = $"The search query parameter: {Parameter.Key} is not supported by this server for the resource type: {ResourceContext.GetCode()}, the whole parameter was : {Parameter.Key}={ParamValue}";
-          Outcome!.InvalidSearchQueryList.Add(new InvalidSearchQueryParameter(Parameter.Key, ParamValue, Message));
+          Outcome!.UnsupportedSearchQueryList.Add(new InvalidSearchQueryParameter(Parameter.Key, ParamValue, Message));
         }
       }
     }
@@ -230,7 +326,7 @@ namespace Bug.Logic.Service.SearchQuery
             }
           }
 
-          //All ok so add as valid include
+          //All Ok so add as valid include
           if (ParseOk)
           {            
             Outcome!.IncludeList.Add(SearchParameterInclude);

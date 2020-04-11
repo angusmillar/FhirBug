@@ -323,8 +323,8 @@ namespace Bug.Api
       
       //Scoped Search Services -----------------
       container.Register<Logic.Service.SearchQuery.ISearchQueryService, Logic.Service.SearchQuery.SearchQueryService>(Lifestyle.Scoped);
+      container.Register<Logic.Service.SearchQuery.ChainQuery.IChainQueryProcessingService, Logic.Service.SearchQuery.ChainQuery.ChainQueryProcessingService>(Lifestyle.Scoped);
       container.Register<Logic.Service.SearchQuery.SearchQueryEntity.ISearchQueryFactory, Logic.Service.SearchQuery.SearchQueryEntity.SearchQueryFactory>(Lifestyle.Scoped);
-
 
       //-- Scoped Cache Services ---------------            
       container.Register<Logic.CacheService.IFhirVersionCache, Logic.CacheService.FhirVersionCache>(Lifestyle.Scoped);

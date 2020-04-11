@@ -44,7 +44,7 @@ namespace Bug.Logic.Query.FhirApi.Decorator
         bool ResourceInBody = (query is CreateQuery || query is UpdateQuery);        
         ILogger.LogInformation(this.Pad(" Has Resource", ResourceInBody.ToString(), Length));                  
         ILogger.LogInformation(this.PadRight($" -- HEADERS ", Length, '-'));
-        foreach (var Header in FhirApiQuery.RequestHeaderDictionary)
+        foreach (var Header in FhirApiQuery.Headers.HeaderDictionary)
         {
           ILogger.LogInformation(this.Pad($"    {Header.Key}", Header.Value, Length));          
         }      

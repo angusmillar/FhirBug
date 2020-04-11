@@ -17,15 +17,18 @@ namespace Bug.Logic.Query.FhirApi.Search
     private readonly IValidateQueryService IValidateQueryService;
     private readonly IResourceTypeSupport IResourceTypeSupport;
     private readonly ISearchQueryService ISearchQueryService;
+    private readonly IOperationOutcomeSupport IOperationOutcomeSupport;
 
     public SearchQueryHandler(
       IValidateQueryService IValidateQueryService,
       IResourceTypeSupport IResourceTypeSupport,
-      ISearchQueryService ISearchQueryService)
+      ISearchQueryService ISearchQueryService,
+      IOperationOutcomeSupport IOperationOutcomeSupport)
     {
       this.IValidateQueryService = IValidateQueryService;
       this.IResourceTypeSupport = IResourceTypeSupport;
       this.ISearchQueryService = ISearchQueryService;
+      this.IOperationOutcomeSupport = IOperationOutcomeSupport;
     }
 
     public async Task<FhirApiResult> Handle(SearchQuery query)
@@ -47,8 +50,25 @@ namespace Bug.Logic.Query.FhirApi.Search
 
 
       ISerachQueryServiceOutcome SerachQueryServiceOutcome = await ISearchQueryService.Process(query.FhirVersion, ResourceType.Value, query.RequestQuery);
-
-
+      if (query.Headers.PreferHandling == Common.Enums.PreferHandlingType.Strict && (SerachQueryServiceOutcome.HasInvalidQuery || SerachQueryServiceOutcome.HasUnsupportedQuery))
+      {
+        return new FhirApiResult(System.Net.HttpStatusCode.Forbidden, SerachQueryServiceOutcome.FhirVersion, query.CorrelationId)
+        {
+          ResourceId = null,
+          FhirResource = SerachQueryServiceOutcome.InvalidAndUnsupportedQueryOperationOutCome(IOperationOutcomeSupport),
+          VersionId = null
+        };
+      }
+      else if (SerachQueryServiceOutcome.HasInvalidQuery)
+      {
+        return new FhirApiResult(System.Net.HttpStatusCode.Forbidden, SerachQueryServiceOutcome.FhirVersion, query.CorrelationId)
+        {
+          ResourceId = null,
+          FhirResource = SerachQueryServiceOutcome.InvalidQueryOperationOutCome(IOperationOutcomeSupport),
+          VersionId = null
+        };
+      }
+      
     
 
       
