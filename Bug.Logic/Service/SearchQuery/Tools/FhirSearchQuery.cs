@@ -371,6 +371,7 @@ namespace Bug.Logic.Service.SearchQuery.Tools
       {
         this.TargetResourceForSearchQuery = TargetResource;
         this.BackReferenceSearchParameterName = ReferenceSearchParameterName;
+        this.RawHasParameter = string.Empty;
       }
 
     }
