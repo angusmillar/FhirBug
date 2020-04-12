@@ -177,31 +177,34 @@ namespace Bug.Api
       container.Register<Bug.Logic.Service.Indexing.Setter.IUriSetterSupport, Bug.Logic.Service.Indexing.Setter.UriSetterSupport>(Lifestyle.Singleton);
       container.Register<Bug.Logic.Service.Indexing.ITypedElementSupport, Bug.Logic.Service.Indexing.TypedElementSupport>(Lifestyle.Singleton);
 
-      container.Register<Bug.Stu3Fhir.ResourceSupport.IStu3FhirResourceIdSupport, Bug.Stu3Fhir.ResourceSupport.FhirResourceSupport>(Lifestyle.Singleton);
-      container.Register<Bug.R4Fhir.ResourceSupport.IR4FhirResourceIdSupport, Bug.R4Fhir.ResourceSupport.FhirResourceSupport>(Lifestyle.Singleton);
+
+      //-- Thread safe FHIR Tools---------------   One Implementation many Interfaces
+      var Stu3FhirResourceSupportRegistration = Lifestyle.Singleton.CreateRegistration<Bug.Stu3Fhir.ResourceSupport.FhirResourceSupport>(container);
+      var R4FhirResourceSupportRegistration = Lifestyle.Singleton.CreateRegistration<Bug.R4Fhir.ResourceSupport.FhirResourceSupport>(container);
+
+      container.AddRegistration(typeof(Bug.Stu3Fhir.ResourceSupport.IStu3FhirResourceIdSupport), Stu3FhirResourceSupportRegistration);
+      container.AddRegistration(typeof(Bug.R4Fhir.ResourceSupport.IR4FhirResourceIdSupport), R4FhirResourceSupportRegistration);
       container.Register<Logic.Service.Fhir.IFhirResourceIdSupport, Logic.Service.Fhir.FhirResourceIdSupport>(Lifestyle.Singleton);
 
-      container.Register<Bug.Stu3Fhir.ResourceSupport.IStu3FhirResourceLastUpdatedSupport, Bug.Stu3Fhir.ResourceSupport.FhirResourceSupport>(Lifestyle.Singleton);
-      container.Register<Bug.R4Fhir.ResourceSupport.IR4FhirResourceLastUpdatedSupport, Bug.R4Fhir.ResourceSupport.FhirResourceSupport>(Lifestyle.Singleton);
+      container.AddRegistration(typeof(Bug.Stu3Fhir.ResourceSupport.IStu3FhirResourceLastUpdatedSupport), Stu3FhirResourceSupportRegistration);
+      container.AddRegistration(typeof(Bug.R4Fhir.ResourceSupport.IR4FhirResourceLastUpdatedSupport), R4FhirResourceSupportRegistration);
       container.Register<Logic.Service.Fhir.IFhirResourceLastUpdatedSupport, Logic.Service.Fhir.FhirResourceLastUpdatedSupport>(Lifestyle.Singleton);
 
-      container.Register<Bug.Stu3Fhir.ResourceSupport.IStu3FhirResourceVersionSupport, Bug.Stu3Fhir.ResourceSupport.FhirResourceSupport>(Lifestyle.Singleton);
-      container.Register<Bug.R4Fhir.ResourceSupport.IR4FhirResourceVersionSupport, Bug.R4Fhir.ResourceSupport.FhirResourceSupport>(Lifestyle.Singleton);
+      container.AddRegistration(typeof(Bug.Stu3Fhir.ResourceSupport.IStu3FhirResourceVersionSupport), Stu3FhirResourceSupportRegistration);
+      container.AddRegistration(typeof(Bug.R4Fhir.ResourceSupport.IR4FhirResourceVersionSupport), R4FhirResourceSupportRegistration);
       container.Register<Logic.Service.Fhir.IFhirResourceVersionSupport, Logic.Service.Fhir.FhirResourceVersionSupport>(Lifestyle.Singleton);
 
-
-      container.Register<Bug.R4Fhir.ResourceSupport.IR4FhirResourceNameSupport, Bug.R4Fhir.ResourceSupport.FhirResourceSupport>(Lifestyle.Singleton);
-      container.Register<Bug.Stu3Fhir.ResourceSupport.IStu3FhirResourceNameSupport, Bug.Stu3Fhir.ResourceSupport.FhirResourceSupport>(Lifestyle.Singleton);
+      container.AddRegistration(typeof(Bug.Stu3Fhir.ResourceSupport.IStu3FhirResourceNameSupport), Stu3FhirResourceSupportRegistration);
+      container.AddRegistration(typeof(Bug.R4Fhir.ResourceSupport.IR4FhirResourceNameSupport), R4FhirResourceSupportRegistration);
       container.Register<Logic.Service.Fhir.IFhirResourceNameSupport, Logic.Service.Fhir.FhirResourceNameSupport>(Lifestyle.Singleton);
 
-      container.Register<Bug.R4Fhir.ResourceSupport.IR4IsKnownResource, Bug.R4Fhir.ResourceSupport.FhirResourceSupport>(Lifestyle.Singleton);
-      container.Register<Bug.Stu3Fhir.ResourceSupport.IStu3IsKnownResource, Bug.Stu3Fhir.ResourceSupport.FhirResourceSupport>(Lifestyle.Singleton);
+      container.AddRegistration(typeof(Bug.Stu3Fhir.ResourceSupport.IStu3IsKnownResource), Stu3FhirResourceSupportRegistration);
+      container.AddRegistration(typeof(Bug.R4Fhir.ResourceSupport.IR4IsKnownResource), R4FhirResourceSupportRegistration);      
       container.Register<Bug.Logic.Service.Fhir.IKnownResource, Bug.Logic.Service.Fhir.KnownResource>(Lifestyle.Singleton);
 
-      container.Register<Bug.Stu3Fhir.ResourceSupport.IStu3ContainedResourceDictionary, Bug.Stu3Fhir.ResourceSupport.FhirResourceSupport>(Lifestyle.Singleton);
-      container.Register<Bug.R4Fhir.ResourceSupport.IR4ContainedResourceDictionary, Bug.R4Fhir.ResourceSupport.FhirResourceSupport>(Lifestyle.Singleton);
+      container.AddRegistration(typeof(Bug.Stu3Fhir.ResourceSupport.IStu3ContainedResourceDictionary), Stu3FhirResourceSupportRegistration);
+      container.AddRegistration(typeof(Bug.R4Fhir.ResourceSupport.IR4ContainedResourceDictionary), R4FhirResourceSupportRegistration);
       container.Register<Logic.Service.Fhir.IFhirResourceContainedSupport, Logic.Service.Fhir.FhirResourceContainedSupport>(Lifestyle.Singleton);
-
 
       //-- Thread safe Indexing -------------
       container.Register<Bug.R4Fhir.Indexing.Setter.Support.IR4DateTimeIndexSupport, Bug.R4Fhir.Indexing.Setter.Support.R4DateTimeIndexSupport>(Lifestyle.Singleton);
