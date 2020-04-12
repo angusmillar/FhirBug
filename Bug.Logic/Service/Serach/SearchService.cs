@@ -11,7 +11,7 @@ namespace Bug.Logic.Service.Serach
   public class SearchService : ISearchService
   {
     private readonly IResourceStoreRepository IResourceStoreRepository;
-    private SearchServiceOutcome Outcome;
+    private readonly SearchServiceOutcome Outcome;
     public SearchService(IResourceStoreRepository IResourceStoreRepository)
     {
       this.IResourceStoreRepository = IResourceStoreRepository;
@@ -23,6 +23,7 @@ namespace Bug.Logic.Service.Serach
       IEnumerable<ISearchQueryBase> ChainedSearchQueryList = ISerachQueryServiceOutcome.SearchQueryList.Where(x => x.ChainedSearchParameter is object);
       IEnumerable<ISearchQueryBase> NoChainedSearchQueryList = ISerachQueryServiceOutcome.SearchQueryList.Where(x => x.ChainedSearchParameter is null);
 
+     
       return Outcome;
     }
   }

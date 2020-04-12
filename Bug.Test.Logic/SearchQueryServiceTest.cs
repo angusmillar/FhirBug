@@ -258,19 +258,24 @@ namespace Bug.Test.Logic
       if (Query.Split("_has").Length == 2)
       {
         Assert.Null(HasItem.ChildSearchQueryHas);
-        Assert.Equal("patient", HasItem.BackReferenceSearchParameter.Name);
-        Assert.Equal("code", HasItem.SearchQuery.Name);
+        Assert.NotNull(HasItem.BackReferenceSearchParameter);
+        Assert.Equal("patient", HasItem.BackReferenceSearchParameter!.Name);
+        Assert.NotNull(HasItem.SearchQuery);
+        Assert.Equal("code", HasItem.SearchQuery!.Name);
         if (HasItem.SearchQuery is SearchQueryString SearchQueryString)
           Assert.Equal("1234-5", SearchQueryString.ValueList[0].Value);
       }
       else
       {
-        Assert.Equal("patient", HasItem.BackReferenceSearchParameter.Name);        
+        Assert.NotNull(HasItem.BackReferenceSearchParameter);
+        Assert.Equal("patient", HasItem.BackReferenceSearchParameter!.Name);        
         Assert.Null(HasItem.SearchQuery);
         Assert.NotNull(HasItem.ChildSearchQueryHas);
         Assert.Equal("AuditEvent", HasItem.ChildSearchQueryHas!.TargetResourceForSearchQuery.GetCode());
-        Assert.Equal("entity", HasItem.ChildSearchQueryHas!.BackReferenceSearchParameter.Name);
-        Assert.Equal("entity-name", HasItem.ChildSearchQueryHas!.SearchQuery.Name);
+        Assert.NotNull(HasItem.ChildSearchQueryHas!.BackReferenceSearchParameter);
+        Assert.Equal("entity", HasItem.ChildSearchQueryHas!.BackReferenceSearchParameter!.Name);
+        Assert.NotNull(HasItem.ChildSearchQueryHas!.SearchQuery);
+        Assert.Equal("entity-name", HasItem.ChildSearchQueryHas!.SearchQuery!.Name);
         if (HasItem.ChildSearchQueryHas!.SearchQuery is object)
         {
           if (HasItem.ChildSearchQueryHas.SearchQuery is SearchQueryString SearchQueryString)
