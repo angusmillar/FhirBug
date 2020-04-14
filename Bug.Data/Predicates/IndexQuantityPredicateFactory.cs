@@ -10,22 +10,22 @@ using System.Text;
 
 namespace Bug.Data.Predicates
 {
-  public static class IndexQuantityPredicateFactory
+  public class IndexQuantityPredicateFactory : IIndexQuantityPredicateFactory
   {
-    
-    public static Expression<Func<ResourceStore, bool>> QuantityIndex(SearchQueryQuantity SearchQueryQuantity)
+
+    public Expression<Func<ResourceStore, bool>> QuantityIndex(SearchQueryQuantity SearchQueryQuantity)
     {
-       var ResourceStorePredicate = LinqKit.PredicateBuilder.New<ResourceStore>(true);
+      var ResourceStorePredicate = LinqKit.PredicateBuilder.New<ResourceStore>(true);
 
       foreach (SearchQueryQuantityValue QuantityValue in SearchQueryQuantity.ValueList)
-      {        
+      {
         var IndexQuantityPredicate = LinqKit.PredicateBuilder.New<IndexQuantity>(true);
         IndexQuantityPredicate = IndexQuantityPredicate.And(IsSearchParameterId(SearchQueryQuantity.Id));
 
         if (!SearchQueryQuantity.Modifier.HasValue)
         {
           if (!QuantityValue.Prefix.HasValue)
-          {            
+          {
             IndexQuantityPredicate = IndexQuantityPredicate.And(EqualTo(QuantityValue));
             ResourceStorePredicate = ResourceStorePredicate.Or(AnyIndex(IndexQuantityPredicate));
           }
@@ -42,7 +42,7 @@ namespace Bug.Data.Predicates
                   break;
                 case SearchComparator.Ne:
                   IndexQuantityPredicate = IndexQuantityPredicate.And(NotEqualTo(QuantityValue));
-                  ResourceStorePredicate = ResourceStorePredicate.Or(AnyIndex(IndexQuantityPredicate));                  
+                  ResourceStorePredicate = ResourceStorePredicate.Or(AnyIndex(IndexQuantityPredicate));
                   break;
                 case SearchComparator.Gt:
                   IndexQuantityPredicate = IndexQuantityPredicate.And(GreaterThan(QuantityValue));
@@ -50,7 +50,7 @@ namespace Bug.Data.Predicates
                   break;
                 case SearchComparator.Lt:
                   IndexQuantityPredicate = IndexQuantityPredicate.And(LessThan(QuantityValue));
-                  ResourceStorePredicate = ResourceStorePredicate.Or(AnyIndex(IndexQuantityPredicate));                  
+                  ResourceStorePredicate = ResourceStorePredicate.Or(AnyIndex(IndexQuantityPredicate));
                   break;
                 case SearchComparator.Ge:
                   IndexQuantityPredicate = IndexQuantityPredicate.And(GreaterThanOrEqualTo(QuantityValue));
@@ -59,16 +59,16 @@ namespace Bug.Data.Predicates
                 case SearchComparator.Le:
                   IndexQuantityPredicate = IndexQuantityPredicate.And(LessThanOrEqualTo(QuantityValue));
                   ResourceStorePredicate = ResourceStorePredicate.Or(AnyIndex(IndexQuantityPredicate));
-                  break;                                
+                  break;
                 default:
                   throw new System.ComponentModel.InvalidEnumArgumentException(QuantityValue.Prefix.Value.GetCode(), (int)QuantityValue.Prefix.Value, typeof(SearchComparator));
               }
             }
             else
             {
-              string SupportedPrefixes = String.Join(',', ArrayOfSupportedPrefixes); 
+              string SupportedPrefixes = String.Join(',', ArrayOfSupportedPrefixes);
               throw new ApplicationException($"Internal Server Error: The search query prefix: {QuantityValue.Prefix.Value.GetCode()} is not supported for search parameter types of: {SearchQueryQuantity.SearchParamTypeId.GetCode()}. The supported prefixes are: {SupportedPrefixes}");
-            }              
+            }
           }
         }
         else
@@ -94,7 +94,7 @@ namespace Bug.Data.Predicates
                 {
                   throw new ApplicationException($"Internal Server Error: Encountered a Quantity Query with a: {SearchModifierCode.Missing.GetCode()} modifier and a prefix of {QuantityValue.Prefix!.GetCode()}. This should not happen as a missing parameter value must be only True or False with no prefix.");
                 }
-                break;              
+                break;
               default:
                 throw new ApplicationException($"Internal Server Error: The search query modifier: {SearchQueryQuantity.Modifier.Value.GetCode()} has been added to the supported list for {SearchQueryQuantity.SearchParamTypeId.GetCode()} search parameter queries and yet no database predicate has been provided.");
             }
@@ -102,13 +102,13 @@ namespace Bug.Data.Predicates
           else
           {
             throw new ApplicationException($"Internal Server Error: The search query modifier: {SearchQueryQuantity.Modifier.Value.GetCode()} is not supported for search parameter types of {SearchQueryQuantity.SearchParamTypeId.GetCode()}.");
-          }         
-        }        
+          }
+        }
       }
       return ResourceStorePredicate;
     }
 
-    private static Expression<Func<IndexQuantity, bool>> EqualTo(SearchQueryQuantityValue QuantityValue)
+    private Expression<Func<IndexQuantity, bool>> EqualTo(SearchQueryQuantityValue QuantityValue)
     {
       var Predicate = LinqKit.PredicateBuilder.New<IndexQuantity>(true);
       if (QuantityValue.Value.HasValue && QuantityValue.Scale.HasValue)
@@ -130,8 +130,7 @@ namespace Bug.Data.Predicates
         throw new ArgumentNullException($"Internal Server Error: The {nameof(QuantityValue)} property of {nameof(QuantityValue.Value)} was found to be null.");
       }
     }
-
-    private static Expression<Func<IndexQuantity, bool>> NotEqualTo(SearchQueryQuantityValue QuantityValue)
+    private Expression<Func<IndexQuantity, bool>> NotEqualTo(SearchQueryQuantityValue QuantityValue)
     {
       var Predicate = LinqKit.PredicateBuilder.New<IndexQuantity>(true);
       if (QuantityValue.Value.HasValue && QuantityValue.Scale.HasValue)
@@ -153,8 +152,7 @@ namespace Bug.Data.Predicates
         throw new ArgumentNullException($"Internal Server Error: The {nameof(QuantityValue)} property of {nameof(QuantityValue.Value)} was found to be null.");
       }
     }
-
-    private static Expression<Func<IndexQuantity, bool>> GreaterThan(SearchQueryQuantityValue QuantityValue)
+    private Expression<Func<IndexQuantity, bool>> GreaterThan(SearchQueryQuantityValue QuantityValue)
     {
       var Predicate = LinqKit.PredicateBuilder.New<IndexQuantity>(true);
       if (QuantityValue.Value.HasValue && QuantityValue.Scale.HasValue)
@@ -176,8 +174,7 @@ namespace Bug.Data.Predicates
         throw new ArgumentNullException($"Internal Server Error: The {nameof(QuantityValue)} property of {nameof(QuantityValue.Value)} was found to be null.");
       }
     }
-
-    private static Expression<Func<IndexQuantity, bool>> GreaterThanOrEqualTo(SearchQueryQuantityValue QuantityValue)
+    private Expression<Func<IndexQuantity, bool>> GreaterThanOrEqualTo(SearchQueryQuantityValue QuantityValue)
     {
       var Predicate = LinqKit.PredicateBuilder.New<IndexQuantity>(true);
       if (QuantityValue.Value.HasValue && QuantityValue.Scale.HasValue)
@@ -199,8 +196,7 @@ namespace Bug.Data.Predicates
         throw new ArgumentNullException($"Internal Server Error: The {nameof(QuantityValue)} property of {nameof(QuantityValue.Value)} was found to be null.");
       }
     }
-
-    private static Expression<Func<IndexQuantity, bool>> LessThan(SearchQueryQuantityValue QuantityValue)
+    private Expression<Func<IndexQuantity, bool>> LessThan(SearchQueryQuantityValue QuantityValue)
     {
       var Predicate = LinqKit.PredicateBuilder.New<IndexQuantity>(true);
       if (QuantityValue.Value.HasValue && QuantityValue.Scale.HasValue)
@@ -222,8 +218,7 @@ namespace Bug.Data.Predicates
         throw new ArgumentNullException($"Internal Server Error: The {nameof(QuantityValue)} property of {nameof(QuantityValue.Value)} was found to be null.");
       }
     }
-
-    private static Expression<Func<IndexQuantity, bool>> LessThanOrEqualTo(SearchQueryQuantityValue QuantityValue)
+    private Expression<Func<IndexQuantity, bool>> LessThanOrEqualTo(SearchQueryQuantityValue QuantityValue)
     {
       var Predicate = LinqKit.PredicateBuilder.New<IndexQuantity>(true);
       if (QuantityValue.Value.HasValue && QuantityValue.Scale.HasValue)
@@ -245,25 +240,22 @@ namespace Bug.Data.Predicates
         throw new ArgumentNullException($"Internal Server Error: The {nameof(QuantityValue)} property of {nameof(QuantityValue.Value)} was found to be null.");
       }
     }
-
-
-    private static Expression<Func<ResourceStore, bool>> AnyIndex(Expression<Func<IndexQuantity, bool>> Predicate)
+    private Expression<Func<ResourceStore, bool>> AnyIndex(Expression<Func<IndexQuantity, bool>> Predicate)
     {
       return x => x.QuantityIndexList.Any(Predicate.Compile());
     }
-    private static Expression<Func<ResourceStore, bool>> AnyIndexEquals(Expression<Func<IndexQuantity, bool>> Predicate, bool Equals)
+    private Expression<Func<ResourceStore, bool>> AnyIndexEquals(Expression<Func<IndexQuantity, bool>> Predicate, bool Equals)
     {
       return x => x.QuantityIndexList.Any(Predicate.Compile()) == Equals;
     }
-    private static Expression<Func<IndexQuantity, bool>> IsSearchParameterId(int searchParameterId)
+    private Expression<Func<IndexQuantity, bool>> IsSearchParameterId(int searchParameterId)
     {
       return x => x.SearchParameterId == searchParameterId;
-    }        
-   
-    private static Expression<Func<IndexQuantity, bool>> QuantityEqualTo(decimal midValue, int scale)
+    }
+    private Expression<Func<IndexQuantity, bool>> QuantityEqualTo(decimal midValue, int scale)
     {
       var PredicateMain = LinqKit.PredicateBuilder.New<IndexQuantity>(true);
-      var lowValue = DecimalSupport.CalculateLowNumber(midValue, scale);      
+      var lowValue = DecimalSupport.CalculateLowNumber(midValue, scale);
       var highValue = DecimalSupport.CalculateHighNumber(midValue, scale);
 
       //PredicateOne: x => x.Quantity >= lowValue && x.Quantity <= highValue && x.Comparator == null      
@@ -274,7 +266,7 @@ namespace Bug.Data.Predicates
 
       //PredicateTwo: x => x.Quantity <= midValue && x.Comparator == GreaterOrEqual  
       var PredicateTwo = LinqKit.PredicateBuilder.New<IndexQuantity>(true);
-      PredicateTwo = PredicateTwo.And(IndexDecimal_IsLowerThanOrEqualTo(midValue));      
+      PredicateTwo = PredicateTwo.And(IndexDecimal_IsLowerThanOrEqualTo(midValue));
       PredicateTwo = PredicateTwo.And(ComparatorIsEqualTo(QuantityComparator.GreaterOrEqual));
 
       //PredicateThree: x => x.Quantity >= midValue && x.Comparator == LessOrEqual  
@@ -300,15 +292,14 @@ namespace Bug.Data.Predicates
 
       return PredicateMain;
     }
-
-    private static Expression<Func<IndexQuantity, bool>> QuantityNotEqualTo(decimal midValue, int scale)
+    private Expression<Func<IndexQuantity, bool>> QuantityNotEqualTo(decimal midValue, int scale)
     {
       var PredicateMain = LinqKit.PredicateBuilder.New<IndexQuantity>(true);
       var lowValue = DecimalSupport.CalculateLowNumber(midValue, scale);
       var highValue = DecimalSupport.CalculateHighNumber(midValue, scale);
 
       //PredicateOne: x => (x.Quantity < lowValue || x.Quantity > highValue) && x.Comparator == null            
-      var PredicateOne = LinqKit.PredicateBuilder.New<IndexQuantity>(true);      
+      var PredicateOne = LinqKit.PredicateBuilder.New<IndexQuantity>(true);
       var SubOr = LinqKit.PredicateBuilder.New<IndexQuantity>(true);
       SubOr = SubOr.Or(IndexDecimal_IsLowerThan(lowValue));
       SubOr = SubOr.Or(IndexDecimal_IsHigherThan(highValue));
@@ -343,14 +334,13 @@ namespace Bug.Data.Predicates
 
       return PredicateMain;
     }
-
-    private static Expression<Func<IndexQuantity, bool>> QuantityGreaterThen(decimal midValue)
+    private Expression<Func<IndexQuantity, bool>> QuantityGreaterThen(decimal midValue)
     {
       var PredicateMain = LinqKit.PredicateBuilder.New<IndexQuantity>(true);
-    
+
       //PredicateOne: x => x.Quantity > midValue && x.Comparator == null      
       var PredicateOne = LinqKit.PredicateBuilder.New<IndexQuantity>(true);
-      PredicateOne = PredicateOne.And(IndexDecimal_IsHigherThan(midValue));      
+      PredicateOne = PredicateOne.And(IndexDecimal_IsHigherThan(midValue));
       PredicateOne = PredicateOne.And(ComparatorIsNull());
 
       //PredicateTwo: x => x.Comparator == GreaterOrEqual || x.Comparator == GreaterThan 
@@ -366,19 +356,18 @@ namespace Bug.Data.Predicates
       //PredicateFour: x => x.Quantity > midValue && x.Comparator == LessThan  
       var PredicateFour = LinqKit.PredicateBuilder.New<IndexQuantity>(true);
       PredicateFour = PredicateFour.And(IndexDecimal_IsHigherThan(midValue));
-      PredicateFour = PredicateFour.And(ComparatorIsEqualTo(QuantityComparator.LessThan));      
+      PredicateFour = PredicateFour.And(ComparatorIsEqualTo(QuantityComparator.LessThan));
 
       PredicateMain = PredicateMain.Or(PredicateOne);
       PredicateMain = PredicateMain.Or(PredicateTwo);
       PredicateMain = PredicateMain.Or(PredicateThree);
-      PredicateMain = PredicateMain.Or(PredicateFour);     
+      PredicateMain = PredicateMain.Or(PredicateFour);
 
       return PredicateMain;
     }
-
-    private static Expression<Func<IndexQuantity, bool>> QuantityGreaterThanOrEqualTo(decimal midValue)
+    private Expression<Func<IndexQuantity, bool>> QuantityGreaterThanOrEqualTo(decimal midValue)
     {
-      var PredicateMain = LinqKit.PredicateBuilder.New<IndexQuantity>(true);      
+      var PredicateMain = LinqKit.PredicateBuilder.New<IndexQuantity>(true);
 
       //PredicateOne: x => x.Quantity > midValue && x.Comparator == null      
       var PredicateOne = LinqKit.PredicateBuilder.New<IndexQuantity>(true);
@@ -407,11 +396,10 @@ namespace Bug.Data.Predicates
 
       return PredicateMain;
     }
-
-    private static Expression<Func<IndexQuantity, bool>> QuantityLessThen(decimal midValue)
+    private Expression<Func<IndexQuantity, bool>> QuantityLessThen(decimal midValue)
     {
       var PredicateMain = LinqKit.PredicateBuilder.New<IndexQuantity>(true);
-     
+
       //PredicateOne: x => x.Quantity > midValue && x.Comparator == null      
       var PredicateOne = LinqKit.PredicateBuilder.New<IndexQuantity>(true);
       PredicateOne = PredicateOne.And(IndexDecimal_IsLowerThan(midValue));
@@ -439,10 +427,9 @@ namespace Bug.Data.Predicates
 
       return PredicateMain;
     }
-
-    private static Expression<Func<IndexQuantity, bool>> QuantityLessThanOrEqualTo(decimal midValue)
+    private Expression<Func<IndexQuantity, bool>> QuantityLessThanOrEqualTo(decimal midValue)
     {
-      var PredicateMain = LinqKit.PredicateBuilder.New<IndexQuantity>(true);      
+      var PredicateMain = LinqKit.PredicateBuilder.New<IndexQuantity>(true);
 
       //PredicateOne: x => x.Quantity > midValue && x.Comparator == null      
       var PredicateOne = LinqKit.PredicateBuilder.New<IndexQuantity>(true);
@@ -471,8 +458,7 @@ namespace Bug.Data.Predicates
 
       return PredicateMain;
     }
-
-    private static Expression<Func<IndexQuantity, bool>> SystemCodeOrCodeUnitEqualTo(string? system, string code)
+    private Expression<Func<IndexQuantity, bool>> SystemCodeOrCodeUnitEqualTo(string? system, string code)
     {
       if (system is null)
       {
@@ -483,8 +469,7 @@ namespace Bug.Data.Predicates
         return x => (x.System == system) && (x.Code == code);
       }
     }
-
-    private static Expression<Func<IndexQuantity, bool>> SystemCodeOrCodeUnitNotEqualTo(string? system, string code)
+    private Expression<Func<IndexQuantity, bool>> SystemCodeOrCodeUnitNotEqualTo(string? system, string code)
     {
       if (system is null)
       {
@@ -495,33 +480,27 @@ namespace Bug.Data.Predicates
         return x => (x.System != system) || (x.Code != code);
       }
     }
-
-    private static Expression<Func<IndexQuantity, bool>> ComparatorIsNull()
+    private Expression<Func<IndexQuantity, bool>> ComparatorIsNull()
     {
-      return x => x.Comparator == null;      
+      return x => x.Comparator == null;
     }
-    
-    private static Expression<Func<IndexQuantity, bool>> ComparatorIsEqualTo(QuantityComparator? QuantityComparator)
+    private Expression<Func<IndexQuantity, bool>> ComparatorIsEqualTo(QuantityComparator? QuantityComparator)
     {
       return x => x.Comparator == QuantityComparator;
     }
-
-    private static Expression<Func<IndexQuantity, bool>> IndexDecimal_IsHigherThanOrEqualTo(decimal value)
+    private Expression<Func<IndexQuantity, bool>> IndexDecimal_IsHigherThanOrEqualTo(decimal value)
     {
       return x => x.Quantity >= value;
     }
-
-    private static Expression<Func<IndexQuantity, bool>> IndexDecimal_IsHigherThan(decimal value)
+    private Expression<Func<IndexQuantity, bool>> IndexDecimal_IsHigherThan(decimal value)
     {
       return x => x.Quantity > value;
     }
-
-    private static Expression<Func<IndexQuantity, bool>> IndexDecimal_IsLowerThanOrEqualTo(decimal value)
+    private Expression<Func<IndexQuantity, bool>> IndexDecimal_IsLowerThanOrEqualTo(decimal value)
     {
       return x => x.Quantity <= value;
     }
-    
-    private static Expression<Func<IndexQuantity, bool>> IndexDecimal_IsLowerThan(decimal value)
+    private Expression<Func<IndexQuantity, bool>> IndexDecimal_IsLowerThan(decimal value)
     {
       return x => x.Quantity < value;
     }

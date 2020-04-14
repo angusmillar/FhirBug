@@ -25,7 +25,7 @@ namespace Bug.Data.Repository
 
     public async Task<IList<ResourceStore>> GetSearch(Common.Enums.FhirVersion fhirVersion, Common.Enums.ResourceType resourceType, IList<ISearchQueryBase> searchQueryList)
     {
-      var Predicate = IPredicateFactory.Get(fhirVersion, resourceType, searchQueryList);
+      var Predicate = await IPredicateFactory.Get(fhirVersion, resourceType, searchQueryList);
       string Debug = Predicate.Expand().ToString();
       return await DbSet.AsExpandable().Where(Predicate).OrderBy(z => z.LastUpdated).ToListAsync();
     }

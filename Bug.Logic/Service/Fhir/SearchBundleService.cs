@@ -28,9 +28,9 @@ namespace Bug.Logic.Service.Fhir
       this.IServiceBaseUrlCache = IServiceBaseUrlCache;
     }
 
-    public async Task<BundleModel> GetSearchBundleModel(IList<ResourceStore> ResourceStoreList)
+    public async Task<BundleModel> GetSearchBundleModel(IList<ResourceStore> ResourceStoreList, Bug.Common.Enums.FhirVersion fhirVersion)
     {
-      var IServiceBaseUrl = await IServiceBaseUrlCache.GetPrimaryAsync(Common.Enums.FhirVersion.R4);
+      var IServiceBaseUrl = await IServiceBaseUrlCache.GetPrimaryAsync(fhirVersion);
       //Construct the History Bundle
       var BundleModel = new BundleModel(BundleType.Searchset)
       {

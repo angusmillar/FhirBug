@@ -9,9 +9,9 @@ using System.Text;
 
 namespace Bug.Data.Predicates
 {
-  public static class IndexUriPredicateFactory
-  {    
-    public static Expression<Func<ResourceStore, bool>> UriIndex(SearchQueryUri SearchQueryUri)
+  public class IndexUriPredicateFactory : IIndexUriPredicateFactory
+  {
+    public Expression<Func<ResourceStore, bool>> UriIndex(SearchQueryUri SearchQueryUri)
     {
       var ResourceStorePredicate = LinqKit.PredicateBuilder.New<ResourceStore>(true);
 
@@ -44,22 +44,22 @@ namespace Bug.Data.Predicates
             }
             switch (SearchQueryUri.Modifier.Value)
             {
-              case SearchModifierCode.Missing:                
-                ResourceStorePredicate = ResourceStorePredicate.Or(AnyIndexEquals(IndexUriPredicate, !UriValue.IsMissing));                
+              case SearchModifierCode.Missing:
+                ResourceStorePredicate = ResourceStorePredicate.Or(AnyIndexEquals(IndexUriPredicate, !UriValue.IsMissing));
                 break;
-              case SearchModifierCode.Exact:               
+              case SearchModifierCode.Exact:
                 IndexUriPredicate = IndexUriPredicate.And(EqualTo(UriValue.Value!.OriginalString));
                 ResourceStorePredicate = ResourceStorePredicate.Or(AnyIndex(IndexUriPredicate));
                 break;
-              case SearchModifierCode.Contains:                
+              case SearchModifierCode.Contains:
                 IndexUriPredicate = IndexUriPredicate.And(Contains(UriValue.Value!.OriginalString));
                 ResourceStorePredicate = ResourceStorePredicate.Or(AnyIndex(IndexUriPredicate));
                 break;
-              case SearchModifierCode.Below:                
+              case SearchModifierCode.Below:
                 IndexUriPredicate = IndexUriPredicate.And(StartsWith(UriValue.Value!.OriginalString));
                 ResourceStorePredicate = ResourceStorePredicate.Or(AnyIndex(IndexUriPredicate));
                 break;
-              case SearchModifierCode.Above:               
+              case SearchModifierCode.Above:
                 IndexUriPredicate = IndexUriPredicate.And(EndsWith(UriValue.Value!.OriginalString));
                 ResourceStorePredicate = ResourceStorePredicate.Or(AnyIndex(IndexUriPredicate));
                 break;
@@ -70,40 +70,40 @@ namespace Bug.Data.Predicates
           else
           {
             throw new ApplicationException($"Internal Server Error: The search query modifier: {SearchQueryUri.Modifier.Value.GetCode()} is not supported for search parameter types of {SearchQueryUri.SearchParamTypeId.GetCode()}.");
-          }         
-        }        
+          }
+        }
       }
       return ResourceStorePredicate;
     }
 
-    private static Expression<Func<ResourceStore, bool>> AnyIndex(Expression<Func<IndexUri, bool>> Predicate)
+    private Expression<Func<ResourceStore, bool>> AnyIndex(Expression<Func<IndexUri, bool>> Predicate)
     {
       return x => x.UriIndexList.Any(Predicate.Compile());
     }
-    private static Expression<Func<ResourceStore, bool>> AnyIndexEquals(Expression<Func<IndexUri, bool>> Predicate, bool Equals)
+    private Expression<Func<ResourceStore, bool>> AnyIndexEquals(Expression<Func<IndexUri, bool>> Predicate, bool Equals)
     {
       return x => x.UriIndexList.Any(Predicate.Compile()) == Equals;
     }
-    private static Expression<Func<IndexUri, bool>> IsSearchParameterId(int searchParameterId)
+    private Expression<Func<IndexUri, bool>> IsSearchParameterId(int searchParameterId)
     {
       return x => x.SearchParameterId == searchParameterId;
-    }    
-    private static Expression<Func<IndexUri, bool>> StartsWith(string value)
+    }
+    private Expression<Func<IndexUri, bool>> StartsWith(string value)
     {
       return x => x.Uri.StartsWith(value);
     }
-    private static Expression<Func<IndexUri, bool>> EndsWith(string value)
+    private Expression<Func<IndexUri, bool>> EndsWith(string value)
     {
       return x => x.Uri.EndsWith(value);
     }
-    private static Expression<Func<IndexUri, bool>> EqualTo(string Value)
+    private Expression<Func<IndexUri, bool>> EqualTo(string Value)
     {
       return x => x.Uri.Equals(Value);
     }
-    private static Expression<Func<IndexUri, bool>> Contains(string Value)
+    private Expression<Func<IndexUri, bool>> Contains(string Value)
     {
       return x => x.Uri.Contains(Value);
     }
-    
+
   }
 }

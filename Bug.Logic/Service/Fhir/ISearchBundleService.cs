@@ -7,6 +7,6 @@ namespace Bug.Logic.Service.Fhir
 {
   public interface ISearchBundleService
   {
-    Task<BundleModel> GetSearchBundleModel(IList<ResourceStore> ResourceStoreList);
+    Task<BundleModel> GetSearchBundleModel(IList<ResourceStore> ResourceStoreList, Bug.Common.Enums.FhirVersion fhirVersion);
   }
 }

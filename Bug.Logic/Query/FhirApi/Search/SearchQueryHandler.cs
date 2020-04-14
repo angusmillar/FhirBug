@@ -83,7 +83,7 @@ namespace Bug.Logic.Query.FhirApi.Search
 
       IList<ResourceStore> ResourceStoreList = await ISearchService.Process(SerachQueryServiceOutcome);
 
-      BundleModel Bundle = await ISearchBundleService.GetSearchBundleModel(ResourceStoreList);
+      BundleModel Bundle = await ISearchBundleService.GetSearchBundleModel(ResourceStoreList, query.FhirVersion);
 
       return new FhirApiResult(System.Net.HttpStatusCode.OK, query.FhirVersion, query.CorrelationId)
       {

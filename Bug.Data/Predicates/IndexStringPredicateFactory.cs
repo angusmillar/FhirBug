@@ -9,9 +9,9 @@ using System.Text;
 
 namespace Bug.Data.Predicates
 {
-  public static class IndexStringPredicateFactory
-  {    
-    public static Expression<Func<ResourceStore, bool>> StringIndex(SearchQueryString SearchQueryString)
+  public class IndexStringPredicateFactory : IIndexStringPredicateFactory
+  {
+    public Expression<Func<ResourceStore, bool>> StringIndex(SearchQueryString SearchQueryString)
     {
       var ResourceStorePredicate = LinqKit.PredicateBuilder.New<ResourceStore>(true);
 
@@ -44,14 +44,14 @@ namespace Bug.Data.Predicates
 
             switch (SearchQueryString.Modifier.Value)
             {
-              case SearchModifierCode.Missing:                
-                ResourceStorePredicate = ResourceStorePredicate.Or(AnyIndexEquals(IndexStringPredicate, !StringValue.IsMissing));                
+              case SearchModifierCode.Missing:
+                ResourceStorePredicate = ResourceStorePredicate.Or(AnyIndexEquals(IndexStringPredicate, !StringValue.IsMissing));
                 break;
-              case SearchModifierCode.Exact:           
+              case SearchModifierCode.Exact:
                 IndexStringPredicate = IndexStringPredicate.And(EqualTo(StringValue.Value!));
                 ResourceStorePredicate = ResourceStorePredicate.Or(AnyIndex(IndexStringPredicate));
                 break;
-              case SearchModifierCode.Contains:               
+              case SearchModifierCode.Contains:
                 IndexStringPredicate = IndexStringPredicate.And(Contains(StringValue.Value!));
                 ResourceStorePredicate = ResourceStorePredicate.Or(AnyIndex(IndexStringPredicate));
                 break;
@@ -62,37 +62,37 @@ namespace Bug.Data.Predicates
           else
           {
             throw new ApplicationException($"Internal Server Error: The search query modifier: {SearchQueryString.Modifier.Value.GetCode()} is not supported for search parameter types of {SearchQueryString.SearchParamTypeId.GetCode()}.");
-          }         
+          }
         }
-        
+
       }
       return ResourceStorePredicate;
     }
 
-    private static Expression<Func<ResourceStore, bool>> AnyIndex(Expression<Func<IndexString, bool>> Predicate)
+    private Expression<Func<ResourceStore, bool>> AnyIndex(Expression<Func<IndexString, bool>> Predicate)
     {
       return x => x.StringIndexList.Any(Predicate.Compile());
     }
-    private static Expression<Func<ResourceStore, bool>> AnyIndexEquals(Expression<Func<IndexString, bool>> Predicate, bool Equals)
+    private Expression<Func<ResourceStore, bool>> AnyIndexEquals(Expression<Func<IndexString, bool>> Predicate, bool Equals)
     {
       return x => x.StringIndexList.Any(Predicate.Compile()) == Equals;
     }
-    private static Expression<Func<IndexString, bool>> IsSearchParameterId(int searchParameterId)
+    private Expression<Func<IndexString, bool>> IsSearchParameterId(int searchParameterId)
     {
       return x => x.SearchParameterId == searchParameterId;
-    }   
-    private static Expression<Func<IndexString, bool>> StartsWithOrEndsWith(string stringValue)
+    }
+    private Expression<Func<IndexString, bool>> StartsWithOrEndsWith(string stringValue)
     {
       return x => (x.String.StartsWith(stringValue) || x.String.EndsWith(stringValue));
     }
-    private static Expression<Func<IndexString, bool>> EqualTo(string stringValue)
+    private Expression<Func<IndexString, bool>> EqualTo(string stringValue)
     {
       return x => x.String.Equals(stringValue);
     }
-    private static Expression<Func<IndexString, bool>> Contains(string stringValue)
+    private Expression<Func<IndexString, bool>> Contains(string stringValue)
     {
       return x => x.String.Contains(stringValue);
     }
-    
+
   }
 }

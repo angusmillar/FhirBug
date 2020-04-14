@@ -1,4 +1,5 @@
-﻿using Bug.Common.FhirTools;
+﻿using Bug.Common.Enums;
+using Bug.Common.FhirTools;
 using Hl7.Fhir.Model;
 using Hl7.Fhir.Utility;
 using System;
@@ -15,9 +16,11 @@ namespace Bug.R4Fhir.ResourceSupport
     IR4IsKnownResource, 
     IR4ContainedResourceDictionary
   {
+    private readonly IResourceNameToTypeMap IResourceNameToTypeMap;
     private Bug.Common.Enums.FhirVersion FhirVersion { get; set; }
-    public FhirResourceSupport()
+    public FhirResourceSupport(IResourceNameToTypeMap IResourceNameToTypeMap)
     {
+      this.IResourceNameToTypeMap = IResourceNameToTypeMap;
       this.FhirVersion = Common.Enums.FhirVersion.R4;
     }
 
@@ -130,14 +133,20 @@ namespace Bug.R4Fhir.ResourceSupport
     public IList<FhirContainedResource> GetContainedResourceDictionary(IFhirResourceR4 fhirResource)
     {
       List<FhirContainedResource> ResultList = new List<FhirContainedResource>();
-      Resource Resource = fhirResource.R4;
-      var ResourceTypeDic = Common.Enums.StringToEnumMap<Bug.Common.Enums.ResourceType>.GetDictionary();
+      Resource Resource = fhirResource.R4;      
       if (Resource is DomainResource DomainResource)
       {
         foreach (Resource ContainedResource in DomainResource.Contained)
         {
-          Bug.Common.Enums.ResourceType ResourceType = ResourceTypeDic[ContainedResource.ResourceType.GetLiteral()];
-          ResultList.Add(new FhirContainedResource(this.FhirVersion, ResourceType, ContainedResource.Id) { R4 = ContainedResource });
+          Bug.Common.Enums.ResourceType? ResourceType = IResourceNameToTypeMap.GetResourceType(ContainedResource.ResourceType.GetLiteral());
+          if (ResourceType.HasValue)
+          {
+            ResultList.Add(new FhirContainedResource(this.FhirVersion, ResourceType.Value, ContainedResource.Id) { R4 = ContainedResource });
+          }
+          else
+          {
+            throw new ApplicationException($"Attempt to parse an unknown resource type of {ContainedResource.ResourceType.GetLiteral()} which was contained within a {Resource.ResourceType.GetLiteral()} parent resource of FHIR version {this.FhirVersion.GetCode()}.");
+          }          
         }
       }
       return ResultList;

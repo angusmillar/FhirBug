@@ -1,49 +1,75 @@
-﻿using Bug.Logic.DomainModel;
+﻿using Bug.Common.Interfaces.CacheService;
+using Bug.Logic.DomainModel;
 using Bug.Logic.Service.SearchQuery.SearchQueryEntity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Bug.Data.Predicates
 {
-  public static class ResourceStorePredicateFactory
+  public class ResourceStorePredicateFactory : IResourceStorePredicateFactory
   {
-    public static Expression<Func<ResourceStore, bool>> CurrentMainResource(Bug.Common.Enums.FhirVersion fhirVersion, Bug.Common.Enums.ResourceType resourceType)
+    private readonly IIndexReferencePredicateFactory IIndexReferencePredicateFactory;
+    private readonly IIndexStringPredicateFactory IIndexStringPredicateFactory;
+    private readonly IIndexUriPredicateFactory IIndexUriPredicateFactory;
+    private readonly IIndexQuantityPredicateFactory IIndexQuantityPredicateFactory;
+    private readonly IIndexNumberPredicateFactory IIndexNumberPredicateFactory;
+    private readonly IIndexTokenPredicateFactory IIndexTokenPredicateFactory;
+    
+
+
+    public ResourceStorePredicateFactory(IIndexReferencePredicateFactory IIndexReferencePredicateFactory,
+      IIndexStringPredicateFactory IIndexStringPredicateFactory,
+      IIndexUriPredicateFactory IIndexUriPredicateFactory,
+      IIndexQuantityPredicateFactory IIndexQuantityPredicateFactory,
+      IIndexNumberPredicateFactory IIndexNumberPredicateFactory,
+      IIndexTokenPredicateFactory IIndexTokenPredicateFactory)
+    {
+      this.IIndexStringPredicateFactory = IIndexStringPredicateFactory;
+      this.IIndexReferencePredicateFactory = IIndexReferencePredicateFactory;
+      this.IIndexUriPredicateFactory = IIndexUriPredicateFactory;
+      this.IIndexQuantityPredicateFactory = IIndexQuantityPredicateFactory;
+      this.IIndexNumberPredicateFactory = IIndexNumberPredicateFactory;
+      this.IIndexTokenPredicateFactory = IIndexTokenPredicateFactory;
+    }
+
+    public Expression<Func<ResourceStore, bool>> CurrentMainResource(Bug.Common.Enums.FhirVersion fhirVersion, Bug.Common.Enums.ResourceType resourceType)
     {
       return x => x.FhirVersionId == fhirVersion && x.ResourceTypeId == resourceType && x.IsCurrent && !x.IsDeleted && x.ContainedId == null;
     }
 
-    public static Expression<Func<ResourceStore, bool>> StringIndex(ISearchQueryBase SearchQueryBase)
+    public Expression<Func<ResourceStore, bool>> StringIndex(ISearchQueryBase SearchQueryBase)
     {
       if (SearchQueryBase is SearchQueryString SearchQueryString)
       {
-        return IndexStringPredicateFactory.StringIndex(SearchQueryString);
+        return IIndexStringPredicateFactory.StringIndex(SearchQueryString);
       }
       else
       {
         throw new InvalidCastException($"Unable to cast a {nameof(ISearchQueryBase)} of type {SearchQueryBase.GetType().Name} to a {typeof(SearchQueryString).Name}");
-      }          
+      }
     }
 
-    public static Expression<Func<ResourceStore, bool>> UriIndex(ISearchQueryBase SearchQueryBase)
+    public Expression<Func<ResourceStore, bool>> UriIndex(ISearchQueryBase SearchQueryBase)
     {
       if (SearchQueryBase is SearchQueryUri SearchQueryUri)
       {
-        return IndexUriPredicateFactory.UriIndex(SearchQueryUri);
+        return IIndexUriPredicateFactory.UriIndex(SearchQueryUri);
       }
       else
       {
         throw new InvalidCastException($"Unable to cast a {nameof(ISearchQueryBase)} of type {SearchQueryBase.GetType().Name} to a {typeof(SearchQueryUri).Name}");
-      }      
+      }
     }
 
-    public static Expression<Func<ResourceStore, bool>> QuantityIndex(ISearchQueryBase SearchQueryBase)
+    public Expression<Func<ResourceStore, bool>> QuantityIndex(ISearchQueryBase SearchQueryBase)
     {
       if (SearchQueryBase is SearchQueryQuantity SearchQueryQuantity)
       {
-        return IndexQuantityPredicateFactory.QuantityIndex(SearchQueryQuantity);
+        return IIndexQuantityPredicateFactory.QuantityIndex(SearchQueryQuantity);
       }
       else
       {
@@ -51,11 +77,11 @@ namespace Bug.Data.Predicates
       }
     }
 
-    public static Expression<Func<ResourceStore, bool>> NumberIndex(ISearchQueryBase SearchQueryBase)
+    public Expression<Func<ResourceStore, bool>> NumberIndex(ISearchQueryBase SearchQueryBase)
     {
       if (SearchQueryBase is SearchQueryNumber SearchQueryNumber)
       {
-        return IndexNumberPredicateFactory.NumberIndex(SearchQueryNumber);
+        return IIndexNumberPredicateFactory.NumberIndex(SearchQueryNumber);
       }
       else
       {
@@ -63,15 +89,27 @@ namespace Bug.Data.Predicates
       }
     }
 
-    public static Expression<Func<ResourceStore, bool>> TokenIndex(ISearchQueryBase SearchQueryBase)
+    public Expression<Func<ResourceStore, bool>> TokenIndex(ISearchQueryBase SearchQueryBase)
     {
       if (SearchQueryBase is SearchQueryToken SearchQueryToken)
       {
-        return IndexTokenPredicateFactory.TokenIndex(SearchQueryToken);
+        return IIndexTokenPredicateFactory.TokenIndex(SearchQueryToken);
       }
       else
       {
         throw new InvalidCastException($"Unable to cast a {nameof(ISearchQueryBase)} of type {SearchQueryBase.GetType().Name} to a {typeof(SearchQueryToken).Name}");
+      }
+    }
+
+    public async Task<Expression<Func<ResourceStore, bool>>> ReferenceIndex(ISearchQueryBase SearchQueryBase)
+    {
+      if (SearchQueryBase is SearchQueryReference SearchQueryReference)
+      {
+        return await IIndexReferencePredicateFactory.ReferenceIndex(SearchQueryReference);
+      }
+      else
+      {
+        throw new InvalidCastException($"Unable to cast a {nameof(ISearchQueryBase)} of type {SearchQueryBase.GetType().Name} to a {typeof(SearchQueryReference).Name}");
       }
     }
   }

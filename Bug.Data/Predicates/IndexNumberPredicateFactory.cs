@@ -8,9 +8,9 @@ using System.Linq.Expressions;
 
 namespace Bug.Data.Predicates
 {
-  public static class IndexNumberPredicateFactory
+  public class IndexNumberPredicateFactory : IIndexNumberPredicateFactory
   {
-    public static Expression<Func<ResourceStore, bool>> NumberIndex(SearchQueryNumber SearchQueryNumber)
+    public Expression<Func<ResourceStore, bool>> NumberIndex(SearchQueryNumber SearchQueryNumber)
     {
       var ResourceStorePredicate = LinqKit.PredicateBuilder.New<ResourceStore>(true);
 
@@ -105,7 +105,7 @@ namespace Bug.Data.Predicates
       return ResourceStorePredicate;
     }
 
-    private static Expression<Func<IndexQuantity, bool>> EqualTo(SearchQueryNumberValue NumberValue)
+    private Expression<Func<IndexQuantity, bool>> EqualTo(SearchQueryNumberValue NumberValue)
     {
       var Predicate = LinqKit.PredicateBuilder.New<IndexQuantity>(true);
       if (NumberValue.Value.HasValue && NumberValue.Scale.HasValue)
@@ -119,13 +119,13 @@ namespace Bug.Data.Predicates
       }
     }
 
-    private static Expression<Func<IndexQuantity, bool>> NotEqualTo(SearchQueryNumberValue NumberValue)
+    private Expression<Func<IndexQuantity, bool>> NotEqualTo(SearchQueryNumberValue NumberValue)
     {
       var Predicate = LinqKit.PredicateBuilder.New<IndexQuantity>(true);
       if (NumberValue.Value.HasValue && NumberValue.Scale.HasValue)
-      {        
-        Predicate = Predicate.And(NumberNotEqualTo(NumberValue.Value.Value, NumberValue.Scale.Value));       
-        return Predicate;        
+      {
+        Predicate = Predicate.And(NumberNotEqualTo(NumberValue.Value.Value, NumberValue.Scale.Value));
+        return Predicate;
       }
       else
       {
@@ -133,13 +133,13 @@ namespace Bug.Data.Predicates
       }
     }
 
-    private static Expression<Func<IndexQuantity, bool>> GreaterThan(SearchQueryNumberValue NumberValue)
+    private Expression<Func<IndexQuantity, bool>> GreaterThan(SearchQueryNumberValue NumberValue)
     {
       var Predicate = LinqKit.PredicateBuilder.New<IndexQuantity>(true);
       if (NumberValue.Value.HasValue && NumberValue.Scale.HasValue)
-      {        
+      {
         Predicate = Predicate.And(NumberGreaterThen(NumberValue.Value.Value));
-        return Predicate;       
+        return Predicate;
       }
       else
       {
@@ -147,13 +147,13 @@ namespace Bug.Data.Predicates
       }
     }
 
-    private static Expression<Func<IndexQuantity, bool>> GreaterThanOrEqualTo(SearchQueryNumberValue NumberValue)
+    private Expression<Func<IndexQuantity, bool>> GreaterThanOrEqualTo(SearchQueryNumberValue NumberValue)
     {
       var Predicate = LinqKit.PredicateBuilder.New<IndexQuantity>(true);
       if (NumberValue.Value.HasValue && NumberValue.Scale.HasValue)
-      {       
+      {
         Predicate = Predicate.And(NumberGreaterThanOrEqualTo(NumberValue.Value.Value));
-        return Predicate;       
+        return Predicate;
       }
       else
       {
@@ -161,13 +161,13 @@ namespace Bug.Data.Predicates
       }
     }
 
-    private static Expression<Func<IndexQuantity, bool>> LessThan(SearchQueryNumberValue NumberValue)
+    private Expression<Func<IndexQuantity, bool>> LessThan(SearchQueryNumberValue NumberValue)
     {
       var Predicate = LinqKit.PredicateBuilder.New<IndexQuantity>(true);
       if (NumberValue.Value.HasValue && NumberValue.Scale.HasValue)
-      {       
+      {
         Predicate = Predicate.And(NumberLessThen(NumberValue.Value.Value));
-        return Predicate;        
+        return Predicate;
       }
       else
       {
@@ -175,13 +175,13 @@ namespace Bug.Data.Predicates
       }
     }
 
-    private static Expression<Func<IndexQuantity, bool>> LessThanOrEqualTo(SearchQueryNumberValue NumberValue)
+    private Expression<Func<IndexQuantity, bool>> LessThanOrEqualTo(SearchQueryNumberValue NumberValue)
     {
       var Predicate = LinqKit.PredicateBuilder.New<IndexQuantity>(true);
       if (NumberValue.Value.HasValue && NumberValue.Scale.HasValue)
-      {       
+      {
         Predicate = Predicate.And(NumberLessThanOrEqualTo(NumberValue.Value.Value));
-        return Predicate;        
+        return Predicate;
       }
       else
       {
@@ -190,20 +190,20 @@ namespace Bug.Data.Predicates
     }
 
 
-    private static Expression<Func<ResourceStore, bool>> AnyIndex(Expression<Func<IndexQuantity, bool>> Predicate)
+    private Expression<Func<ResourceStore, bool>> AnyIndex(Expression<Func<IndexQuantity, bool>> Predicate)
     {
       return x => x.QuantityIndexList.Any(Predicate.Compile());
     }
-    private static Expression<Func<ResourceStore, bool>> AnyIndexEquals(Expression<Func<IndexQuantity, bool>> Predicate, bool Equals)
+    private Expression<Func<ResourceStore, bool>> AnyIndexEquals(Expression<Func<IndexQuantity, bool>> Predicate, bool Equals)
     {
       return x => x.QuantityIndexList.Any(Predicate.Compile()) == Equals;
     }
-    private static Expression<Func<IndexQuantity, bool>> IsSearchParameterId(int searchParameterId)
+    private Expression<Func<IndexQuantity, bool>> IsSearchParameterId(int searchParameterId)
     {
       return x => x.SearchParameterId == searchParameterId;
     }
 
-    private static Expression<Func<IndexQuantity, bool>> NumberEqualTo(decimal midValue, int scale)
+    private Expression<Func<IndexQuantity, bool>> NumberEqualTo(decimal midValue, int scale)
     {
       var PredicateMain = LinqKit.PredicateBuilder.New<IndexQuantity>(true);
       var lowValue = DecimalSupport.CalculateLowNumber(midValue, scale);
@@ -244,7 +244,7 @@ namespace Bug.Data.Predicates
       return PredicateMain;
     }
 
-    private static Expression<Func<IndexQuantity, bool>> NumberNotEqualTo(decimal midValue, int scale)
+    private Expression<Func<IndexQuantity, bool>> NumberNotEqualTo(decimal midValue, int scale)
     {
       var PredicateMain = LinqKit.PredicateBuilder.New<IndexQuantity>(true);
       var lowValue = DecimalSupport.CalculateLowNumber(midValue, scale);
@@ -287,7 +287,7 @@ namespace Bug.Data.Predicates
       return PredicateMain;
     }
 
-    private static Expression<Func<IndexQuantity, bool>> NumberGreaterThen(decimal midValue)
+    private Expression<Func<IndexQuantity, bool>> NumberGreaterThen(decimal midValue)
     {
       var PredicateMain = LinqKit.PredicateBuilder.New<IndexQuantity>(true);
 
@@ -319,7 +319,7 @@ namespace Bug.Data.Predicates
       return PredicateMain;
     }
 
-    private static Expression<Func<IndexQuantity, bool>> NumberGreaterThanOrEqualTo(decimal midValue)
+    private Expression<Func<IndexQuantity, bool>> NumberGreaterThanOrEqualTo(decimal midValue)
     {
       var PredicateMain = LinqKit.PredicateBuilder.New<IndexQuantity>(true);
 
@@ -351,7 +351,7 @@ namespace Bug.Data.Predicates
       return PredicateMain;
     }
 
-    private static Expression<Func<IndexQuantity, bool>> NumberLessThen(decimal midValue)
+    private Expression<Func<IndexQuantity, bool>> NumberLessThen(decimal midValue)
     {
       var PredicateMain = LinqKit.PredicateBuilder.New<IndexQuantity>(true);
 
@@ -383,7 +383,7 @@ namespace Bug.Data.Predicates
       return PredicateMain;
     }
 
-    private static Expression<Func<IndexQuantity, bool>> NumberLessThanOrEqualTo(decimal midValue)
+    private Expression<Func<IndexQuantity, bool>> NumberLessThanOrEqualTo(decimal midValue)
     {
       var PredicateMain = LinqKit.PredicateBuilder.New<IndexQuantity>(true);
 
@@ -415,13 +415,13 @@ namespace Bug.Data.Predicates
       return PredicateMain;
     }
 
-    
-    private static Expression<Func<IndexQuantity, bool>> ComparatorIsNull()
+
+    private Expression<Func<IndexQuantity, bool>> ComparatorIsNull()
     {
       return x => x.Comparator == null;
     }
 
-    private static Expression<Func<IndexQuantity, bool>> ComparatorIsEqualTo(QuantityComparator? QuantityComparator)
+    private Expression<Func<IndexQuantity, bool>> ComparatorIsEqualTo(QuantityComparator? QuantityComparator)
     {
       return x => x.Comparator == QuantityComparator;
     }
@@ -431,17 +431,17 @@ namespace Bug.Data.Predicates
       return x => x.Quantity >= value;
     }
 
-    private static Expression<Func<IndexQuantity, bool>> IndexDecimal_IsHigherThan(decimal value)
+    private Expression<Func<IndexQuantity, bool>> IndexDecimal_IsHigherThan(decimal value)
     {
       return x => x.Quantity > value;
     }
 
-    private static Expression<Func<IndexQuantity, bool>> IndexDecimal_IsLowerThanOrEqualTo(decimal value)
+    private Expression<Func<IndexQuantity, bool>> IndexDecimal_IsLowerThanOrEqualTo(decimal value)
     {
       return x => x.Quantity <= value;
     }
 
-    private static Expression<Func<IndexQuantity, bool>> IndexDecimal_IsLowerThan(decimal value)
+    private Expression<Func<IndexQuantity, bool>> IndexDecimal_IsLowerThan(decimal value)
     {
       return x => x.Quantity < value;
     }

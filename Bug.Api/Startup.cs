@@ -160,9 +160,10 @@ namespace Bug.Api
       container.Register<Bug.R4Fhir.Serialization.IR4SerializationToJsonBytes, Bug.R4Fhir.Serialization.SerializationSupport>(Lifestyle.Singleton);
       container.Register<Bug.Stu3Fhir.Serialization.IStu3ParseJson, Bug.Stu3Fhir.Serialization.SerializationSupport>(Lifestyle.Singleton);
       container.Register<Bug.R4Fhir.Serialization.IR4ParseJson, Bug.R4Fhir.Serialization.SerializationSupport>(Lifestyle.Singleton);
-      
 
-      //-- Thread safe Tools ---------------      
+
+      //-- Thread safe Tools ---------------            
+      container.Register<Bug.Common.Enums.IResourceNameToTypeMap, Bug.Common.Enums.ResourceNameToTypeMap>(Lifestyle.Singleton);
       container.Register<Bug.Common.Compression.IGZipper, Bug.Common.Compression.GZipper>(Lifestyle.Singleton);
       container.Register<Bug.Common.FhirTools.IResourceVersionIdSupport, Bug.Common.FhirTools.ResourceVersionIdSupport>(Lifestyle.Singleton);      
       container.Register<Bug.Stu3Fhir.ResourceSupport.IStu3ValidateResourceName, Bug.Stu3Fhir.ResourceSupport.ValidateResourceName>(Lifestyle.Singleton);
@@ -176,6 +177,14 @@ namespace Bug.Api
       container.Register<Bug.Logic.Service.Indexing.Setter.IQuantitySetterSupport, Bug.Logic.Service.Indexing.Setter.QuantitySetterSupport>(Lifestyle.Singleton);
       container.Register<Bug.Logic.Service.Indexing.Setter.IUriSetterSupport, Bug.Logic.Service.Indexing.Setter.UriSetterSupport>(Lifestyle.Singleton);
       container.Register<Bug.Logic.Service.Indexing.ITypedElementSupport, Bug.Logic.Service.Indexing.TypedElementSupport>(Lifestyle.Singleton);
+
+      //--Thread safe Predicates -----------------
+      container.Register<Bug.Data.Predicates.IIndexNumberPredicateFactory, Bug.Data.Predicates.IndexNumberPredicateFactory>(Lifestyle.Singleton);
+      container.Register<Bug.Data.Predicates.IIndexQuantityPredicateFactory, Bug.Data.Predicates.IndexQuantityPredicateFactory>(Lifestyle.Singleton);
+      container.Register<Bug.Data.Predicates.IIndexStringPredicateFactory, Bug.Data.Predicates.IndexStringPredicateFactory>(Lifestyle.Singleton);
+      container.Register<Bug.Data.Predicates.IIndexTokenPredicateFactory, Bug.Data.Predicates.IndexTokenPredicateFactory>(Lifestyle.Singleton);
+      container.Register<Bug.Data.Predicates.IIndexUriPredicateFactory, Bug.Data.Predicates.IndexUriPredicateFactory>(Lifestyle.Singleton);
+      
 
 
       //-- Thread safe FHIR Tools---------------   One Implementation many Interfaces
@@ -349,7 +358,10 @@ namespace Bug.Api
 
       //--Scoped Predicates ---------------
       container.Register<Data.Predicates.IPredicateFactory, Data.Predicates.PredicateFactory>(Lifestyle.Scoped);
-      
+      container.Register<Bug.Data.Predicates.IResourceStorePredicateFactory, Bug.Data.Predicates.ResourceStorePredicateFactory>(Lifestyle.Scoped);
+      container.Register<Bug.Data.Predicates.IIndexReferencePredicateFactory, Bug.Data.Predicates.IndexReferencePredicateFactory>(Lifestyle.Scoped);
+
+
 
       //container.Register<Bug.Stu3Fhir.ResourceSupport.IResourceNameSupport, Bug.Stu3Fhir.ResourceSupport.ResourceNameSupport>(Lifestyle.Scoped);
       //container.Register<Bug.R4Fhir.ResourceSupport.IResourceNameSupport, Bug.R4Fhir.ResourceSupport.ResourceNameSupport>(Lifestyle.Scoped);
