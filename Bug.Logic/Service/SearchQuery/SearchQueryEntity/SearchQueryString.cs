@@ -34,8 +34,7 @@ namespace Bug.Logic.Service.SearchQuery.SearchQueryEntity
       this.IsValid = true;
       this.ValueList.Clear();
       foreach (string Value in Values.Split(OrDelimiter))
-      {
-        //var SearchQueryStringValue = new SearchQueryStringValue();
+      {        
         if (this.Modifier.HasValue && this.Modifier == SearchModifierCode.Missing)
         {
           bool? IsMissing = SearchQueryStringValue.ParseModifierEqualToMissing(Value);

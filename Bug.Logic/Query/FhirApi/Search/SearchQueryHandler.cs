@@ -2,6 +2,7 @@
 using Bug.Common.DateTimeTools;
 using Bug.Common.Exceptions;
 using Bug.Common.FhirTools;
+using Bug.Common.FhirTools.Bundle;
 using Bug.Logic.DomainModel;
 using Bug.Logic.Interfaces.Repository;
 using Bug.Logic.Service.Fhir;
@@ -9,6 +10,7 @@ using Bug.Logic.Service.Headers;
 using Bug.Logic.Service.SearchQuery;
 using Bug.Logic.Service.Serach;
 using Bug.Logic.Service.ValidatorService;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Bug.Logic.Query.FhirApi.Search
@@ -20,19 +22,25 @@ namespace Bug.Logic.Query.FhirApi.Search
     private readonly ISearchQueryService ISearchQueryService;
     private readonly IOperationOutcomeSupport IOperationOutcomeSupport;
     private readonly ISearchService ISearchService;
+    private readonly IFhirResourceBundleSupport IFhirResourceBundleSupport;
+    private readonly ISearchBundleService ISearchBundleService;
 
     public SearchQueryHandler(
       IValidateQueryService IValidateQueryService,
       IResourceTypeSupport IResourceTypeSupport,
       ISearchQueryService ISearchQueryService,
       IOperationOutcomeSupport IOperationOutcomeSupport,
-      ISearchService ISearchService)
+      ISearchService ISearchService,
+      ISearchBundleService ISearchBundleService,
+      IFhirResourceBundleSupport IFhirResourceBundleSupport)
     {
       this.IValidateQueryService = IValidateQueryService;
       this.IResourceTypeSupport = IResourceTypeSupport;
       this.ISearchQueryService = ISearchQueryService;
       this.IOperationOutcomeSupport = IOperationOutcomeSupport;
       this.ISearchService = ISearchService;
+      this.ISearchBundleService = ISearchBundleService;
+      this.IFhirResourceBundleSupport = IFhirResourceBundleSupport;
     }
 
     public async Task<FhirApiResult> Handle(SearchQuery query)
@@ -73,12 +81,16 @@ namespace Bug.Logic.Query.FhirApi.Search
         };
       }
 
-      ISearchService.Process(SerachQueryServiceOutcome);
+      IList<ResourceStore> ResourceStoreList = await ISearchService.Process(SerachQueryServiceOutcome);
+
+      BundleModel Bundle = await ISearchBundleService.GetSearchBundleModel(ResourceStoreList);
+
+      return new FhirApiResult(System.Net.HttpStatusCode.OK, query.FhirVersion, query.CorrelationId)
+      {
+        FhirResource = IFhirResourceBundleSupport.GetFhirResource(query.FhirVersion, Bundle)
+      };
 
 
-
-
-      throw new System.NotImplementedException();
 
     }
   }

@@ -13,7 +13,7 @@ services:
       - FhirServerConfig__DefaultFhirFormat=json
       - FhirServerConfig__ServerDefaultTimeZoneTimeSpan=10:00:00
       - FhirServerConfig__CahceSlidingExpirationMinites=10
-      - FhirServerConfig__EnforceRelativeResourceReferentialIntegrity=True
+      - FhirServerConfig__EnforceRelativeResourceReferentialIntegrity=False
     ports:
         - "8080:80"
         - "8443:443"

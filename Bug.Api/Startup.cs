@@ -231,8 +231,6 @@ namespace Bug.Api
         .Any(a => a.GetType() == typeof(Bug.Logic.Attributes.TransactionalAttribute)));
 
 
-
-
       //1. Wrap all ICommandHandlers with this Decorator
       container.RegisterDecorator(typeof(IQueryHandler<,>),
         typeof(Bug.Logic.Query.FhirApi.Decorator.FhirApiQueryLoggingDecorator<,>), Lifestyle.Scoped);
@@ -292,6 +290,8 @@ namespace Bug.Api
       container.Register<Logic.Service.Fhir.IOperationOutcomeSupport, Logic.Service.Fhir.OperationOutcomeSupport>(Lifestyle.Scoped);
       container.Register<Logic.Service.Fhir.IFhirResourceBundleSupport, Logic.Service.Fhir.FhirResourceBundleSupport>(Lifestyle.Scoped);
       container.Register<Logic.Service.Fhir.IHistoryBundleService, Logic.Service.Fhir.HistoryBundleService>(Lifestyle.Scoped);
+      container.Register<Logic.Service.Fhir.ISearchBundleService, Logic.Service.Fhir.SearchBundleService>(Lifestyle.Scoped);
+      
 
       //-- Scoped General Services -----------------
       container.Register<Logic.Service.ReferentialIntegrity.IReferentialIntegrityService, Logic.Service.ReferentialIntegrity.ReferentialIntegrityService>(Lifestyle.Scoped);
@@ -347,13 +347,16 @@ namespace Bug.Api
       container.Register<IIndexReferenceRepository, Bug.Data.Repository.IndexReferenceRepository>(Lifestyle.Scoped);
       container.Register<Common.Interfaces.Repository.IServiceBaseUrlRepository, Bug.Data.Repository.ServiceBaseUrlRepository>(Lifestyle.Scoped);
 
+      //--Scoped Predicates ---------------
+      container.Register<Data.Predicates.IPredicateFactory, Data.Predicates.PredicateFactory>(Lifestyle.Scoped);
+      
 
       //container.Register<Bug.Stu3Fhir.ResourceSupport.IResourceNameSupport, Bug.Stu3Fhir.ResourceSupport.ResourceNameSupport>(Lifestyle.Scoped);
       //container.Register<Bug.R4Fhir.ResourceSupport.IResourceNameSupport, Bug.R4Fhir.ResourceSupport.ResourceNameSupport>(Lifestyle.Scoped);
 
 
       // ## Transient ###################################################################
-      
+
       container.Register<Logic.Service.SearchQuery.Tools.IFhirSearchQuery, Logic.Service.SearchQuery.Tools.FhirSearchQuery>(Lifestyle.Transient);
 
     }

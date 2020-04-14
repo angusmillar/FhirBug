@@ -6,29 +6,29 @@ namespace Bug.Common.Enums
 {
   public enum SearchModifierCode
   {
-    [EnumInfo("Missing", "Missing")]    
+    [EnumInfo("missing", "Missing")]    
     Missing = 0,
-    [EnumInfo("Exact", "Exact")]
+    [EnumInfo("exact", "Exact")]
     Exact = 1,
-    [EnumInfo("Contains", "Contains")]
+    [EnumInfo("contains", "Contains")]
     Contains = 2,
-    [EnumInfo("Not", "Not")]
+    [EnumInfo("not", "Not")]
     Not = 3,
-    [EnumInfo("Text", "Text")]
+    [EnumInfo("text", "Text")]
     Text = 4,
-    [EnumInfo("In", "In")]
+    [EnumInfo("in", "In")]
     In = 5,
-    [EnumInfo("NotIn", "NotIn")]
+    [EnumInfo("not-in", "NotIn")]
     NotIn = 6,
-    [EnumInfo("Below", "Below")]
+    [EnumInfo("below", "Below")]
     Below = 7,
-    [EnumInfo("Above", "Above")]
+    [EnumInfo("above", "Above")]
     Above = 8,
-    [EnumInfo("Type", "Type")]
+    [EnumInfo("type", "Type")]
     Type = 9,
-    [EnumInfo("Identifier", "Identifier")]
+    [EnumInfo("identifier", "Identifier")]
     Identifier = 10,
-    [EnumInfo("OfType", "OfType")]
+    [EnumInfo("of-type", "Of-Type")]
     OfType = 11
   }
 }

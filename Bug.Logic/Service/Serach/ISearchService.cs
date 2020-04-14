@@ -1,9 +1,13 @@
-﻿using Bug.Logic.Service.SearchQuery;
+﻿using Bug.Logic.DomainModel;
+using Bug.Logic.Service.SearchQuery;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace Bug.Logic.Service.Serach
 {
   public interface ISearchService
   {
-    SearchServiceOutcome Process(ISerachQueryServiceOutcome ISerachQueryServiceOutcome);
+    Task<IList<ResourceStore>> Process(ISerachQueryServiceOutcome ISerachQueryServiceOutcome);
   }
 }

@@ -4,6 +4,7 @@ namespace Bug.Logic.DomainModel
 {
   public interface ISearchParameter
   {
+    int Id { get; set; }
     ICollection<SearchParameterComponent> ComponentList { get; set; }
     string Description { get; set; }
     string FhirPath { get; set; }

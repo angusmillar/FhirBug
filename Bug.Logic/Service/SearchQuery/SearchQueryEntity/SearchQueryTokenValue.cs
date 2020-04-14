@@ -15,11 +15,7 @@ namespace Bug.Logic.Service.SearchQuery.SearchQueryEntity
     }
 
     public enum TokenSearchType
-    {
-      /// <summary>
-      /// Nothing, Enum not set.
-      /// </summary>
-      None,
+    {      
       /// <summary>
       /// [parameter]=[code]: the value of [code] matches a Coding.code or 
       /// Identifier.value irrespective of the value of the system property

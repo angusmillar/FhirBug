@@ -52,14 +52,14 @@ namespace Bug.Stu3Fhir.Indexing.Setter
       if (!string.IsNullOrWhiteSpace(Oid.Value))
       {
 
-        ResourceIndexList.Add(new IndexUri(this.SearchParameterId, Oid.Value));
+        ResourceIndexList.Add(new IndexUri(this.SearchParameterId, Oid.Value.Trim()));
       }
     }
     private void SetUri(FhirUri FhirUri, IList<IndexUri> ResourceIndexList)
     {
       if (!string.IsNullOrWhiteSpace(FhirUri.Value))
       {
-        ResourceIndexList.Add(new IndexUri(this.SearchParameterId, StringSupport.ToLowerFast(FhirUri.Value.StripHttp())));
+        ResourceIndexList.Add(new IndexUri(this.SearchParameterId, FhirUri.Value.Trim()));
       }
     }
 

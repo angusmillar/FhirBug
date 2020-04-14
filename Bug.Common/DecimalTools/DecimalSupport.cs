@@ -22,7 +22,22 @@ namespace Bug.Common.DecimalTools
       public int Precision { get; private set; }
       public int Scale { get; private set; }
     }
-      
+
+    public static decimal CalculateHighNumber(decimal Value, int Scale)
+    {
+      return Decimal.Add(Value, CalculateNewScale(Scale));
+    }
+
+    public static decimal CalculateLowNumber(decimal Value, int Scale)
+    {
+      return Decimal.Subtract(Value, CalculateNewScale(Scale));
+    }
+
+    private static decimal CalculateNewScale(int Scale)
+    {
+      double Margin = 5;
+      return Convert.ToDecimal(Margin / (Math.Pow(10, Scale + 1)));
+    }
 
   }
 }

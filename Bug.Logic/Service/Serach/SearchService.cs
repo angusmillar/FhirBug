@@ -1,10 +1,12 @@
-﻿using Bug.Logic.Interfaces.Repository;
+﻿using Bug.Logic.DomainModel;
+using Bug.Logic.Interfaces.Repository;
 using Bug.Logic.Service.SearchQuery;
 using Bug.Logic.Service.SearchQuery.SearchQueryEntity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Bug.Logic.Service.Serach
 {
@@ -18,13 +20,11 @@ namespace Bug.Logic.Service.Serach
       this.Outcome = new SearchServiceOutcome();
     }
 
-    public SearchServiceOutcome Process(ISerachQueryServiceOutcome ISerachQueryServiceOutcome)
-    {      
-      IEnumerable<ISearchQueryBase> ChainedSearchQueryList = ISerachQueryServiceOutcome.SearchQueryList.Where(x => x.ChainedSearchParameter is object);
-      IEnumerable<ISearchQueryBase> NoChainedSearchQueryList = ISerachQueryServiceOutcome.SearchQueryList.Where(x => x.ChainedSearchParameter is null);
+    public async Task<IList<ResourceStore>> Process(ISerachQueryServiceOutcome ISerachQueryServiceOutcome)
+    {
 
-     
-      return Outcome;
+      return await IResourceStoreRepository.GetSearch(ISerachQueryServiceOutcome.FhirVersion, ISerachQueryServiceOutcome.ResourceContext, ISerachQueryServiceOutcome.SearchQueryList);
+      
     }
   }
 }

@@ -7,7 +7,7 @@ namespace Bug.Logic.Service.SearchQuery.SearchQueryEntity
   public abstract class SearchQueryValueBase
   {
     protected SearchQueryValueBase(bool IsMissing)
-    {
+    {      
       this.IsMissing = IsMissing;
     }
 

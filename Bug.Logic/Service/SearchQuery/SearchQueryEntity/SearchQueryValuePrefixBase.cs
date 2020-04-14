@@ -19,7 +19,7 @@ namespace Bug.Logic.Service.SearchQuery.SearchQueryEntity
     {
       if (Prefix.HasValue)
       {
-        return Array.Exists(SearchQuerySupport.GetPrefixListForSearchType(SearchParamType), item => item == Prefix.Value.GetCode());
+        return Array.Exists(SearchQuerySupport.GetPrefixListForSearchType(SearchParamType), item => item == Prefix.Value);
       }
       else
       {

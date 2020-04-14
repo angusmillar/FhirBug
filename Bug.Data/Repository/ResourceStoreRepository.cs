@@ -8,14 +8,27 @@ using Bug.Logic.DomainModel;
 using Bug.Logic.Interfaces.Repository;
 using System.Threading.Tasks;
 using Bug.Common.Enums;
-//using System.Data.Entity;
+using Bug.Logic.Service.SearchQuery.SearchQueryEntity;
+using LinqKit;
+using Bug.Data.Predicates;
 
 namespace Bug.Data.Repository
 {
   public class ResourceStoreRepository : Repository<ResourceStore>, IResourceStoreRepository
   {
-    public ResourceStoreRepository(AppDbContext context)
-      : base(context) { }
+    private readonly IPredicateFactory IPredicateFactory;
+    public ResourceStoreRepository(AppDbContext context, IPredicateFactory IPredicateFactory)
+      : base(context) 
+    {
+      this.IPredicateFactory = IPredicateFactory;
+    }
+
+    public async Task<IList<ResourceStore>> GetSearch(Common.Enums.FhirVersion fhirVersion, Common.Enums.ResourceType resourceType, IList<ISearchQueryBase> searchQueryList)
+    {
+      var Predicate = IPredicateFactory.Get(fhirVersion, resourceType, searchQueryList);
+      string Debug = Predicate.Expand().ToString();
+      return await DbSet.AsExpandable().Where(Predicate).OrderBy(z => z.LastUpdated).ToListAsync();
+    }
 
     public async Task<ResourceStore?> GetCurrentAsync(Common.Enums.FhirVersion fhirMajorVersion, Common.Enums.ResourceType resourceType, string resourceId)
     {
@@ -34,7 +47,7 @@ namespace Bug.Data.Repository
           x.FhirVersionId == fhirVersion &
           x.ResourceTypeId == resourceTypeId &
           x.ResourceId == resourceId &
-          x.VersionId == versionId.Value &          
+          x.VersionId == versionId.Value &
           x.IsDeleted == false);
       }
       else
@@ -131,7 +144,7 @@ namespace Bug.Data.Repository
       RemoveAllIndexes(resourceStore.Id);
 
       //Remove all Contained Resources and their indexes for this main Resource    
-      foreach(var ContainedResource in await DbSet.Select(x => new ResourceStore()
+      foreach (var ContainedResource in await DbSet.Select(x => new ResourceStore()
       {
         Id = x.Id,
         ResourceId = x.ResourceId,
@@ -140,7 +153,7 @@ namespace Bug.Data.Repository
       {
         RemoveAllIndexes(ContainedResource.Id);
         _context.Set<ResourceStore>().Remove(ContainedResource);
-      }      
+      }
     }
 
     public async Task<ResourceStore?> GetCurrentMetaAsync(Common.Enums.FhirVersion fhirMajorVersion, Common.Enums.ResourceType resourceType, string resourceId)
