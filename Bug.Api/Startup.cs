@@ -177,6 +177,12 @@ namespace Bug.Api
       container.Register<Bug.Logic.Service.Indexing.Setter.IQuantitySetterSupport, Bug.Logic.Service.Indexing.Setter.QuantitySetterSupport>(Lifestyle.Singleton);
       container.Register<Bug.Logic.Service.Indexing.Setter.IUriSetterSupport, Bug.Logic.Service.Indexing.Setter.UriSetterSupport>(Lifestyle.Singleton);
       container.Register<Bug.Logic.Service.Indexing.ITypedElementSupport, Bug.Logic.Service.Indexing.TypedElementSupport>(Lifestyle.Singleton);
+      container.Register<Common.DateTimeTools.IFhirDateTimeFactory, Common.DateTimeTools.FhirDateTimeFactory>(Lifestyle.Singleton);
+      
+      var FhirDateTimeSupportRegistration = Lifestyle.Singleton.CreateRegistration<Common.DateTimeTools.FhirDateTimeSupport>(container);
+      container.AddRegistration(typeof(Common.DateTimeTools.IIndexSettingCalcHighDateTime), FhirDateTimeSupportRegistration);
+      container.AddRegistration(typeof(Common.DateTimeTools.ISearchQueryCalcHighDateTime), FhirDateTimeSupportRegistration);
+
 
       //--Thread safe Predicates -----------------
       container.Register<Bug.Data.Predicates.IIndexNumberPredicateFactory, Bug.Data.Predicates.IndexNumberPredicateFactory>(Lifestyle.Singleton);
@@ -184,7 +190,8 @@ namespace Bug.Api
       container.Register<Bug.Data.Predicates.IIndexStringPredicateFactory, Bug.Data.Predicates.IndexStringPredicateFactory>(Lifestyle.Singleton);
       container.Register<Bug.Data.Predicates.IIndexTokenPredicateFactory, Bug.Data.Predicates.IndexTokenPredicateFactory>(Lifestyle.Singleton);
       container.Register<Bug.Data.Predicates.IIndexUriPredicateFactory, Bug.Data.Predicates.IndexUriPredicateFactory>(Lifestyle.Singleton);
-      
+      container.Register<Bug.Data.Predicates.IIndexDateTimePredicateFactory, Bug.Data.Predicates.IndexDateTimePredicateFactory>(Lifestyle.Singleton);
+     
 
 
       //-- Thread safe FHIR Tools---------------   One Implementation many Interfaces

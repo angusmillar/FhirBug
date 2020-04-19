@@ -34,6 +34,7 @@ namespace Bug.Data.Predicates
             Predicate = Predicate.Extend(IResourceStorePredicateFactory.NumberIndex(Search), PredicateOperator.And);
             break;
           case Common.Enums.SearchParamType.Date:
+            Predicate = Predicate.Extend(IResourceStorePredicateFactory.DateTimeIndex(Search), PredicateOperator.And);
             break;
           case Common.Enums.SearchParamType.String:
             Predicate = Predicate.Extend(IResourceStorePredicateFactory.StringIndex(Search), PredicateOperator.And);

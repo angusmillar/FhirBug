@@ -16,5 +16,6 @@ namespace Bug.Data.Predicates
     Expression<Func<ResourceStore, bool>> StringIndex(ISearchQueryBase SearchQueryBase);
     Expression<Func<ResourceStore, bool>> TokenIndex(ISearchQueryBase SearchQueryBase);
     Expression<Func<ResourceStore, bool>> UriIndex(ISearchQueryBase SearchQueryBase);
+    Expression<Func<ResourceStore, bool>> DateTimeIndex(ISearchQueryBase SearchQueryBase);
   }
 }

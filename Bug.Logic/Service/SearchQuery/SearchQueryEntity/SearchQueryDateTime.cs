@@ -7,12 +7,16 @@ namespace Bug.Logic.Service.SearchQuery.SearchQueryEntity
 {
   public class SearchQueryDateTime : SearchQueryBase
   {
+
+
+    private readonly IFhirDateTimeFactory IFhirDateTimeFactory;
     #region Constructor
-    public SearchQueryDateTime(SearchParameter SearchParameter, Bug.Common.Enums.ResourceType ResourceContext, string RawValue)
+    public SearchQueryDateTime(SearchParameter SearchParameter, Bug.Common.Enums.ResourceType ResourceContext, string RawValue, IFhirDateTimeFactory IFhirDateTimeFactory)
       : base(SearchParameter, ResourceContext, RawValue)
     {
       this.SearchParamTypeId = Bug.Common.Enums.SearchParamType.Date;
       this.ValueList = new List<SearchQueryDateTimeValue>();
+      this.IFhirDateTimeFactory = IFhirDateTimeFactory;
     }
     #endregion
 
@@ -20,13 +24,13 @@ namespace Bug.Logic.Service.SearchQuery.SearchQueryEntity
 
     public override object CloneDeep()
     {
-      var Clone = new SearchQueryDateTime(this as SearchParameter, this.ResourceContext, this.RawValue);
+      var Clone = new SearchQueryDateTime(this as SearchParameter, this.ResourceContext, this.RawValue, this.IFhirDateTimeFactory);
       base.CloneDeep(Clone);
       Clone.ValueList = new List<SearchQueryDateTimeValue>();
       Clone.ValueList.AddRange(this.ValueList);
       return Clone;
     }
-    
+
     public override void ParseValue(string Values)
     {
       this.IsValid = true;
@@ -56,26 +60,18 @@ namespace Bug.Logic.Service.SearchQuery.SearchQueryEntity
           {
             this.InvalidMessage = $"The search parameter had an unsupported prefix of '{Prefix.Value.GetCode()}'. ";
             this.IsValid = false;
-            break;            
+            break;
           }
 
           string DateTimeStirng = SearchQueryDateTimeValue.RemovePrefix(Value, Prefix);
-          FhirDateTimeSupport FhirDateTimeSupport = new FhirDateTimeSupport(DateTimeStirng.Trim());
-          if (FhirDateTimeSupport.IsValid)
+          if (IFhirDateTimeFactory.TryParse(DateTimeStirng.Trim(), out FhirDateTime? FhirDateTime, out string? ErrorMessage))
           {
-            if (FhirDateTimeSupport.Value.HasValue)
-            {
-              var SearchQueryDateTimeValue = new SearchQueryDateTimeValue(false, Prefix, FhirDateTimeSupport.Precision, FhirDateTimeSupport.Value.Value);
-              ValueList.Add(SearchQueryDateTimeValue);
-            }
-            else
-            {
-              throw new System.ApplicationException($"Internal Server Error: The {nameof(FhirDateTimeSupport)} property of {nameof(FhirDateTimeSupport.IsValid)} was True yet the Value was null. This should not happen." );
-            }
+            var SearchQueryDateTimeValue = new SearchQueryDateTimeValue(false, Prefix, FhirDateTime!.Precision, FhirDateTime!.DateTime);
+            ValueList.Add(SearchQueryDateTimeValue);
           }
           else
           {
-            this.InvalidMessage = $"Unable to parse the provided value of {DateTimeStirng.Trim()} as a FHIR DateTime.";
+            this.InvalidMessage = ErrorMessage!;
             this.IsValid = false;
             break;
           }
@@ -88,74 +84,9 @@ namespace Bug.Logic.Service.SearchQuery.SearchQueryEntity
       if (this.ValueList.Count == 0)
       {
         this.InvalidMessage = $"Unable to parse any values into a {this.GetType().Name} from the string: {Values}.";
-        this.IsValid = false;        
-      }      
+        this.IsValid = false;
+      }
     }
 
-    //public override bool ParseValue(string Values)
-    //{
-    //  this.ValueList = new List<SearchQueryDateTimeValue>();
-    //  foreach (string Value in Values.Split(OrDelimiter))
-    //  {
-    //    //var DtoSearchParameterDateTimeValue = new SearchQueryDateTimeValue();
-    //    if (this.Modifier.HasValue && this.Modifier == SearchModifierCode.Missing)
-    //    {
-    //      bool? IsMissing = SearchQueryDateTimeValue.ParseModifierEqualToMissing(Value);
-    //      if (IsMissing.HasValue)
-    //      {            
-    //        ValueList.Add(new SearchQueryDateTimeValue(IsMissing.Value, null, null, null));
-    //      }
-    //      else
-    //      {
-    //        this.InvalidMessage = $"Found the {SearchModifierCode.Missing.GetCode()} Modifier yet is value was expected to be true or false yet found '{Value}'. ";
-    //        return false;
-    //      }
-    //    }
-    //    else
-    //    {
-          
-    //      SearchComparator? Prefix = SearchQueryDateTimeValue.GetPrefix(Value);
-    //      if (!SearchQueryQuantityValue.ValidatePreFix(this.SearchParamTypeId, Prefix) && Prefix.HasValue)
-    //      {
-    //        this.InvalidMessage = $"The search parameter had an unsupported prefix of '{Prefix.Value.GetCode()}'. ";
-    //        return false;
-    //      }
-
-    //      string DateTimeStirng = SearchQueryDateTimeValue.RemovePrefix(Value, Prefix);
-    //      FhirDateTimeSupport FhirDateTimeSupport = new FhirDateTimeSupport(DateTimeStirng.Trim());
-    //      if (FhirDateTimeSupport.IsValid)
-    //      {
-    //        if (FhirDateTimeSupport.Value.HasValue)
-    //        {
-    //          var SearchQueryDateTimeValue = new SearchQueryDateTimeValue(false, Prefix, FhirDateTimeSupport.Precision, FhirDateTimeSupport.Value.Value);
-    //          ValueList.Add(SearchQueryDateTimeValue);
-    //        }
-    //        else
-    //        {
-
-    //          return false;
-    //        }
-    //      }
-    //      else
-    //      {
-    //        this.InvalidMessage = $"Unable to parse the provided value of {DateTimeStirng.Trim()} as a FHIR DateTime.";
-    //        return false;
-    //      }
-    //    }
-    //  }
-    //  if (ValueList.Count > 1)
-    //  {
-    //    this.HasLogicalOrProperties = true;
-    //  }
-    //  if (this.ValueList.Count == 0)
-    //  {
-    //    return false;
-    //  }
-    //  else
-    //  {
-    //    return true;
-    //  }
-    //}
-    
   }
 }

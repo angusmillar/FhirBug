@@ -11,14 +11,17 @@ namespace Bug.R4Fhir.Indexing.Setter
   public class R4DateTimeSetter : IR4DateTimeSetter
   {
     private readonly IR4DateTimeIndexSupport IDateTimeIndexSupport;
+    private readonly Bug.Common.DateTimeTools.IFhirDateTimeFactory IFhirDateTimeFactory;
+
     private ITypedElement? TypedElement;
     private Bug.Common.Enums.ResourceType ResourceType;
     private int SearchParameterId;
     private string? SearchParameterName;
 
-    public R4DateTimeSetter(IR4DateTimeIndexSupport IDateTimeIndexSupport)
+    public R4DateTimeSetter(IR4DateTimeIndexSupport IDateTimeIndexSupport, Bug.Common.DateTimeTools.IFhirDateTimeFactory IFhirDateTimeFactory)
     {
       this.IDateTimeIndexSupport = IDateTimeIndexSupport;
+      this.IFhirDateTimeFactory = IFhirDateTimeFactory;
     }
 
     public IList<IndexDateTime> Set(ITypedElement typedElement, Bug.Common.Enums.ResourceType resourceType, int searchParameterId, string searchParameterName)
@@ -98,18 +101,13 @@ namespace Bug.R4Fhir.Indexing.Setter
     {
       if (Hl7.Fhir.Model.Date.IsValidValue(FhirString.Value) || FhirDateTime.IsValidValue(FhirString.Value))
       {
-
-        Common.DateTimeTools.FhirDateTimeSupport oFhirDateTimeTool = new Common.DateTimeTools.FhirDateTimeSupport(FhirString.Value);
-        if (oFhirDateTimeTool.IsValid)
+        if (IFhirDateTimeFactory.TryParse(FhirString.Value, out Common.DateTimeTools.FhirDateTime? XFhirDateTime, out string? ErrorMessage))
         {
-          if (oFhirDateTimeTool.Value.HasValue)
-          {
-            var FhirDateTime = new FhirDateTime(new DateTimeOffset(oFhirDateTimeTool.Value.Value));
+          var FhirDateTime = new FhirDateTime(new DateTimeOffset(XFhirDateTime!.DateTime));
 
-            var DateTimeIndex = IDateTimeIndexSupport.GetDateTimeIndex(FhirDateTime, this.SearchParameterId);
-            if (DateTimeIndex is object)
-              ResourceIndexList.Add(DateTimeIndex);
-          }
+          var DateTimeIndex = IDateTimeIndexSupport.GetDateTimeIndex(FhirDateTime, this.SearchParameterId);
+          if (DateTimeIndex is object)
+            ResourceIndexList.Add(DateTimeIndex);
         }
       }
     }

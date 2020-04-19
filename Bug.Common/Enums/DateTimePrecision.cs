@@ -17,8 +17,6 @@ namespace Bug.Common.Enums
     [EnumInfo("Sec", "Sec")]
     Sec,
     [EnumInfo("MilliSec", "MilliSec")]
-    MilliSec,
-    [EnumInfo("Tick", "Tick")]
-    Tick 
+    MilliSec    
   };
 }

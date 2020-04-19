@@ -24,7 +24,7 @@ namespace Bug.Test.Logic
     [InlineData(FhirVersion.Stu3, ResourceType.Observation, "subject.organization.nameXX", "acmehealth", "Invalid")]
     [InlineData(FhirVersion.Stu3, ResourceType.Observation, "subject..organization.nameXX", "acmehealth", "Invalid")]
     [InlineData(FhirVersion.Stu3, ResourceType.Observation, "subject.organization..nameXX", "acmehealth", "Invalid")]
-    [InlineData(FhirVersion.Stu3, ResourceType.Observation, "subject:PatientXXX.organization..nameXX", "acmehealth", "Unsupported")]
+    [InlineData(FhirVersion.Stu3, ResourceType.Observation, "subject:PatientXXX.organization..nameXX", "acmehealth", "Invalid")]
     [InlineData(FhirVersion.Stu3, ResourceType.Observation, "subject:Patient.organization:OrganizationXXX.name", "acmehealth", "Invalid")]
 
     public void ChainQueryNegative(FhirVersion fhirVersion, ResourceType resourceContext, string parameterName, string parameterValue, string InvalidUnsupported)

@@ -268,44 +268,44 @@ namespace Bug.Test.Logic
         if (queryValue.StartsWith("gt"))
         {
           var testDate = new DateTimeOffset(new DateTime(2020, 04, 07), TimeSpan.FromHours(10));
-          Assert.Equal(testDate.ToUniversalTime(), SearchQueryDateTime.ValueList[0].Value);
+          Assert.Equal(testDate.ToUniversalTime().DateTime, SearchQueryDateTime.ValueList[0].Value);
           Assert.Equal(DateTimePrecision.Day, SearchQueryDateTime.ValueList[0].Precision);
           Assert.Equal(SearchComparator.Gt, SearchQueryDateTime.ValueList[0].Prefix);
         }
         else if (queryValue.Length == 16)
         {
           var testDate = new DateTimeOffset(new DateTime(2020, 04, 07, 10, 00, 00), TimeSpan.FromHours(10));
-          Assert.Equal(testDate.ToUniversalTime(), SearchQueryDateTime.ValueList[0].Value);
+          Assert.Equal(testDate.ToUniversalTime().DateTime, SearchQueryDateTime.ValueList[0].Value);
           Assert.Equal(DateTimePrecision.HourMin, SearchQueryDateTime.ValueList[0].Precision);
         }
         else if (queryValue.Length == 4)
         {
           var testDate = new DateTimeOffset(new DateTime(2020, 01, 01), TimeSpan.FromHours(10));
-          Assert.Equal(testDate.ToUniversalTime(), SearchQueryDateTime.ValueList[0].Value);
+          Assert.Equal(testDate.ToUniversalTime().DateTime, SearchQueryDateTime.ValueList[0].Value);
           Assert.Equal(DateTimePrecision.Year, SearchQueryDateTime.ValueList[0].Precision);
         }
         else if (queryValue.Length == 7)
         {
           var testDate = new DateTimeOffset(new DateTime(2020, 04, 01), TimeSpan.FromHours(10));
-          Assert.Equal(testDate.ToUniversalTime(), SearchQueryDateTime.ValueList[0].Value);
+          Assert.Equal(testDate.ToUniversalTime().DateTime, SearchQueryDateTime.ValueList[0].Value);
           Assert.Equal(DateTimePrecision.Month, SearchQueryDateTime.ValueList[0].Precision);
         }
         else if (queryValue.Length == 10)
         {
           var testDate = new DateTimeOffset(new DateTime(2020, 04, 07), TimeSpan.FromHours(10));
-          Assert.Equal(testDate.ToUniversalTime(), SearchQueryDateTime.ValueList[0].Value);
+          Assert.Equal(testDate.ToUniversalTime().DateTime, SearchQueryDateTime.ValueList[0].Value);
           Assert.Equal(DateTimePrecision.Day, SearchQueryDateTime.ValueList[0].Precision);
         }
         else if (queryValue.Length == 19)
         {
           var testDate = new DateTimeOffset(new DateTime(2020, 04, 07, 10, 00, 10), TimeSpan.FromHours(10));
-          Assert.Equal(testDate.ToUniversalTime(), SearchQueryDateTime.ValueList[0].Value);
+          Assert.Equal(testDate.ToUniversalTime().DateTime, SearchQueryDateTime.ValueList[0].Value);
           Assert.Equal(DateTimePrecision.Sec, SearchQueryDateTime.ValueList[0].Precision);
         }
         else if (queryValue.Length == 25)
         {
           var testDate = new DateTimeOffset(new DateTime(2020, 04, 07, 10, 00, 10), TimeSpan.FromHours(5));
-          Assert.Equal(testDate.ToUniversalTime(), SearchQueryDateTime.ValueList[0].Value);
+          Assert.Equal(testDate.ToUniversalTime().DateTime, SearchQueryDateTime.ValueList[0].Value);
           Assert.Equal(DateTimePrecision.Sec, SearchQueryDateTime.ValueList[0].Precision);
         }
       }

@@ -1,4 +1,5 @@
-﻿using Bug.Common.Enums;
+﻿using Bug.Common.DateTimeTools;
+using Bug.Common.Enums;
 using Bug.Common.FhirTools;
 using Bug.Logic.CacheService;
 using Bug.Logic.Service.Fhir;
@@ -24,7 +25,8 @@ namespace Bug.Test.Logic.MockSupport
 
       IResourceTypeSupport IResourceTypeSupport = new ResourceTypeSupport();
       Mock<IKnownResource> IKnownResourceMock = IKnownResource_MockFactory.Get();
-      return new SearchQueryFactory(IFhirUriFactory, IResourceTypeSupport, ISearchParameterCache, IKnownResourceMock.Object);
+      IFhirDateTimeFactory IFhirDateTimeFactory = IFhirDateTimeFactory_Factory.Get(TimeSpan.FromHours(10));
+      return new SearchQueryFactory(IFhirUriFactory, IResourceTypeSupport, ISearchParameterCache, IKnownResourceMock.Object, IFhirDateTimeFactory);
     }
   }
 }

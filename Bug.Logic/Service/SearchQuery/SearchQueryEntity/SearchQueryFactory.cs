@@ -1,4 +1,5 @@
-﻿using Bug.Common.Enums;
+﻿using Bug.Common.DateTimeTools;
+using Bug.Common.Enums;
 using Bug.Common.FhirTools;
 using Bug.Common.FhirTools.SearchQuery;
 using Bug.Common.Interfaces;
@@ -22,15 +23,18 @@ namespace Bug.Logic.Service.SearchQuery.SearchQueryEntity
     private readonly IResourceTypeSupport IResourceTypeSupport;
     private readonly ISearchParameterCache ISearchParameterCache;
     private readonly IKnownResource IKnownResource;
+    private readonly IFhirDateTimeFactory IFhirDateTimeFactory;
     public SearchQueryFactory(IFhirUriFactory IFhirUriFactory, 
       IResourceTypeSupport IResourceTypeSupport, 
       ISearchParameterCache ISearchParameterCache,
-      IKnownResource IKnownResource)
+      IKnownResource IKnownResource,
+      IFhirDateTimeFactory IFhirDateTimeFactory)
     {
       this.IFhirUriFactory = IFhirUriFactory;
       this.IResourceTypeSupport = IResourceTypeSupport;
       this.ISearchParameterCache = ISearchParameterCache;
       this.IKnownResource = IKnownResource;
+      this.IFhirDateTimeFactory = IFhirDateTimeFactory;
     }
 
     public async Task<IList<ISearchQueryBase>> Create(Bug.Common.Enums.ResourceType ResourceContext, SearchParameter searchParameter, KeyValuePair<string, StringValues> Parameter, bool IsChainedReferance = false)
@@ -109,7 +113,7 @@ namespace Bug.Logic.Service.SearchQuery.SearchQueryEntity
       return searchParameter.SearchParamTypeId switch
       {
         Common.Enums.SearchParamType.Number => new SearchQueryNumber(searchParameter, ResourceContext, RawValue),
-        Common.Enums.SearchParamType.Date => new SearchQueryDateTime(searchParameter, ResourceContext, RawValue),
+        Common.Enums.SearchParamType.Date => new SearchQueryDateTime(searchParameter, ResourceContext, RawValue, IFhirDateTimeFactory),
         Common.Enums.SearchParamType.String => new SearchQueryString(searchParameter, ResourceContext, RawValue),
         Common.Enums.SearchParamType.Token => new SearchQueryToken(searchParameter, ResourceContext, RawValue),
         Common.Enums.SearchParamType.Reference => new SearchQueryReference(searchParameter, ResourceContext, this.IFhirUriFactory, RawValue, IsChained),

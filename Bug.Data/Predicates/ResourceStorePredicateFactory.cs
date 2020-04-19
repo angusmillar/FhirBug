@@ -18,7 +18,8 @@ namespace Bug.Data.Predicates
     private readonly IIndexQuantityPredicateFactory IIndexQuantityPredicateFactory;
     private readonly IIndexNumberPredicateFactory IIndexNumberPredicateFactory;
     private readonly IIndexTokenPredicateFactory IIndexTokenPredicateFactory;
-    
+    private readonly IIndexDateTimePredicateFactory IIndexDateTimePredicateFactory;
+
 
 
     public ResourceStorePredicateFactory(IIndexReferencePredicateFactory IIndexReferencePredicateFactory,
@@ -26,7 +27,8 @@ namespace Bug.Data.Predicates
       IIndexUriPredicateFactory IIndexUriPredicateFactory,
       IIndexQuantityPredicateFactory IIndexQuantityPredicateFactory,
       IIndexNumberPredicateFactory IIndexNumberPredicateFactory,
-      IIndexTokenPredicateFactory IIndexTokenPredicateFactory)
+      IIndexTokenPredicateFactory IIndexTokenPredicateFactory,
+      IIndexDateTimePredicateFactory IIndexDateTimePredicateFactory)
     {
       this.IIndexStringPredicateFactory = IIndexStringPredicateFactory;
       this.IIndexReferencePredicateFactory = IIndexReferencePredicateFactory;
@@ -34,6 +36,7 @@ namespace Bug.Data.Predicates
       this.IIndexQuantityPredicateFactory = IIndexQuantityPredicateFactory;
       this.IIndexNumberPredicateFactory = IIndexNumberPredicateFactory;
       this.IIndexTokenPredicateFactory = IIndexTokenPredicateFactory;
+      this.IIndexDateTimePredicateFactory = IIndexDateTimePredicateFactory;
     }
 
     public Expression<Func<ResourceStore, bool>> CurrentMainResource(Bug.Common.Enums.FhirVersion fhirVersion, Bug.Common.Enums.ResourceType resourceType)
@@ -112,5 +115,19 @@ namespace Bug.Data.Predicates
         throw new InvalidCastException($"Unable to cast a {nameof(ISearchQueryBase)} of type {SearchQueryBase.GetType().Name} to a {typeof(SearchQueryReference).Name}");
       }
     }
+
+    public Expression<Func<ResourceStore, bool>> DateTimeIndex(ISearchQueryBase SearchQueryBase)
+    {
+      if (SearchQueryBase is SearchQueryDateTime SearchQueryDateTime)
+      {
+        return IIndexDateTimePredicateFactory.DateTimeIndex(SearchQueryDateTime);
+      }
+      else
+      {
+        throw new InvalidCastException($"Unable to cast a {nameof(ISearchQueryBase)} of type {SearchQueryBase.GetType().Name} to a {typeof(SearchQueryDateTime).Name}");
+      }
+    }
+
+    
   }
 }

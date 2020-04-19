@@ -5,7 +5,7 @@ namespace Bug.Logic.Service.SearchQuery.SearchQueryEntity
 {
   public class SearchQueryDateTimeValue : SearchQueryValuePrefixBase
   {
-    public SearchQueryDateTimeValue(bool IsMissing, SearchComparator? Prefix, DateTimePrecision? Precision, DateTimeOffset? Value)
+    public SearchQueryDateTimeValue(bool IsMissing, SearchComparator? Prefix, DateTimePrecision? Precision, DateTime? Value)
       :base(IsMissing, Prefix)
     {      
       this.Precision = Precision;
@@ -13,6 +13,6 @@ namespace Bug.Logic.Service.SearchQuery.SearchQueryEntity
     }
 
     public DateTimePrecision? Precision { get; set; }
-    public DateTimeOffset? Value { get; set; }
+    public DateTime? Value { get; set; }
   }
 }

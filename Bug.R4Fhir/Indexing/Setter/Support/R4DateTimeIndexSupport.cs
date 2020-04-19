@@ -8,7 +8,16 @@ using Hl7.Fhir.Model.Primitives;
 namespace Bug.R4Fhir.Indexing.Setter.Support
 {
   public class R4DateTimeIndexSupport : IR4DateTimeIndexSupport
-  {    
+  {
+    private readonly Common.DateTimeTools.IFhirDateTimeFactory IFhirDateTimeFactory;
+    private readonly Common.DateTimeTools.IIndexSettingCalcHighDateTime IIndexSettingCalcHighDateTime;
+    public R4DateTimeIndexSupport(Common.DateTimeTools.IFhirDateTimeFactory IFhirDateTimeFactory,
+      Common.DateTimeTools.IIndexSettingCalcHighDateTime IIndexSettingCalcHighDateTime)
+    {
+      this.IFhirDateTimeFactory = IFhirDateTimeFactory;
+      this.IIndexSettingCalcHighDateTime = IIndexSettingCalcHighDateTime;
+    }
+
     public IndexDateTime? GetDateTimeIndex(Date value, int searchParameterId)
     {      
       PartialDateTime? PartialDateTimeType = value.ToPartialDateTime();
@@ -107,39 +116,10 @@ namespace Bug.R4Fhir.Indexing.Setter.Support
 
     private IndexDateTime? ParsePartialDateTime(PartialDateTime PartialDateTimeType, int searchParameterId)
     {
-      var FhirDateTimeSupport = new Bug.Common.DateTimeTools.FhirDateTimeSupport(PartialDateTimeType.ToString());
-      if (FhirDateTimeSupport.IsValid && FhirDateTimeSupport.Value is object)
+      if (IFhirDateTimeFactory.TryParse(PartialDateTimeType, out Common.DateTimeTools.FhirDateTime? BugFhirDateTime, out string? ErrorMessage))
       {
-        DateTime Low = FhirDateTimeSupport.Value.Value;
-        DateTime High = DateTime.MaxValue;
-
-        switch (FhirDateTimeSupport.Precision)
-        {
-          case Bug.Common.Enums.DateTimePrecision.Year:
-            High = Low.AddYears(1).AddMilliseconds(-1);
-            break;
-          case Bug.Common.Enums.DateTimePrecision.Month:
-            High = Low.AddMonths(1).AddMilliseconds(-1);
-            break;
-          case Bug.Common.Enums.DateTimePrecision.Day:
-            High = Low.AddDays(1).AddMilliseconds(-1);
-            break;
-          case Bug.Common.Enums.DateTimePrecision.HourMin:
-            High = Low.AddSeconds(1).AddMilliseconds(-1);
-            break;
-          case Bug.Common.Enums.DateTimePrecision.Sec:
-            High = Low.AddMilliseconds(999);
-            break;
-          case Bug.Common.Enums.DateTimePrecision.MilliSec:
-            High = Low.AddMilliseconds(1).AddTicks(-1);
-            break;
-          case Bug.Common.Enums.DateTimePrecision.Tick:
-            High = Low.AddTicks(1);
-            break;
-          default:
-            break;
-        }
-
+        DateTime Low = BugFhirDateTime!.DateTime;
+        DateTime High = IIndexSettingCalcHighDateTime.IndexSettingCalculateHighDateTimeForRange(Low, BugFhirDateTime.Precision);        
         return new IndexDateTime(searchParameterId) { Low = Low, High = High };
       }
       return null;

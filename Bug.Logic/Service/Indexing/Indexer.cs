@@ -62,7 +62,9 @@ namespace Bug.Logic.Service.Indexing
       foreach (SearchParameter SearchParameter in SearchParameterList)
       {
         //Composite searchParameters do not require populating as they are a Composite of other SearchParameter Types
-        if (SearchParameter.SearchParamTypeId != Common.Enums.SearchParamType.Composite)
+        //searchParameters with an empty or null FHIRPath can not be indexed, this is true for _query and _content which 
+        //in my view should not be searchParameter, just as _sort or _count are not.
+        if (SearchParameter.SearchParamTypeId != Common.Enums.SearchParamType.Composite && !string.IsNullOrWhiteSpace(SearchParameter.FhirPath))
         {
           IEnumerable<ITypedElement>? ResultList;
           try

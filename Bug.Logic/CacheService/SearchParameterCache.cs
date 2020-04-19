@@ -30,20 +30,43 @@ namespace Bug.Logic.CacheService
 
     public async Task<List<SearchParameter>> GetForIndexingAsync(Common.Enums.FhirVersion fhirVersion, Common.Enums.ResourceType resourceType)
     {
-      byte[]? data = await IDistributedCache.GetAsync(GetCacheKey(fhirVersion, resourceType));
-      if (data is object)
+      //We synchronously get both the requested ResourceType and the Resource ResourceType from Redis       
+      Task<byte[]?> ResourceResourceTask = IDistributedCache.GetAsync(GetCacheKey(fhirVersion, Common.Enums.ResourceType.Resource));
+      Task<byte[]?> RequestedResourceTypeTask = IDistributedCache.GetAsync(GetCacheKey(fhirVersion, resourceType));
+      await Task.WhenAll(ResourceResourceTask, RequestedResourceTypeTask);
+
+      //If the requested ResourceType was not found then get from the database
+      List<SearchParameter> RequestedResourceTypeSearchParameterList;
+      if (RequestedResourceTypeTask.Result is object)
       {
-        return JsonSerializer.Deserialize<List<SearchParameter>>(data);
+        RequestedResourceTypeSearchParameterList = JsonSerializer.Deserialize<List<SearchParameter>>(RequestedResourceTypeTask.Result);
       }
       else
       {
-        List<SearchParameter> SearchParameterList = await ISearchParameterRepository.GetForIndexingAsync(fhirVersion, resourceType);
-        if (SearchParameterList.Count > 0)
+        RequestedResourceTypeSearchParameterList = await ISearchParameterRepository.GetForIndexingAsync(fhirVersion, resourceType);
+        if (RequestedResourceTypeSearchParameterList.Count > 0)
         {
-          await this.SetForIndexingAsync(fhirVersion, resourceType, SearchParameterList);
-        }
-        return SearchParameterList;
+          await this.SetForIndexingAsync(fhirVersion, resourceType, RequestedResourceTypeSearchParameterList);
+        }        
       }
+
+      //If the Resource ResourceType was not found then get from the database
+      List<SearchParameter> ResourceResourceTypeSearchParameterList;
+      if (ResourceResourceTask.Result is object)
+      {
+        ResourceResourceTypeSearchParameterList = JsonSerializer.Deserialize<List<SearchParameter>>(ResourceResourceTask.Result);
+      }
+      else
+      {
+        ResourceResourceTypeSearchParameterList = await ISearchParameterRepository.GetForIndexingAsync(fhirVersion, Common.Enums.ResourceType.Resource);
+        if (ResourceResourceTypeSearchParameterList.Count > 0)
+        {
+          await this.SetForIndexingAsync(fhirVersion, Common.Enums.ResourceType.Resource, ResourceResourceTypeSearchParameterList);          
+        }        
+      }
+      //Combine the two lists into one
+      RequestedResourceTypeSearchParameterList.AddRange(ResourceResourceTypeSearchParameterList);
+      return RequestedResourceTypeSearchParameterList;
     }
 
     public async Task SetForIndexingAsync(Common.Enums.FhirVersion fhirVersion, Common.Enums.ResourceType resourceType, List<SearchParameter> searchParameterList)
