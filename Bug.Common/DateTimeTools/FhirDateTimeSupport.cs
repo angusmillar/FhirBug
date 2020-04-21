@@ -69,7 +69,7 @@ namespace Bug.Common.DateTimeTools
       }
       else if (Precision == DateTimePrecision.MilliSec)
       {
-        HighDateTime = LowValue.AddMilliseconds(1).AddTicks(-1);
+        HighDateTime = LowValue.AddMilliseconds(1).AddTicks(-999);
       }
       else
       {
@@ -78,7 +78,7 @@ namespace Bug.Common.DateTimeTools
       return HighDateTime;
     }
 
-    public DateTime IndexSettingCalculateHighDateTimeForRange(DateTime LowValue, DateTimePrecision Precision)
+    public DateTime IndexSettingCalculateHighDateTimeForRangeOLD(DateTime LowValue, DateTimePrecision Precision)
     {
       switch (Precision)
       {
@@ -94,6 +94,27 @@ namespace Bug.Common.DateTimeTools
           return LowValue.AddMilliseconds(999);
         case Bug.Common.Enums.DateTimePrecision.MilliSec:
           return LowValue.AddMilliseconds(1).AddTicks(-1);
+        default:
+          throw new System.ComponentModel.InvalidEnumArgumentException(Precision.GetCode(), (int)Precision, typeof(DateTimePrecision));
+      }
+    }
+
+    public DateTime IndexSettingCalculateHighDateTimeForRange(DateTime LowValue, DateTimePrecision Precision)
+    {
+      switch (Precision)
+      {
+        case Bug.Common.Enums.DateTimePrecision.Year:
+          return LowValue.AddYears(1).AddMilliseconds(-1);
+        case Bug.Common.Enums.DateTimePrecision.Month:
+          return LowValue.AddMonths(1).AddMilliseconds(-1);
+        case Bug.Common.Enums.DateTimePrecision.Day:
+          return LowValue.AddDays(1).AddMilliseconds(-1);
+        case Bug.Common.Enums.DateTimePrecision.HourMin:
+          return LowValue.AddMinutes(1).AddMilliseconds(-1);
+        case Bug.Common.Enums.DateTimePrecision.Sec:
+          return LowValue.AddSeconds(1).AddMilliseconds(-1);
+        case Bug.Common.Enums.DateTimePrecision.MilliSec:
+          return LowValue.AddMilliseconds(1).AddTicks(-999);
         default:
           throw new System.ComponentModel.InvalidEnumArgumentException(Precision.GetCode(), (int)Precision, typeof(DateTimePrecision));
       }

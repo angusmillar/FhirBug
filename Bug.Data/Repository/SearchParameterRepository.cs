@@ -17,14 +17,19 @@ namespace Bug.Data.Repository
     public SearchParameterRepository(AppDbContext context)
       : base(context) { }
 
-    public async Task<SearchParameter> GetByAsync(Common.Enums.FhirVersion fhirVersion, Common.Enums.ResourceType resourceType, string name)
+    public async Task<SearchParameter> GetByNameAsync(Common.Enums.FhirVersion fhirVersion, Common.Enums.ResourceType resourceType, string name)
     {
       return await DbSet.SingleOrDefaultAsync(x => x.FhirVersionId == fhirVersion & x.Name == name & x.ResourceTypeList.Any(y => y.ResourceTypeId == resourceType));
     }
 
-    public async Task<List<SearchParameter>> GetByAsync(Common.Enums.FhirVersion fhirVersion, Common.Enums.ResourceType resourceType)
+    public async Task<List<SearchParameter>> GetByResourceTypeAsync(Common.Enums.FhirVersion fhirVersion, Common.Enums.ResourceType resourceType)
     {
       return await DbSet.Where(x => x.FhirVersionId == fhirVersion & x.ResourceTypeList.Any(y => y.ResourceTypeId == resourceType)).ToListAsync();
+    }
+
+    public async Task<SearchParameter?> GetByCanonicalUrlAsync(Common.Enums.FhirVersion fhirVersion, Common.Enums.ResourceType resourceType, string CanonicalUrl)
+    {
+      return await DbSet.SingleOrDefaultAsync(x => x.FhirVersionId == fhirVersion & x.Url == CanonicalUrl & x.ResourceTypeList.Any(y => y.ResourceTypeId == resourceType));
     }
 
     public async Task<List<SearchParameter>> GetForIndexingAsync(Common.Enums.FhirVersion fhirVersion, Common.Enums.ResourceType resourceType)
@@ -40,6 +45,7 @@ namespace Bug.Data.Repository
         FhirPath = x.FhirPath,
         SearchParamTypeId = x.SearchParamTypeId,
         TargetResourceTypeList = x.TargetResourceTypeList,
+        ComponentList = x.ComponentList,
         FhirVersionId = x.FhirVersionId,
         ResourceTypeList = x.ResourceTypeList
       }).ToListAsync();

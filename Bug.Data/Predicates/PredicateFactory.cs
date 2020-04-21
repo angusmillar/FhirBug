@@ -1,4 +1,5 @@
-﻿using Bug.Common.Interfaces.CacheService;
+﻿using Bug.Common.Enums;
+using Bug.Common.Interfaces.CacheService;
 using Bug.Logic.DomainModel;
 using Bug.Logic.Service.SearchQuery.SearchQueryEntity;
 using LinqKit;
@@ -46,6 +47,7 @@ namespace Bug.Data.Predicates
             Predicate = Predicate.Extend(await IResourceStorePredicateFactory.ReferenceIndex(Search), PredicateOperator.And);
             break;
           case Common.Enums.SearchParamType.Composite:
+            Predicate = Predicate.Extend(await IResourceStorePredicateFactory.CompositeIndex(this, Search), PredicateOperator.And);
             break;
           case Common.Enums.SearchParamType.Quantity:
             Predicate = Predicate.Extend(IResourceStorePredicateFactory.QuantityIndex(Search), PredicateOperator.And);           
@@ -54,7 +56,7 @@ namespace Bug.Data.Predicates
             Predicate = Predicate.Extend(IResourceStorePredicateFactory.UriIndex(Search), PredicateOperator.And);            
             break;
           case Common.Enums.SearchParamType.Special:
-            break;
+            throw new Common.Exceptions.FhirFatalException( System.Net.HttpStatusCode.InternalServerError, new string[] { $"Attempt to search with a SearchParameter of type: {Common.Enums.SearchParamType.Special.GetCode()} which is not supported by this server." });            
           default:
             break;
         }

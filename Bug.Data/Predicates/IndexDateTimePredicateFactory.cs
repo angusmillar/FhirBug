@@ -141,27 +141,27 @@ namespace Bug.Data.Predicates
       //PredicateOne: x => x.High >= lowValue && x.High <= highValue       
       var PredicateOne = LinqKit.PredicateBuilder.New<IndexDateTime>(true);
       PredicateOne = PredicateOne.And(IndexDateTime_High_IsHigherThanOrEqualTo(LowValue));
-      PredicateOne = PredicateOne.And(IndexDecimal_High_IsLowerThanOrEqualTo(HighValue));
+      PredicateOne = PredicateOne.And(IndexDateTime_High_IsLowerThanOrEqualTo(HighValue));
 
       //PredicateTwo: x => x.High >= HighValue &&  x.Low <= LowValue
       var PredicateTwo = LinqKit.PredicateBuilder.New<IndexDateTime>(true);
       PredicateTwo = PredicateTwo.And(IndexDateTime_High_IsHigherThanOrEqualTo(HighValue));
-      PredicateTwo = PredicateTwo.And(IndexDecimal_Low_IsLowerThanOrEqualTo(LowValue));
+      PredicateTwo = PredicateTwo.And(IndexDateTime_Low_IsLowerThanOrEqualTo(LowValue));
 
       //PredicateThree: x => x.Low >= LowValue && x.Low >= HighValue 
       var PredicateThree = LinqKit.PredicateBuilder.New<IndexDateTime>(true);
       PredicateThree = PredicateThree.And(IndexDateTime_Low_IsHigherThanOrEqualTo(LowValue));
-      PredicateThree = PredicateThree.And(IndexDecimal_Low_IsLowerThanOrEqualTo(HighValue));
+      PredicateThree = PredicateThree.And(IndexDateTime_Low_IsLowerThanOrEqualTo(HighValue));
 
       //PredicateFour: x => x.Low >= LowValue && x.High <= HighValue
       var PredicateFour = LinqKit.PredicateBuilder.New<IndexDateTime>(true);
       PredicateFour = PredicateFour.And(IndexDateTime_Low_IsHigherThanOrEqualTo(LowValue));
-      PredicateFour = PredicateFour.And(IndexDecimal_High_IsLowerThanOrEqualTo(HighValue));
+      PredicateFour = PredicateFour.And(IndexDateTime_High_IsLowerThanOrEqualTo(HighValue));
 
       //PredicateFive: x => x.High == null < midValue && x.Low <= HighValue
       var PredicateFive = LinqKit.PredicateBuilder.New<IndexDateTime>(true);
       PredicateFive = PredicateFive.And(IndexDateTime_High_IsNull());
-      PredicateFive = PredicateFive.And(IndexDecimal_Low_IsLowerThanOrEqualTo(HighValue));
+      PredicateFive = PredicateFive.And(IndexDateTime_Low_IsLowerThanOrEqualTo(HighValue));
 
       //PredicateSix: x => x.Low == null && x.High >= HighValue
       var PredicateSix = LinqKit.PredicateBuilder.New<IndexDateTime>(true);
@@ -189,12 +189,12 @@ namespace Bug.Data.Predicates
       //PredicateTwo: x => x.Low == null && x.High < LowValue  
       var PredicateTwo = LinqKit.PredicateBuilder.New<IndexDateTime>(true);
       PredicateTwo = PredicateTwo.And(IndexDateTime_Low_IsNull());
-      PredicateTwo = PredicateTwo.And(IndexDecimal_High_IsLowerThen(LowValue));
+      PredicateTwo = PredicateTwo.And(IndexDateTime_High_IsLowerThen(LowValue));
 
       //PredicateThree: x => x.High > LowValue && x.High < HighValue  
       var PredicateThree = LinqKit.PredicateBuilder.New<IndexDateTime>(true);
-      PredicateThree = PredicateThree.And(IndexDecimal_High_IsLowerThen(LowValue));
-      PredicateThree = PredicateThree.And(IndexDecimal_High_IsLowerThen(HighValue));
+      PredicateThree = PredicateThree.And(IndexDateTime_High_IsLowerThen(LowValue));
+      PredicateThree = PredicateThree.And(IndexDateTime_High_IsLowerThen(HighValue));
 
       //PredicateThree: x => x.Low > HighValue && x.Low > LowValue
       var PredicateFour = LinqKit.PredicateBuilder.New<IndexDateTime>(true);
@@ -265,12 +265,12 @@ namespace Bug.Data.Predicates
       //PredicateOne: x => x.Low == null && x.High < LowValue      
       var PredicateOne = LinqKit.PredicateBuilder.New<IndexDateTime>(true);
       PredicateOne = PredicateOne.And(IndexDateTime_Low_IsNull());
-      PredicateOne = PredicateOne.And(IndexDecimal_High_IsLowerThen(LowValue));
+      PredicateOne = PredicateOne.And(IndexDateTime_High_IsLowerThen(LowValue));
 
       //PredicateTwo: x => x.Low =! null && x.High < LowValue 
       var PredicateTwo = LinqKit.PredicateBuilder.New<IndexDateTime>(true);
       PredicateTwo = PredicateTwo.And(IndexDateTime_Low_IsNotNull());
-      PredicateTwo = PredicateTwo.And(IndexDecimal_High_IsLowerThen(LowValue));
+      PredicateTwo = PredicateTwo.And(IndexDateTime_High_IsLowerThen(LowValue));
 
       PredicateMain = PredicateMain.Or(PredicateOne);
       PredicateMain = PredicateMain.Or(PredicateTwo);
@@ -284,16 +284,16 @@ namespace Bug.Data.Predicates
       //PredicateOne: x => x.Low == null && x.High <= HighValue
       var PredicateOne = LinqKit.PredicateBuilder.New<IndexDateTime>(true);
       PredicateOne = PredicateOne.And(IndexDateTime_Low_IsNull());
-      PredicateOne = PredicateOne.And(IndexDecimal_High_IsLowerThanOrEqualTo(HighValue));
+      PredicateOne = PredicateOne.And(IndexDateTime_High_IsLowerThanOrEqualTo(HighValue));
 
       //PredicateTwo: x => x.High == null || x.Low <= HighValue
       var PredicateTwo = LinqKit.PredicateBuilder.New<IndexDateTime>(true);
       PredicateTwo = PredicateTwo.And(IndexDateTime_High_IsNull());
-      PredicateTwo = PredicateTwo.And(IndexDecimal_Low_IsLowerThanOrEqualTo(HighValue));
+      PredicateTwo = PredicateTwo.And(IndexDateTime_Low_IsLowerThanOrEqualTo(HighValue));
 
-      //PredicateThree: x => x.Low >= LowValue
+      //PredicateThree: x => x.Low <= LowValue
       var PredicateThree = LinqKit.PredicateBuilder.New<IndexDateTime>(true);
-      PredicateThree = PredicateThree.And(IndexDateTime_Low_IsHigherThanOrEqualTo(LowValue));
+      PredicateThree = PredicateThree.And(IndexDateTime_Low_IsLowerThanOrEqualTo(LowValue));
 
       PredicateMain = PredicateMain.Or(PredicateOne);
       PredicateMain = PredicateMain.Or(PredicateTwo);
@@ -315,11 +315,11 @@ namespace Bug.Data.Predicates
     {
       return x => x.High >= value;
     }
-    private Expression<Func<IndexDateTime, bool>> IndexDecimal_High_IsLowerThen(DateTime value)
+    private Expression<Func<IndexDateTime, bool>> IndexDateTime_High_IsLowerThen(DateTime value)
     {
       return x => x.High < value;
     }
-    private Expression<Func<IndexDateTime, bool>> IndexDecimal_High_IsLowerThanOrEqualTo(DateTime value)
+    private Expression<Func<IndexDateTime, bool>> IndexDateTime_High_IsLowerThanOrEqualTo(DateTime value)
     {
       return x => x.High <= value;
     }
@@ -341,11 +341,11 @@ namespace Bug.Data.Predicates
     {
       return x => x.Low >= value;
     }
-    private Expression<Func<IndexDateTime, bool>> IndexDecimal_Low_IsLowerThan(DateTime value)
+    private Expression<Func<IndexDateTime, bool>> IndexDateTime_Low_IsLowerThan(DateTime value)
     {
       return x => x.Low < value;
     }
-    private Expression<Func<IndexDateTime, bool>> IndexDecimal_Low_IsLowerThanOrEqualTo(DateTime value)
+    private Expression<Func<IndexDateTime, bool>> IndexDateTime_Low_IsLowerThanOrEqualTo(DateTime value)
     {
       return x => x.Low <= value;
     }

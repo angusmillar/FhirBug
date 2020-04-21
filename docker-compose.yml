@@ -12,7 +12,7 @@ services:
       - FhirServerConfig__ServiceBaseUrl=https://localhost:8443
       - FhirServerConfig__DefaultFhirFormat=json
       - FhirServerConfig__ServerDefaultTimeZoneTimeSpan=10:00:00
-      - FhirServerConfig__CahceSlidingExpirationMinites=10
+      - FhirServerConfig__CahceSlidingExpirationMinites=1
       - FhirServerConfig__EnforceRelativeResourceReferentialIntegrity=False
     ports:
         - "8080:80"

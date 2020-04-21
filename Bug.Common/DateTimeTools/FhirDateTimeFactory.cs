@@ -110,7 +110,7 @@ namespace Bug.Common.DateTimeTools
       {
         fhirDateTime = new FhirDateTime(TruncateToThounsdandsMilliseconds(partialDateTime.ToUniversalTime().DateTime), DateTimePrecision!.Value);
         errorMessage = null;
-        return false;
+        return true;
       }
       else
       {

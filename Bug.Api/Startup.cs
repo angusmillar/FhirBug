@@ -367,6 +367,8 @@ namespace Bug.Api
       container.Register<Data.Predicates.IPredicateFactory, Data.Predicates.PredicateFactory>(Lifestyle.Scoped);
       container.Register<Bug.Data.Predicates.IResourceStorePredicateFactory, Bug.Data.Predicates.ResourceStorePredicateFactory>(Lifestyle.Scoped);
       container.Register<Bug.Data.Predicates.IIndexReferencePredicateFactory, Bug.Data.Predicates.IndexReferencePredicateFactory>(Lifestyle.Scoped);
+      container.Register<Bug.Data.Predicates.IIndexCompositePredicateFactory, Bug.Data.Predicates.IndexCompositePredicateFactory>(Lifestyle.Scoped);
+      
 
 
 

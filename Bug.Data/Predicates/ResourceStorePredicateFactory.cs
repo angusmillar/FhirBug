@@ -19,6 +19,7 @@ namespace Bug.Data.Predicates
     private readonly IIndexNumberPredicateFactory IIndexNumberPredicateFactory;
     private readonly IIndexTokenPredicateFactory IIndexTokenPredicateFactory;
     private readonly IIndexDateTimePredicateFactory IIndexDateTimePredicateFactory;
+    private readonly IIndexCompositePredicateFactory IIndexCompositePredicateFactory;
 
 
 
@@ -28,7 +29,8 @@ namespace Bug.Data.Predicates
       IIndexQuantityPredicateFactory IIndexQuantityPredicateFactory,
       IIndexNumberPredicateFactory IIndexNumberPredicateFactory,
       IIndexTokenPredicateFactory IIndexTokenPredicateFactory,
-      IIndexDateTimePredicateFactory IIndexDateTimePredicateFactory)
+      IIndexDateTimePredicateFactory IIndexDateTimePredicateFactory,
+      IIndexCompositePredicateFactory IIndexCompositePredicateFactory)
     {
       this.IIndexStringPredicateFactory = IIndexStringPredicateFactory;
       this.IIndexReferencePredicateFactory = IIndexReferencePredicateFactory;
@@ -37,6 +39,7 @@ namespace Bug.Data.Predicates
       this.IIndexNumberPredicateFactory = IIndexNumberPredicateFactory;
       this.IIndexTokenPredicateFactory = IIndexTokenPredicateFactory;
       this.IIndexDateTimePredicateFactory = IIndexDateTimePredicateFactory;
+      this.IIndexCompositePredicateFactory = IIndexCompositePredicateFactory;
     }
 
     public Expression<Func<ResourceStore, bool>> CurrentMainResource(Bug.Common.Enums.FhirVersion fhirVersion, Bug.Common.Enums.ResourceType resourceType)
@@ -128,6 +131,17 @@ namespace Bug.Data.Predicates
       }
     }
 
+    public async Task<Expression<Func<ResourceStore, bool>>> CompositeIndex(IPredicateFactory IPredicateFactory, ISearchQueryBase SearchQueryBase)
+    {
+      if (SearchQueryBase is SearchQueryComposite SearchQueryComposite)
+      {
+        return await IIndexCompositePredicateFactory.CompositeIndex(IPredicateFactory, SearchQueryComposite);
+      }
+      else
+      {
+        throw new InvalidCastException($"Unable to cast a {nameof(ISearchQueryBase)} of type {SearchQueryBase.GetType().Name} to a {typeof(SearchQueryComposite).Name}");
+      }
+    }
     
   }
 }

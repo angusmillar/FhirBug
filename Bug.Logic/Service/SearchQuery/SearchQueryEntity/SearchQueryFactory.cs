@@ -6,6 +6,7 @@ using Bug.Common.Interfaces;
 using Bug.Common.StringTools;
 using Bug.Logic.CacheService;
 using Bug.Logic.DomainModel;
+using Bug.Logic.Interfaces.Repository;
 using Bug.Logic.Service.Fhir;
 using Bug.Logic.Service.SearchQuery.Tools;
 using Microsoft.Extensions.Primitives;
@@ -24,17 +25,20 @@ namespace Bug.Logic.Service.SearchQuery.SearchQueryEntity
     private readonly ISearchParameterCache ISearchParameterCache;
     private readonly IKnownResource IKnownResource;
     private readonly IFhirDateTimeFactory IFhirDateTimeFactory;
+    private readonly ISearchParameterRepository ISearchParameterRepository;
     public SearchQueryFactory(IFhirUriFactory IFhirUriFactory, 
       IResourceTypeSupport IResourceTypeSupport, 
       ISearchParameterCache ISearchParameterCache,
       IKnownResource IKnownResource,
-      IFhirDateTimeFactory IFhirDateTimeFactory)
+      IFhirDateTimeFactory IFhirDateTimeFactory,
+      ISearchParameterRepository ISearchParameterRepository)
     {
       this.IFhirUriFactory = IFhirUriFactory;
       this.IResourceTypeSupport = IResourceTypeSupport;
       this.ISearchParameterCache = ISearchParameterCache;
       this.IKnownResource = IKnownResource;
       this.IFhirDateTimeFactory = IFhirDateTimeFactory;
+      this.ISearchParameterRepository = ISearchParameterRepository;
     }
 
     public async Task<IList<ISearchQueryBase>> Create(Bug.Common.Enums.ResourceType ResourceContext, SearchParameter searchParameter, KeyValuePair<string, StringValues> Parameter, bool IsChainedReferance = false)
@@ -73,15 +77,14 @@ namespace Bug.Logic.Service.SearchQuery.SearchQueryEntity
     private async Task LoadCompositeSubSearchParameters(Common.Enums.ResourceType ResourceContext, SearchParameter searchParameter, string ParameterValue, string RawValue, ISearchQueryBase SearchQueryBase)
     {
       if (SearchQueryBase is SearchQueryComposite SearchQueryComposite)
-      {
-        List<Bug.Logic.DomainModel.SearchParameter> SearchParameterList = await ISearchParameterCache.GetForIndexingAsync(searchParameter.FhirVersionId, ResourceContext);
+      {       
         List<ISearchQueryBase> SearchParameterBaseList = new List<ISearchQueryBase>();
-
+        
         //Note we OrderBy SequentialOrder as they must be processed in this specific order
         foreach (SearchParameterComponent Component in SearchQueryComposite.ComponentList) //Should this be ordered by sentinel?
         {
-          SearchParameter CompositeSearchParamter = SearchParameterList.SingleOrDefault(x => x.Url.IsEqualUri(Component.Definition));
-          if (CompositeSearchParamter != null)
+          SearchParameter? CompositeSearchParamter = await ISearchParameterRepository.GetByCanonicalUrlAsync(SearchQueryComposite.FhirVersionId, ResourceContext, Component.Definition);          
+          if (CompositeSearchParamter is object)
           {
             ISearchQueryBase CompositeSubSearchQueryBase = InitalizeSearchQueryEntity(CompositeSearchParamter, ResourceContext, false, RawValue);
             SearchParameterBaseList.Add(CompositeSubSearchQueryBase);
