@@ -12,9 +12,9 @@ namespace Bug.Common.DateTimeTools
       DateTime HighDateTime = LowValue;
       if (Precision == DateTimePrecision.Year)
       {
-        //To deal with the problem of no time zones on Dates, e.g 2018-10-05 we treat the search as a 36 hour day rather than a 24 hours day
+        //To deal with the problem of no time zones on Dates, e.g 2018 or 2018-10 or 2018-10-05 we treat the search as a 36 hour day rather than a 24 hours day
         //When the precision is one on Year, Month or Day. For more find grained precisions such as Hour, Min, Sec we  expected to have the 
-        //time zones information surplus, if time zone differences are a concern of the searcher.
+        //time zones information supplied either by the calling user or by using the server's default timezone.
         //
         //So to do this I subtract 6 hours from the beginning of the date range 2018-10-05T00:00 and we add 6 hours to the end of the day 2018-10-05T23:59
         //This gives us a 36 hour day range. The idea is that it is better to return more than less for the search.

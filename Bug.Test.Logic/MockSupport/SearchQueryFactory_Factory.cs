@@ -2,6 +2,7 @@
 using Bug.Common.Enums;
 using Bug.Common.FhirTools;
 using Bug.Logic.CacheService;
+using Bug.Logic.Interfaces.Repository;
 using Bug.Logic.Service.Fhir;
 using Bug.Logic.Service.SearchQuery.SearchQueryEntity;
 using Moq;
@@ -26,7 +27,9 @@ namespace Bug.Test.Logic.MockSupport
       IResourceTypeSupport IResourceTypeSupport = new ResourceTypeSupport();
       Mock<IKnownResource> IKnownResourceMock = IKnownResource_MockFactory.Get();
       IFhirDateTimeFactory IFhirDateTimeFactory = IFhirDateTimeFactory_Factory.Get(TimeSpan.FromHours(10));
-      return new SearchQueryFactory(IFhirUriFactory, IResourceTypeSupport, ISearchParameterCache, IKnownResourceMock.Object, IFhirDateTimeFactory);
+      //This mock below 'ISearchParameterRepository' is not fully formed!
+      Mock<ISearchParameterRepository> ISearchParameterRepositoryMock = ISearchParameterRepository_MockFactory.Get();
+      return new SearchQueryFactory(IFhirUriFactory, IResourceTypeSupport, ISearchParameterCache, IKnownResourceMock.Object, IFhirDateTimeFactory, ISearchParameterRepositoryMock.Object);
     }
   }
 }

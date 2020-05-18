@@ -25,9 +25,28 @@ namespace Bug.Data.Repository
 
     public async Task<IList<ResourceStore>> GetSearch(Common.Enums.FhirVersion fhirVersion, Common.Enums.ResourceType resourceType, IList<ISearchQueryBase> searchQueryList)
     {
-      var Predicate = await IPredicateFactory.Get(fhirVersion, resourceType, searchQueryList);
-      string Debug = Predicate.Expand().ToString();
-      return await DbSet.AsExpandable().Where(Predicate).OrderBy(z => z.LastUpdated).ToListAsync();
+      ExpressionStarter<ResourceStore> Predicate = IPredicateFactory.CurrentMainResource(fhirVersion, resourceType);
+      Predicate.Extend(await IPredicateFactory.GetIndexPredicate(fhirVersion, resourceType, searchQueryList), PredicateOperator.And);
+
+      IQueryable<ResourceStore> Query = DbSet;
+      Query = Query.AsExpandable().Where(Predicate);
+      
+
+      try
+      {
+        Query = await IPredicateFactory.ChainEntry(_context, resourceType, searchQueryList);
+
+        return await Query.OrderBy(z => z.LastUpdated).ToListAsync();
+
+      }
+      catch(Exception Exec)
+      {
+        var mesg = Exec.Message;
+        throw Exec;
+      }
+
+      //string Debug = Predicate.Expand().ToString();
+      //return await Predicate2.AsExpandable().Where(Predicate).OrderBy(z => z.LastUpdated).ToListAsync();
     }
 
     public async Task<ResourceStore?> GetCurrentAsync(Common.Enums.FhirVersion fhirMajorVersion, Common.Enums.ResourceType resourceType, string resourceId)

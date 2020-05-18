@@ -23,6 +23,7 @@ services:
   postgres:
     container_name: postgresSQL
     image: postgres
+    command: ["postgres", "-c", "log_statement=all"]
     environment:
       POSTGRES_USER: angusbmillar
       POSTGRES_PASSWORD: 3agepufa
@@ -40,7 +41,7 @@ services:
   #----- PgAdmin -----------------------------------------------------------------------------------------------'        
   pgadmin:
     container_name: pgAdmin
-    image: dpage/pgadmin4
+    image: dpage/pgadmin4    
     environment:
       PGADMIN_DEFAULT_EMAIL: angusbmillar@gmail.com
       PGADMIN_DEFAULT_PASSWORD: 3agepufa

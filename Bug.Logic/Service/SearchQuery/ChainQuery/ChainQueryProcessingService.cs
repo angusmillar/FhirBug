@@ -233,12 +233,12 @@ namespace Bug.Logic.Service.SearchQuery.ChainQuery
       else
       {
         //Here we are using the PreviousChainSearchParameter's TypeModifierResource as the context to find the search parameter
-        if (string.IsNullOrWhiteSpace(PreviousChainSearchParameter.TypeModifierResource))
+        if (!PreviousChainSearchParameter.TypeModifierResource.HasValue)
         {
           //If there is no TypeModifierResource on the previous then we look at how many it supports and if only one we can use that.
           if (PreviousChainSearchParameter.TargetResourceTypeList.Count == 1)
           {
-            PreviousChainSearchParameter.TypeModifierResource = PreviousChainSearchParameter.TargetResourceTypeList.ToArray()[0].ResourceTypeId.GetCode();
+            PreviousChainSearchParameter.TypeModifierResource = PreviousChainSearchParameter.TargetResourceTypeList.ToArray()[0].ResourceTypeId;
             List<Bug.Logic.DomainModel.SearchParameter> SearchParametersListForTarget = await ISearchParameterCache.GetForIndexingAsync(this.FhirVersion, PreviousChainSearchParameter.TargetResourceTypeList.ToArray()[0].ResourceTypeId);
             Bug.Logic.DomainModel.SearchParameter SearchParameterForTarget = SearchParametersListForTarget.SingleOrDefault(x => x.Name == parameterName);
             if (SearchParameterForTarget is null)
@@ -270,7 +270,7 @@ namespace Bug.Logic.Service.SearchQuery.ChainQuery
             if (MultiChainedSearchParameter.Count() == 1)
             {
               //If this resolves to only one found then we use it
-              PreviousChainSearchParameter.TypeModifierResource = MultiChainedSearchParameter.First().Key.GetCode();
+              PreviousChainSearchParameter.TypeModifierResource = MultiChainedSearchParameter.First().Key;
               SearchParameter = MultiChainedSearchParameter.First().Value;
               return SearchParameter;
             }
@@ -317,11 +317,11 @@ namespace Bug.Logic.Service.SearchQuery.ChainQuery
             }
           }
         }
-        else if (CheckModifierTypeResourceValidForSearchParameter(PreviousChainSearchParameter.TypeModifierResource, PreviousChainSearchParameter.TargetResourceTypeList))
+        else if (CheckModifierTypeResourceValidForSearchParameter(PreviousChainSearchParameter.TypeModifierResource.Value, PreviousChainSearchParameter.TargetResourceTypeList))
         {
           //PreviousChainSearchParameter.TypeModifierResource = PreviousChainSearchParameter.TypeModifierResource;
           //Double check the final Type modifier resource resolved is valid for the previous search parameter, the user could have got it wrong in the query.
-          ResourceType ResourceTypeTest = IResourceTypeSupport.GetTypeFromName(PreviousChainSearchParameter.TypeModifierResource)!.Value;
+          ResourceType ResourceTypeTest = PreviousChainSearchParameter.TypeModifierResource.Value;
           FhirVersion FhirVersionTest = this.FhirVersion;
           var TempSearchParameterList = await this.ISearchParameterCache.GetForIndexingAsync(FhirVersionTest, ResourceTypeTest);
           SearchParameter = TempSearchParameterList.SingleOrDefault(x => x.Name == parameterName);
@@ -354,11 +354,11 @@ namespace Bug.Logic.Service.SearchQuery.ChainQuery
       }
     }
 
-    private bool CheckModifierTypeResourceValidForSearchParameter(string ModifierTypeResource, ICollection<DomainModel.SearchParameterTargetResourceType> TargetResourceTypeList)
+    private bool CheckModifierTypeResourceValidForSearchParameter(ResourceType ModifierTypeResource, ICollection<DomainModel.SearchParameterTargetResourceType> TargetResourceTypeList)
     {
       if (TargetResourceTypeList == null)
         return false;
-      return TargetResourceTypeList.Any(x => x.ResourceTypeId.GetCode() == ModifierTypeResource);
+      return TargetResourceTypeList.Any(x => x.ResourceTypeId == ModifierTypeResource);
     }
   }
 }

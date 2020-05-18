@@ -20,7 +20,7 @@ namespace Bug.Logic.Service.SearchQuery.SearchQueryEntity
     protected const char ParameterValueDelimiter = '=';
     public string RawValue { get; set; }
     public Bug.Common.Enums.SearchModifierCode? Modifier { get; set; }
-    public string TypeModifierResource { get; set; }
+    public Bug.Common.Enums.ResourceType? TypeModifierResource { get; set; }
     public ISearchQueryBase? ChainedSearchParameter { get; set; }
     public bool HasLogicalOrProperties { get; set; }
     public bool IsValid { get; set; }
@@ -43,7 +43,7 @@ namespace Bug.Logic.Service.SearchQuery.SearchQueryEntity
       this.FhirVersionId = SearchParameter.FhirVersionId;      
       this.RawValue = RawValue;
 
-      this.TypeModifierResource = string.Empty;
+      this.TypeModifierResource = null;
       this.InvalidMessage = string.Empty;
       this.HasLogicalOrProperties = false;
       this.IsValid = true;
@@ -73,7 +73,7 @@ namespace Bug.Logic.Service.SearchQuery.SearchQueryEntity
             Common.Enums.ResourceType? ResourceType = IResourceTypeSupport.GetTypeFromName(TypedResourceName);
             if (ResourceType != null)
             {
-              this.TypeModifierResource = TypedResourceName;
+              this.TypeModifierResource = ResourceType.Value;
               this.Modifier = SearchModifierCode.Type;              
             }
             else
@@ -92,7 +92,7 @@ namespace Bug.Logic.Service.SearchQuery.SearchQueryEntity
       else
       {
         this.Modifier = null;
-        this.TypeModifierResource = string.Empty;        
+        this.TypeModifierResource = null;        
       }
 
       if (this.Modifier.HasValue)

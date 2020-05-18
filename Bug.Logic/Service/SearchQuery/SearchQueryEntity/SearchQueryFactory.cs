@@ -60,7 +60,7 @@ namespace Bug.Logic.Service.SearchQuery.SearchQueryEntity
 
         if (SearchQueryBase.Modifier == SearchModifierCode.Type && !IsChainedReferance)
         {
-          SearchQueryBase.ParseValue($"{SearchQueryBase.TypeModifierResource}/{ParameterValue}");          
+          SearchQueryBase.ParseValue($"{SearchQueryBase.TypeModifierResource.GetCode()}/{ParameterValue}");          
         }
         else if (SearchQueryBase.SearchParamTypeId == Common.Enums.SearchParamType.Composite)
         {

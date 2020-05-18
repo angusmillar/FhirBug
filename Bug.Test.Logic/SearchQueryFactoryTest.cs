@@ -127,7 +127,7 @@ namespace Bug.Test.Logic
       {
         Assert.True(SearchQueryResult.TargetResourceTypeList.Count == 0);
       }
-      Assert.Equal(string.Empty, SearchQueryResult.TypeModifierResource);
+      Assert.False(SearchQueryResult.TypeModifierResource.HasValue);
 
 
       if (SearchQueryResult is SearchQueryComposite SearchQueryComposite)
@@ -350,7 +350,7 @@ namespace Bug.Test.Logic
       Assert.Equal(Common.Enums.ResourceType.Observation, SearchQueryResult.ResourceTypeList.ToArray()[0].ResourceTypeId);
       Assert.Equal(Common.Enums.SearchParamType.Composite, SearchQueryResult.SearchParamTypeId);
       Assert.Equal(0, SearchQueryResult.TargetResourceTypeList.Count);
-      Assert.Equal(string.Empty, SearchQueryResult.TypeModifierResource);
+      Assert.False(SearchQueryResult.TypeModifierResource.HasValue);
       Assert.Equal("http://hl7.org/fhir/SearchParameter/Observation-code-value-concept", SearchQueryResult.Url);
     }
 

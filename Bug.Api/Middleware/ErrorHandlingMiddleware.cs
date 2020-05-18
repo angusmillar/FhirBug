@@ -86,12 +86,13 @@ namespace Bug.Api.Middleware
         string ErrorGuid = Common.FhirTools.FhirGuidSupport.NewFhirGuid();
         string UsersErrorMessage = string.Empty;
         if (Debugger.IsAttached)
-        {          
-          UsersErrorMessage = $"{exec.ToString()} ->  Server Error log identifier: {ErrorGuid}";
+        {
+          
+          UsersErrorMessage = $"{System.Text.Encodings.Web.HtmlEncoder.Default.Encode(exec.ToString())} ->  Server Error log identifier: {ErrorGuid}";
         }
         else
         {
-          UsersErrorMessage = $"An unhanded exception has been thrown. To protect data privacy the exception information has been writen to the application log with the error log identifier: {ErrorGuid}";
+          UsersErrorMessage = $"An unhanded exception has been thrown. To protect data privacy the exception information has been written to the application log with the error log identifier: {ErrorGuid}";
         }
         _logger.LogError(exec, $"Error log identifier: {ErrorGuid}");
         switch (VersionInUse)

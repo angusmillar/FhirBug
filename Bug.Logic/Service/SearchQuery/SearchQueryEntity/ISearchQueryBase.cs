@@ -15,7 +15,7 @@ namespace Bug.Logic.Service.SearchQuery.SearchQueryEntity
     SearchModifierCode? Modifier { get; set; }
     IServiceBaseUrl? PrimaryServiceBaseUrl { get; set; }
     string RawValue { get; set; }
-    string TypeModifierResource { get; set; }
+    Bug.Common.Enums.ResourceType? TypeModifierResource { get; set; }
     object CloneDeep();
     object CloneDeep(SearchQueryBase Clone);
     void ParseModifier(string parameterName, IResourceTypeSupport IResourceTypeSupport, IKnownResource IKnownResource);
