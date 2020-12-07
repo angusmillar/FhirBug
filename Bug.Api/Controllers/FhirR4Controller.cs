@@ -77,7 +77,7 @@ namespace Bug.Api.Controllers
 
       var ReadQueryHandler = this.IFhirApiQueryHandlerFactory.GetReadCommand();
       FhirApiResult Result = await ReadQueryHandler.Handle(Query);
-      this.Response.Headers.AddHeaders(Result.Headers);
+      //this.Response.Headers.AddHeaders(Result.Headers);
       return Result.PrepareResponse<R4Model.Resource>(this);
     }
     // GET: stu3/fhir/Patient/100/_history/2

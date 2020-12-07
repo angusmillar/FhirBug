@@ -11,9 +11,10 @@ namespace Bug.Data.Predicates
 {
   public class IndexStringPredicateFactory : IIndexStringPredicateFactory
   {
-    public Expression<Func<ResourceStore, bool>> StringIndex(SearchQueryString SearchQueryString)
+    public List<Expression<Func<IndexString, bool>>> StringIndex(SearchQueryString SearchQueryString)
     {
-      var ResourceStorePredicate = LinqKit.PredicateBuilder.New<ResourceStore>(true);
+      //var ResourceStorePredicate = LinqKit.PredicateBuilder.New<ResourceStore>(true);
+      var ResultList = new List<Expression<Func<IndexString, bool>>>();
 
       foreach (SearchQueryStringValue StringValue in SearchQueryString.ValueList)
       {
@@ -27,7 +28,8 @@ namespace Bug.Data.Predicates
             throw new ArgumentNullException(nameof(StringValue.Value));
           }
           IndexStringPredicate = IndexStringPredicate.And(StartsWithOrEndsWith(StringValue.Value));
-          ResourceStorePredicate = ResourceStorePredicate.Or(AnyIndex(IndexStringPredicate));
+          ResultList.Add(IndexStringPredicate);
+          //ResourceStorePredicate = ResourceStorePredicate.Or(AnyIndex(IndexStringPredicate));
         }
         else
         {
@@ -45,15 +47,19 @@ namespace Bug.Data.Predicates
             switch (SearchQueryString.Modifier.Value)
             {
               case SearchModifierCode.Missing:
-                ResourceStorePredicate = ResourceStorePredicate.Or(AnyIndexEquals(IndexStringPredicate, !StringValue.IsMissing));
+                IndexStringPredicate = IndexStringPredicate.And(IsNotSearchParameterId(SearchQueryString.Id));
+                ResultList.Add(IndexStringPredicate);
+                //ResourceStorePredicate = ResourceStorePredicate.Or(AnyIndexEquals(IndexStringPredicate, !StringValue.IsMissing));
                 break;
               case SearchModifierCode.Exact:
                 IndexStringPredicate = IndexStringPredicate.And(EqualTo(StringValue.Value!));
-                ResourceStorePredicate = ResourceStorePredicate.Or(AnyIndex(IndexStringPredicate));
+                ResultList.Add(IndexStringPredicate);
+                //ResourceStorePredicate = ResourceStorePredicate.Or(AnyIndex(IndexStringPredicate));
                 break;
               case SearchModifierCode.Contains:
                 IndexStringPredicate = IndexStringPredicate.And(Contains(StringValue.Value!));
-                ResourceStorePredicate = ResourceStorePredicate.Or(AnyIndex(IndexStringPredicate));
+                ResultList.Add(IndexStringPredicate);
+                //ResourceStorePredicate = ResourceStorePredicate.Or(AnyIndex(IndexStringPredicate));
                 break;
               default:
                 throw new ApplicationException($"Internal Server Error: The search query modifier: {SearchQueryString.Modifier.Value.GetCode()} has been added to the supported list for {SearchQueryString.SearchParamTypeId.GetCode()} search parameter queries and yet no database predicate has been provided.");
@@ -66,7 +72,7 @@ namespace Bug.Data.Predicates
         }
 
       }
-      return ResourceStorePredicate;
+      return ResultList;
     }
 
     private Expression<Func<ResourceStore, bool>> AnyIndex(Expression<Func<IndexString, bool>> Predicate)
@@ -80,6 +86,10 @@ namespace Bug.Data.Predicates
     private Expression<Func<IndexString, bool>> IsSearchParameterId(int searchParameterId)
     {
       return x => x.SearchParameterId == searchParameterId;
+    }
+    private Expression<Func<IndexString, bool>> IsNotSearchParameterId(int searchParameterId)
+    {
+      return x => x.SearchParameterId != searchParameterId;
     }
     private Expression<Func<IndexString, bool>> StartsWithOrEndsWith(string stringValue)
     {

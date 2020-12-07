@@ -10,7 +10,9 @@ namespace Bug.Data.Predicates
   public interface IPredicateFactory
   {
     ExpressionStarter<ResourceStore> CurrentMainResource(Common.Enums.FhirVersion fhirVersion, Common.Enums.ResourceType resourceType);
-    Task<ExpressionStarter<ResourceStore>> GetIndexPredicate(Common.Enums.FhirVersion fhirVersion, Common.Enums.ResourceType resourceType, IList<ISearchQueryBase> SearchQueryList);
-    Task<IQueryable<ResourceStore>> ChainEntry(AppDbContext AppDbContext, Common.Enums.ResourceType ParentResourceTypeContext, IList<ISearchQueryBase> SearchQueryList);
+    Task<ExpressionStarter<ResourceStore>> GetResourceStoreIndexPredicate(Common.Enums.FhirVersion fhirVersion, Common.Enums.ResourceType resourceType, IList<ISearchQueryBase> SearchQueryList);
+    //Task<IQueryable<ResourceStore>> ChainEntry(AppDbContext AppDbContext, Common.Enums.ResourceType ParentResourceTypeContext, IList<ISearchQueryBase> SearchQueryList);
+
+    Task<List<ExpressionStarter<ResourceStore>>> ChainEntry(AppDbContext AppDbContext, Common.Enums.ResourceType ParentResourceTypeContext, IList<ISearchQueryBase> SearchQueryList);
   }
 }

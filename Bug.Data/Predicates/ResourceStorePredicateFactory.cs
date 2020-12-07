@@ -47,7 +47,7 @@ namespace Bug.Data.Predicates
       return x => x.FhirVersionId == fhirVersion && x.ResourceTypeId == resourceType && x.IsCurrent && !x.IsDeleted && x.ContainedId == null;
     }
 
-    public Expression<Func<ResourceStore, bool>> StringIndex(ISearchQueryBase SearchQueryBase)
+    public List<Expression<Func<IndexString, bool>>> StringIndex(ISearchQueryBase SearchQueryBase)
     {
       if (SearchQueryBase is SearchQueryString SearchQueryString)
       {
@@ -59,7 +59,7 @@ namespace Bug.Data.Predicates
       }
     }
 
-    public Expression<Func<ResourceStore, bool>> UriIndex(ISearchQueryBase SearchQueryBase)
+    public List<Expression<Func<IndexUri, bool>>> UriIndex(ISearchQueryBase SearchQueryBase)
     {
       if (SearchQueryBase is SearchQueryUri SearchQueryUri)
       {
@@ -71,7 +71,7 @@ namespace Bug.Data.Predicates
       }
     }
 
-    public Expression<Func<ResourceStore, bool>> QuantityIndex(ISearchQueryBase SearchQueryBase)
+    public List<Expression<Func<IndexQuantity, bool>>> QuantityIndex(ISearchQueryBase SearchQueryBase)
     {
       if (SearchQueryBase is SearchQueryQuantity SearchQueryQuantity)
       {
@@ -83,7 +83,7 @@ namespace Bug.Data.Predicates
       }
     }
 
-    public Expression<Func<ResourceStore, bool>> NumberIndex(ISearchQueryBase SearchQueryBase)
+    public List<Expression<Func<IndexQuantity, bool>>> NumberIndex(ISearchQueryBase SearchQueryBase)
     {
       if (SearchQueryBase is SearchQueryNumber SearchQueryNumber)
       {
@@ -95,7 +95,7 @@ namespace Bug.Data.Predicates
       }
     }
 
-    public Expression<Func<ResourceStore, bool>> TokenIndex(ISearchQueryBase SearchQueryBase)
+    public List<Expression<Func<IndexToken, bool>>> TokenIndex(ISearchQueryBase SearchQueryBase)
     {
       if (SearchQueryBase is SearchQueryToken SearchQueryToken)
       {
@@ -107,7 +107,7 @@ namespace Bug.Data.Predicates
       }
     }
 
-    public async Task<Expression<Func<ResourceStore, bool>>> ReferenceIndex(ISearchQueryBase SearchQueryBase)
+    public async Task<List<Expression<Func<IndexReference, bool>>>> ReferenceIndex(ISearchQueryBase SearchQueryBase)
     {
       if (SearchQueryBase is SearchQueryReference SearchQueryReference)
       {
@@ -119,7 +119,7 @@ namespace Bug.Data.Predicates
       }
     }
 
-    public Expression<Func<ResourceStore, bool>> DateTimeIndex(ISearchQueryBase SearchQueryBase)
+    public List<Expression<Func<IndexDateTime, bool>>> DateTimeIndex(ISearchQueryBase SearchQueryBase)
     {
       if (SearchQueryBase is SearchQueryDateTime SearchQueryDateTime)
       {

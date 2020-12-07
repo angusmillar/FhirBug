@@ -26,16 +26,17 @@ namespace Bug.Data.Repository
     public async Task<IList<ResourceStore>> GetSearch(Common.Enums.FhirVersion fhirVersion, Common.Enums.ResourceType resourceType, IList<ISearchQueryBase> searchQueryList)
     {
       ExpressionStarter<ResourceStore> Predicate = IPredicateFactory.CurrentMainResource(fhirVersion, resourceType);
-      Predicate.Extend(await IPredicateFactory.GetIndexPredicate(fhirVersion, resourceType, searchQueryList), PredicateOperator.And);
+      Predicate.Extend(await IPredicateFactory.GetResourceStoreIndexPredicate(fhirVersion, resourceType, searchQueryList), PredicateOperator.And);
+      foreach(var exp in await IPredicateFactory.ChainEntry(_context, resourceType, searchQueryList))
+      {
+        Predicate.Extend(exp, PredicateOperator.And);
+      }
 
-      IQueryable<ResourceStore> Query = DbSet;
-      Query = Query.AsExpandable().Where(Predicate);
       
-
       try
       {
-        Query = await IPredicateFactory.ChainEntry(_context, resourceType, searchQueryList);
-
+        IQueryable<ResourceStore> Query = DbSet;
+        Query = Query.AsExpandable().Where(Predicate);
         return await Query.OrderBy(z => z.LastUpdated).ToListAsync();
 
       }

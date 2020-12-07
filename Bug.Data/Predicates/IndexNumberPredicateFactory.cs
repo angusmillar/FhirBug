@@ -3,6 +3,7 @@ using Bug.Common.Enums;
 using Bug.Logic.DomainModel;
 using Bug.Logic.Service.SearchQuery.SearchQueryEntity;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 
@@ -10,21 +11,22 @@ namespace Bug.Data.Predicates
 {
   public class IndexNumberPredicateFactory : IIndexNumberPredicateFactory
   {
-    public Expression<Func<ResourceStore, bool>> NumberIndex(SearchQueryNumber SearchQueryNumber)
+    public List<Expression<Func<IndexQuantity, bool>>> NumberIndex(SearchQueryNumber SearchQueryNumber)
     {
-      var ResourceStorePredicate = LinqKit.PredicateBuilder.New<ResourceStore>(true);
+      //var ResourceStorePredicate = LinqKit.PredicateBuilder.New<ResourceStore>(true);
+      var ResultList = new List<Expression<Func<IndexQuantity, bool>>>();
 
       foreach (SearchQueryNumberValue NumberValue in SearchQueryNumber.ValueList)
       {
-        var IndexQuantityPredicate = LinqKit.PredicateBuilder.New<IndexQuantity>(true);
-        IndexQuantityPredicate = IndexQuantityPredicate.And(IsSearchParameterId(SearchQueryNumber.Id));
-
+        var IndexQuantityPredicate = LinqKit.PredicateBuilder.New<IndexQuantity>(true);        
         if (!SearchQueryNumber.Modifier.HasValue)
         {
+          IndexQuantityPredicate = IndexQuantityPredicate.And(IsSearchParameterId(SearchQueryNumber.Id));
           if (!NumberValue.Prefix.HasValue)
           {
             IndexQuantityPredicate = IndexQuantityPredicate.And(EqualTo(NumberValue));
-            ResourceStorePredicate = ResourceStorePredicate.Or(AnyIndex(IndexQuantityPredicate));
+            ResultList.Add(IndexQuantityPredicate);
+            //ResourceStorePredicate = ResourceStorePredicate.Or(AnyIndex(IndexQuantityPredicate));
           }
           else
           {
@@ -35,27 +37,33 @@ namespace Bug.Data.Predicates
               {
                 case SearchComparator.Eq:
                   IndexQuantityPredicate = IndexQuantityPredicate.And(EqualTo(NumberValue));
-                  ResourceStorePredicate = ResourceStorePredicate.Or(AnyIndex(IndexQuantityPredicate));
+                  ResultList.Add(IndexQuantityPredicate);
+                  //ResourceStorePredicate = ResourceStorePredicate.Or(AnyIndex(IndexQuantityPredicate));
                   break;
                 case SearchComparator.Ne:
                   IndexQuantityPredicate = IndexQuantityPredicate.And(NotEqualTo(NumberValue));
-                  ResourceStorePredicate = ResourceStorePredicate.Or(AnyIndex(IndexQuantityPredicate));
+                  ResultList.Add(IndexQuantityPredicate);
+                  //ResourceStorePredicate = ResourceStorePredicate.Or(AnyIndex(IndexQuantityPredicate));
                   break;
                 case SearchComparator.Gt:
                   IndexQuantityPredicate = IndexQuantityPredicate.And(GreaterThan(NumberValue));
-                  ResourceStorePredicate = ResourceStorePredicate.Or(AnyIndex(IndexQuantityPredicate));
+                  ResultList.Add(IndexQuantityPredicate);
+                  //ResourceStorePredicate = ResourceStorePredicate.Or(AnyIndex(IndexQuantityPredicate));
                   break;
                 case SearchComparator.Lt:
                   IndexQuantityPredicate = IndexQuantityPredicate.And(LessThan(NumberValue));
-                  ResourceStorePredicate = ResourceStorePredicate.Or(AnyIndex(IndexQuantityPredicate));
+                  ResultList.Add(IndexQuantityPredicate);
+                  //ResourceStorePredicate = ResourceStorePredicate.Or(AnyIndex(IndexQuantityPredicate));
                   break;
                 case SearchComparator.Ge:
                   IndexQuantityPredicate = IndexQuantityPredicate.And(GreaterThanOrEqualTo(NumberValue));
-                  ResourceStorePredicate = ResourceStorePredicate.Or(AnyIndex(IndexQuantityPredicate));
+                  ResultList.Add(IndexQuantityPredicate);
+                  //ResourceStorePredicate = ResourceStorePredicate.Or(AnyIndex(IndexQuantityPredicate));
                   break;
                 case SearchComparator.Le:
                   IndexQuantityPredicate = IndexQuantityPredicate.And(LessThanOrEqualTo(NumberValue));
-                  ResourceStorePredicate = ResourceStorePredicate.Or(AnyIndex(IndexQuantityPredicate));
+                  ResultList.Add(IndexQuantityPredicate);
+                  //ResourceStorePredicate = ResourceStorePredicate.Or(AnyIndex(IndexQuantityPredicate));
                   break;
                 default:
                   throw new System.ComponentModel.InvalidEnumArgumentException(NumberValue.Prefix.Value.GetCode(), (int)NumberValue.Prefix.Value, typeof(SearchComparator));
@@ -84,8 +92,10 @@ namespace Bug.Data.Predicates
             {
               case SearchModifierCode.Missing:
                 if (NumberValue.Prefix.HasValue == false)
-                {
-                  ResourceStorePredicate = ResourceStorePredicate.Or(AnyIndexEquals(IndexQuantityPredicate, !NumberValue.IsMissing));
+                {                  
+                  IndexQuantityPredicate = IndexQuantityPredicate.And(IsNotSearchParameterId(SearchQueryNumber.Id));
+                  //ResourceStorePredicate = ResourceStorePredicate.Or(AnyIndexEquals(IndexQuantityPredicate, !NumberValue.IsMissing));
+                  ResultList.Add(IndexQuantityPredicate);
                 }
                 else
                 {
@@ -102,7 +112,7 @@ namespace Bug.Data.Predicates
           }
         }
       }
-      return ResourceStorePredicate;
+      return ResultList;
     }
 
     private Expression<Func<IndexQuantity, bool>> EqualTo(SearchQueryNumberValue NumberValue)
@@ -201,6 +211,10 @@ namespace Bug.Data.Predicates
     private Expression<Func<IndexQuantity, bool>> IsSearchParameterId(int searchParameterId)
     {
       return x => x.SearchParameterId == searchParameterId;
+    }
+    private Expression<Func<IndexQuantity, bool>> IsNotSearchParameterId(int searchParameterId)
+    {
+      return x => x.SearchParameterId != searchParameterId;
     }
 
     private Expression<Func<IndexQuantity, bool>> NumberEqualTo(decimal midValue, int scale)

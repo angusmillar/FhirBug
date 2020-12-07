@@ -13,9 +13,10 @@ namespace Bug.Data.Predicates
   public class IndexQuantityPredicateFactory : IIndexQuantityPredicateFactory
   {
 
-    public Expression<Func<ResourceStore, bool>> QuantityIndex(SearchQueryQuantity SearchQueryQuantity)
+    public List<Expression<Func<IndexQuantity, bool>>> QuantityIndex(SearchQueryQuantity SearchQueryQuantity)
     {
-      var ResourceStorePredicate = LinqKit.PredicateBuilder.New<ResourceStore>(true);
+      var ResultList = new List<Expression<Func<IndexQuantity, bool>>>();
+      //var ResourceStorePredicate = LinqKit.PredicateBuilder.New<ResourceStore>(true);
 
       foreach (SearchQueryQuantityValue QuantityValue in SearchQueryQuantity.ValueList)
       {
@@ -27,7 +28,8 @@ namespace Bug.Data.Predicates
           if (!QuantityValue.Prefix.HasValue)
           {
             IndexQuantityPredicate = IndexQuantityPredicate.And(EqualTo(QuantityValue));
-            ResourceStorePredicate = ResourceStorePredicate.Or(AnyIndex(IndexQuantityPredicate));
+            ResultList.Add(IndexQuantityPredicate);
+            //ResourceStorePredicate = ResourceStorePredicate.Or(AnyIndex(IndexQuantityPredicate));
           }
           else
           {
@@ -38,27 +40,33 @@ namespace Bug.Data.Predicates
               {
                 case SearchComparator.Eq:
                   IndexQuantityPredicate = IndexQuantityPredicate.And(EqualTo(QuantityValue));
-                  ResourceStorePredicate = ResourceStorePredicate.Or(AnyIndex(IndexQuantityPredicate));
+                  ResultList.Add(IndexQuantityPredicate);
+                  //ResourceStorePredicate = ResourceStorePredicate.Or(AnyIndex(IndexQuantityPredicate));
                   break;
                 case SearchComparator.Ne:
                   IndexQuantityPredicate = IndexQuantityPredicate.And(NotEqualTo(QuantityValue));
-                  ResourceStorePredicate = ResourceStorePredicate.Or(AnyIndex(IndexQuantityPredicate));
+                  ResultList.Add(IndexQuantityPredicate);
+                  //ResourceStorePredicate = ResourceStorePredicate.Or(AnyIndex(IndexQuantityPredicate));
                   break;
                 case SearchComparator.Gt:
                   IndexQuantityPredicate = IndexQuantityPredicate.And(GreaterThan(QuantityValue));
-                  ResourceStorePredicate = ResourceStorePredicate.Or(AnyIndex(IndexQuantityPredicate));
+                  ResultList.Add(IndexQuantityPredicate);
+                  //ResourceStorePredicate = ResourceStorePredicate.Or(AnyIndex(IndexQuantityPredicate));
                   break;
                 case SearchComparator.Lt:
                   IndexQuantityPredicate = IndexQuantityPredicate.And(LessThan(QuantityValue));
-                  ResourceStorePredicate = ResourceStorePredicate.Or(AnyIndex(IndexQuantityPredicate));
+                  ResultList.Add(IndexQuantityPredicate);
+                  //ResourceStorePredicate = ResourceStorePredicate.Or(AnyIndex(IndexQuantityPredicate));
                   break;
                 case SearchComparator.Ge:
                   IndexQuantityPredicate = IndexQuantityPredicate.And(GreaterThanOrEqualTo(QuantityValue));
-                  ResourceStorePredicate = ResourceStorePredicate.Or(AnyIndex(IndexQuantityPredicate));
+                  ResultList.Add(IndexQuantityPredicate);
+                  //ResourceStorePredicate = ResourceStorePredicate.Or(AnyIndex(IndexQuantityPredicate));
                   break;
                 case SearchComparator.Le:
                   IndexQuantityPredicate = IndexQuantityPredicate.And(LessThanOrEqualTo(QuantityValue));
-                  ResourceStorePredicate = ResourceStorePredicate.Or(AnyIndex(IndexQuantityPredicate));
+                  ResultList.Add(IndexQuantityPredicate);
+                  //ResourceStorePredicate = ResourceStorePredicate.Or(AnyIndex(IndexQuantityPredicate));
                   break;
                 default:
                   throw new System.ComponentModel.InvalidEnumArgumentException(QuantityValue.Prefix.Value.GetCode(), (int)QuantityValue.Prefix.Value, typeof(SearchComparator));
@@ -88,7 +96,9 @@ namespace Bug.Data.Predicates
               case SearchModifierCode.Missing:
                 if (QuantityValue.Prefix.HasValue == false)
                 {
-                  ResourceStorePredicate = ResourceStorePredicate.Or(AnyIndexEquals(IndexQuantityPredicate, !QuantityValue.IsMissing));
+                  IndexQuantityPredicate = IndexQuantityPredicate.And(IsNotSearchParameterId(SearchQueryQuantity.Id));
+                  ResultList.Add(IndexQuantityPredicate);
+                  //ResourceStorePredicate = ResourceStorePredicate.Or(AnyIndexEquals(IndexQuantityPredicate, !QuantityValue.IsMissing));
                 }
                 else
                 {
@@ -105,7 +115,7 @@ namespace Bug.Data.Predicates
           }
         }
       }
-      return ResourceStorePredicate;
+      return ResultList;
     }
 
     private Expression<Func<IndexQuantity, bool>> EqualTo(SearchQueryQuantityValue QuantityValue)
@@ -252,6 +262,12 @@ namespace Bug.Data.Predicates
     {
       return x => x.SearchParameterId == searchParameterId;
     }
+
+    private Expression<Func<IndexQuantity, bool>> IsNotSearchParameterId(int searchParameterId)
+    {
+      return x => x.SearchParameterId != searchParameterId;
+    }
+
     private Expression<Func<IndexQuantity, bool>> QuantityEqualTo(decimal midValue, int scale)
     {
       var PredicateMain = LinqKit.PredicateBuilder.New<IndexQuantity>(true);

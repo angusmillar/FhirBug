@@ -24,7 +24,7 @@ namespace Bug.Data.Predicates
           {
             throw new ArgumentNullException(nameof(CompositeValue.SearchQueryBaseList));
           }
-          ResourceStorePredicate = ResourceStorePredicate.Or(await IPredicateFactory.GetIndexPredicate(SearchQueryComposite.FhirVersionId, SearchQueryComposite.ResourceContext, CompositeValue.SearchQueryBaseList));
+          ResourceStorePredicate = ResourceStorePredicate.Or(await IPredicateFactory.GetResourceStoreIndexPredicate(SearchQueryComposite.FhirVersionId, SearchQueryComposite.ResourceContext, CompositeValue.SearchQueryBaseList));
         }
         else
         {

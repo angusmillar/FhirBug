@@ -11,9 +11,10 @@ namespace Bug.Data.Predicates
 {
   public class IndexUriPredicateFactory : IIndexUriPredicateFactory
   {
-    public Expression<Func<ResourceStore, bool>> UriIndex(SearchQueryUri SearchQueryUri)
+    public List<Expression<Func<IndexUri, bool>>> UriIndex(SearchQueryUri SearchQueryUri)
     {
-      var ResourceStorePredicate = LinqKit.PredicateBuilder.New<ResourceStore>(true);
+      var ResultList = new List<Expression<Func<IndexUri, bool>>>();
+      //var ResourceStorePredicate = LinqKit.PredicateBuilder.New<ResourceStore>(true);
 
       foreach (SearchQueryUriValue UriValue in SearchQueryUri.ValueList)
       {
@@ -28,7 +29,8 @@ namespace Bug.Data.Predicates
           }
 
           IndexUriPredicate = IndexUriPredicate.And(EqualTo(UriValue.Value.OriginalString));
-          ResourceStorePredicate = ResourceStorePredicate.Or(AnyIndex(IndexUriPredicate));
+          ResultList.Add(IndexUriPredicate);
+          //ResourceStorePredicate = ResourceStorePredicate.Or(AnyIndex(IndexUriPredicate));
         }
         else
         {
@@ -45,23 +47,29 @@ namespace Bug.Data.Predicates
             switch (SearchQueryUri.Modifier.Value)
             {
               case SearchModifierCode.Missing:
-                ResourceStorePredicate = ResourceStorePredicate.Or(AnyIndexEquals(IndexUriPredicate, !UriValue.IsMissing));
+                IndexUriPredicate = IndexUriPredicate.And(IsNotSearchParameterId(SearchQueryUri.Id));
+                ResultList.Add(IndexUriPredicate);
+                //ResourceStorePredicate = ResourceStorePredicate.Or(AnyIndexEquals(IndexUriPredicate, !UriValue.IsMissing));
                 break;
               case SearchModifierCode.Exact:
                 IndexUriPredicate = IndexUriPredicate.And(EqualTo(UriValue.Value!.OriginalString));
-                ResourceStorePredicate = ResourceStorePredicate.Or(AnyIndex(IndexUriPredicate));
+                ResultList.Add(IndexUriPredicate);
+                //ResourceStorePredicate = ResourceStorePredicate.Or(AnyIndex(IndexUriPredicate));
                 break;
               case SearchModifierCode.Contains:
                 IndexUriPredicate = IndexUriPredicate.And(Contains(UriValue.Value!.OriginalString));
-                ResourceStorePredicate = ResourceStorePredicate.Or(AnyIndex(IndexUriPredicate));
+                ResultList.Add(IndexUriPredicate);
+                //ResourceStorePredicate = ResourceStorePredicate.Or(AnyIndex(IndexUriPredicate));
                 break;
               case SearchModifierCode.Below:
                 IndexUriPredicate = IndexUriPredicate.And(StartsWith(UriValue.Value!.OriginalString));
-                ResourceStorePredicate = ResourceStorePredicate.Or(AnyIndex(IndexUriPredicate));
+                ResultList.Add(IndexUriPredicate);
+                //ResourceStorePredicate = ResourceStorePredicate.Or(AnyIndex(IndexUriPredicate));
                 break;
               case SearchModifierCode.Above:
                 IndexUriPredicate = IndexUriPredicate.And(EndsWith(UriValue.Value!.OriginalString));
-                ResourceStorePredicate = ResourceStorePredicate.Or(AnyIndex(IndexUriPredicate));
+                ResultList.Add(IndexUriPredicate);
+                //ResourceStorePredicate = ResourceStorePredicate.Or(AnyIndex(IndexUriPredicate));
                 break;
               default:
                 throw new ApplicationException($"Internal Server Error: The search query modifier: {SearchQueryUri.Modifier.Value.GetCode()} has been added to the supported list for {SearchQueryUri.SearchParamTypeId.GetCode()} search parameter queries and yet no database predicate has been provided.");
@@ -73,7 +81,7 @@ namespace Bug.Data.Predicates
           }
         }
       }
-      return ResourceStorePredicate;
+      return ResultList;
     }
 
     private Expression<Func<ResourceStore, bool>> AnyIndex(Expression<Func<IndexUri, bool>> Predicate)
@@ -87,6 +95,10 @@ namespace Bug.Data.Predicates
     private Expression<Func<IndexUri, bool>> IsSearchParameterId(int searchParameterId)
     {
       return x => x.SearchParameterId == searchParameterId;
+    }
+    private Expression<Func<IndexUri, bool>> IsNotSearchParameterId(int searchParameterId)
+    {
+      return x => x.SearchParameterId != searchParameterId;
     }
     private Expression<Func<IndexUri, bool>> StartsWith(string value)
     {

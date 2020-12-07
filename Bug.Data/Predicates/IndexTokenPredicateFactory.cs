@@ -3,6 +3,7 @@ using Bug.Common.StringTools;
 using Bug.Logic.DomainModel;
 using Bug.Logic.Service.SearchQuery.SearchQueryEntity;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 
@@ -10,9 +11,10 @@ namespace Bug.Data.Predicates
 {
   public class IndexTokenPredicateFactory : IIndexTokenPredicateFactory
   {
-    public Expression<Func<ResourceStore, bool>> TokenIndex(SearchQueryToken SearchQueryToken)
+    public List<Expression<Func<IndexToken, bool>>> TokenIndex(SearchQueryToken SearchQueryToken)
     {
-      var ResourceStorePredicate = LinqKit.PredicateBuilder.New<ResourceStore>(true);
+      var ResultList = new List<Expression<Func<IndexToken, bool>>>();
+      //var ResourceStorePredicate = LinqKit.PredicateBuilder.New<ResourceStore>(true);
 
       foreach (SearchQueryTokenValue TokenValue in SearchQueryToken.ValueList)
       {
@@ -22,7 +24,8 @@ namespace Bug.Data.Predicates
         if (!SearchQueryToken.Modifier.HasValue)
         {
           IndexTokenPredicate = IndexTokenPredicate.And(EqualTo(TokenValue));
-          ResourceStorePredicate = ResourceStorePredicate.Or(AnyIndex(IndexTokenPredicate));
+          ResultList.Add(IndexTokenPredicate);
+          //ResourceStorePredicate = ResourceStorePredicate.Or(AnyIndex(IndexTokenPredicate));
         }
         else
         {
@@ -32,7 +35,9 @@ namespace Bug.Data.Predicates
             switch (SearchQueryToken.Modifier.Value)
             {
               case SearchModifierCode.Missing:
-                ResourceStorePredicate = ResourceStorePredicate.Or(AnyIndexEquals(IndexTokenPredicate, !TokenValue.IsMissing));
+                IndexTokenPredicate = IndexTokenPredicate.And(IsNotSearchParameterId(SearchQueryToken.Id));
+                ResultList.Add(IndexTokenPredicate);
+                //ResourceStorePredicate = ResourceStorePredicate.Or(AnyIndexEquals(IndexTokenPredicate, !TokenValue.IsMissing));
                 break;
               default:
                 throw new ApplicationException($"Internal Server Error: The search query modifier: {SearchQueryToken.Modifier.Value.GetCode()} has been added to the supported list for {SearchQueryToken.SearchParamTypeId.GetCode()} search parameter queries and yet no database predicate has been provided.");
@@ -44,7 +49,7 @@ namespace Bug.Data.Predicates
           }
         }
       }
-      return ResourceStorePredicate;
+      return ResultList;
     }
 
     private Expression<Func<ResourceStore, bool>> AnyIndex(Expression<Func<IndexToken, bool>> Predicate)
@@ -58,6 +63,10 @@ namespace Bug.Data.Predicates
     private Expression<Func<IndexToken, bool>> IsSearchParameterId(int searchParameterId)
     {
       return x => x.SearchParameterId == searchParameterId;
+    }
+    private Expression<Func<IndexToken, bool>> IsNotSearchParameterId(int searchParameterId)
+    {
+      return x => x.SearchParameterId != searchParameterId;
     }
     private Expression<Func<IndexToken, bool>> EqualTo(SearchQueryTokenValue TokenValue)
     {

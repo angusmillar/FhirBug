@@ -4,6 +4,7 @@ using Bug.Common.Enums;
 using Bug.Logic.DomainModel;
 using Bug.Logic.Service.SearchQuery.SearchQueryEntity;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 
@@ -18,9 +19,10 @@ namespace Bug.Data.Predicates
       this.ISearchQueryCalcHighDateTime = ISearchQueryCalcHighDateTime;
     }
 
-    public Expression<Func<ResourceStore, bool>> DateTimeIndex(SearchQueryDateTime SearchQueryDateTime)
+    public List<Expression<Func<IndexDateTime, bool>>> DateTimeIndex(SearchQueryDateTime SearchQueryDateTime)
     {
-      var ResourceStorePredicate = LinqKit.PredicateBuilder.New<ResourceStore>(true);
+      //var ResourceStorePredicate = LinqKit.PredicateBuilder.New<ResourceStore>(true);
+      var ResultList = new List<Expression<Func<IndexDateTime, bool>>>();
 
       foreach (SearchQueryDateTimeValue DateTimeValue in SearchQueryDateTime.ValueList)
       {
@@ -37,7 +39,8 @@ namespace Bug.Data.Predicates
           if (!DateTimeValue.Prefix.HasValue)
           {
             IndexDateTimePredicate = IndexDateTimePredicate.And(EqualTo(DateTimeValue.Value.Value, ISearchQueryCalcHighDateTime.SearchQueryCalculateHighDateTimeForRange(DateTimeValue.Value.Value, DateTimeValue.Precision.Value)));
-            ResourceStorePredicate = ResourceStorePredicate.Or(AnyIndex(IndexDateTimePredicate));
+            ResultList.Add(IndexDateTimePredicate);
+            //ResourceStorePredicate = ResourceStorePredicate.Or(AnyIndex(IndexDateTimePredicate));
           }
           else
           {
@@ -48,32 +51,39 @@ namespace Bug.Data.Predicates
               {
                 case SearchComparator.Eq:
                   IndexDateTimePredicate = IndexDateTimePredicate.And(EqualTo(DateTimeValue.Value.Value, ISearchQueryCalcHighDateTime.SearchQueryCalculateHighDateTimeForRange(DateTimeValue.Value.Value, DateTimeValue.Precision.Value)));
-                  ResourceStorePredicate = ResourceStorePredicate.Or(AnyIndex(IndexDateTimePredicate));
+                  ResultList.Add(IndexDateTimePredicate);
+                  //ResourceStorePredicate = ResourceStorePredicate.Or(AnyIndex(IndexDateTimePredicate));
                   break;
                 case SearchComparator.Ne:
                   IndexDateTimePredicate = IndexDateTimePredicate.And(NotEqualTo(DateTimeValue.Value.Value, ISearchQueryCalcHighDateTime.SearchQueryCalculateHighDateTimeForRange(DateTimeValue.Value.Value, DateTimeValue.Precision.Value)));
+                  ResultList.Add(IndexDateTimePredicate);
 
                   var SearchQueryDateTimeIdPredicate = LinqKit.PredicateBuilder.New<IndexDateTime>(true);
-                  SearchQueryDateTimeIdPredicate = SearchQueryDateTimeIdPredicate.And(IsSearchParameterId(SearchQueryDateTime.Id));
+                  SearchQueryDateTimeIdPredicate = SearchQueryDateTimeIdPredicate.And(IsNotSearchParameterId(SearchQueryDateTime.Id));
+                  ResultList.Add(SearchQueryDateTimeIdPredicate);
 
-                  ResourceStorePredicate = ResourceStorePredicate.Or(AnyIndex(IndexDateTimePredicate));
-                  ResourceStorePredicate = ResourceStorePredicate.Or(AnyIndexEquals(SearchQueryDateTimeIdPredicate, false));
+                  //ResourceStorePredicate = ResourceStorePredicate.Or(AnyIndex(IndexDateTimePredicate));
+                  //ResourceStorePredicate = ResourceStorePredicate.Or(AnyIndexEquals(SearchQueryDateTimeIdPredicate, false));
                   break;
                 case SearchComparator.Gt:
                   IndexDateTimePredicate = IndexDateTimePredicate.And(GreaterThan(DateTimeValue.Value.Value, ISearchQueryCalcHighDateTime.SearchQueryCalculateHighDateTimeForRange(DateTimeValue.Value.Value, DateTimeValue.Precision.Value)));
-                  ResourceStorePredicate = ResourceStorePredicate.Or(AnyIndex(IndexDateTimePredicate));
+                  ResultList.Add(IndexDateTimePredicate);
+                  //ResourceStorePredicate = ResourceStorePredicate.Or(AnyIndex(IndexDateTimePredicate));
                   break;
                 case SearchComparator.Lt:
                   IndexDateTimePredicate = IndexDateTimePredicate.And(LessThan(DateTimeValue.Value.Value, ISearchQueryCalcHighDateTime.SearchQueryCalculateHighDateTimeForRange(DateTimeValue.Value.Value, DateTimeValue.Precision.Value)));
-                  ResourceStorePredicate = ResourceStorePredicate.Or(AnyIndex(IndexDateTimePredicate));
+                  ResultList.Add(IndexDateTimePredicate);
+                  //ResourceStorePredicate = ResourceStorePredicate.Or(AnyIndex(IndexDateTimePredicate));
                   break;
                 case SearchComparator.Ge:
                   IndexDateTimePredicate = IndexDateTimePredicate.And(GreaterThanOrEqualTo(DateTimeValue.Value.Value, ISearchQueryCalcHighDateTime.SearchQueryCalculateHighDateTimeForRange(DateTimeValue.Value.Value, DateTimeValue.Precision.Value)));
-                  ResourceStorePredicate = ResourceStorePredicate.Or(AnyIndex(IndexDateTimePredicate));
+                  ResultList.Add(IndexDateTimePredicate);
+                  //ResourceStorePredicate = ResourceStorePredicate.Or(AnyIndex(IndexDateTimePredicate));
                   break;
                 case SearchComparator.Le:
                   IndexDateTimePredicate = IndexDateTimePredicate.And(LessThanOrEqualTo(DateTimeValue.Value.Value, ISearchQueryCalcHighDateTime.SearchQueryCalculateHighDateTimeForRange(DateTimeValue.Value.Value, DateTimeValue.Precision.Value)));
-                  ResourceStorePredicate = ResourceStorePredicate.Or(AnyIndex(IndexDateTimePredicate));
+                  ResultList.Add(IndexDateTimePredicate);
+                  //ResourceStorePredicate = ResourceStorePredicate.Or(AnyIndex(IndexDateTimePredicate));
                   break;
                 default:
                   throw new System.ComponentModel.InvalidEnumArgumentException(DateTimeValue.Prefix.Value.GetCode(), (int)DateTimeValue.Prefix.Value, typeof(SearchComparator));
@@ -103,7 +113,9 @@ namespace Bug.Data.Predicates
               case SearchModifierCode.Missing:
                 if (DateTimeValue.Prefix.HasValue == false)
                 {
-                  ResourceStorePredicate = ResourceStorePredicate.Or(AnyIndexEquals(IndexDateTimePredicate, !DateTimeValue.IsMissing));
+                  IndexDateTimePredicate = IndexDateTimePredicate.And(IsNotSearchParameterId(SearchQueryDateTime.Id));
+                  ResultList.Add(IndexDateTimePredicate);
+                  //ResourceStorePredicate = ResourceStorePredicate.Or(AnyIndexEquals(IndexDateTimePredicate, !DateTimeValue.IsMissing));
                 }
                 else
                 {
@@ -120,7 +132,7 @@ namespace Bug.Data.Predicates
           }
         }
       }
-      return ResourceStorePredicate;
+      return ResultList;
     }
     private Expression<Func<ResourceStore, bool>> AnyIndex(Expression<Func<IndexDateTime, bool>> Predicate)
     {
@@ -134,6 +146,11 @@ namespace Bug.Data.Predicates
     {
       return x => x.SearchParameterId == searchParameterId;
     }
+    private Expression<Func<IndexDateTime, bool>> IsNotSearchParameterId(int searchParameterId)
+    {
+      return x => x.SearchParameterId != searchParameterId;
+    }
+
     private Expression<Func<IndexDateTime, bool>> EqualTo(DateTime LowValue, DateTime HighValue)
     {
       var PredicateMain = LinqKit.PredicateBuilder.New<IndexDateTime>(true);

@@ -21,10 +21,10 @@ namespace Bug.Data.Predicates
       this.IResourceNameToTypeMap = IResourceNameToTypeMap;
     }
 
-    public async Task<Expression<Func<ResourceStore, bool>>> ReferenceIndex(SearchQueryReference SearchQueryReference)
+    public async Task<List<Expression<Func<IndexReference, bool>>>> ReferenceIndex(SearchQueryReference SearchQueryReference)
     {
-      var ResourceStorePredicate = LinqKit.PredicateBuilder.New<ResourceStore>(true);
-
+      //var ResourceStorePredicate = LinqKit.PredicateBuilder.New<ResourceStore>(true);
+      var ResultList = new List<Expression<Func<IndexReference, bool>>>();
       //Improved Query when searching for ResourceIds for the same ResourceType and search parameter yet different ResourceIds.
       //It creates a SQL 'IN' cause instead of many 'OR' statements and should be more efficient.        
       //Heavily used in chain searching where we traverse many References. 
@@ -43,8 +43,9 @@ namespace Bug.Data.Predicates
                                                                                                       SearchQueryReference.ValueList[0].FhirUri!.ResourseName,
                                                                                                       ReferenceFhirIdArray,
                                                                                                       SearchQueryReference.ValueList[0].FhirUri!.VersionId));
-        ResourceStorePredicate = ResourceStorePredicate.Or(AnyIndex(QuickIndexReferencePredicate));
-        return ResourceStorePredicate;
+        ResultList.Add(QuickIndexReferencePredicate);
+        //ResourceStorePredicate = ResourceStorePredicate.Or(AnyIndex(QuickIndexReferencePredicate));
+        return ResultList;
       }
 
       foreach (SearchQueryReferenceValue ReferenceValue in SearchQueryReference.ValueList)
@@ -60,12 +61,14 @@ namespace Bug.Data.Predicates
             {
               Common.Interfaces.DomainModel.IServiceBaseUrl PrimaryServiceBaseUrl = await IServiceBaseUrlCache.GetPrimaryAsync(SearchQueryReference.FhirVersionId);
               IndexReferencePredicate = IndexReferencePredicate.And(EqualTo_ByKey(PrimaryServiceBaseUrl.Id, ReferenceValue.FhirUri.ResourseName, ReferenceValue.FhirUri.ResourceId, ReferenceValue.FhirUri.VersionId));
-              ResourceStorePredicate = ResourceStorePredicate.Or(AnyIndex(IndexReferencePredicate));
+              ResultList.Add(IndexReferencePredicate);
+              //ResourceStorePredicate = ResourceStorePredicate.Or(AnyIndex(IndexReferencePredicate));
             }
             else
             {
               IndexReferencePredicate = IndexReferencePredicate.And(EqualTo_ByUrlString(ReferenceValue.FhirUri.PrimaryServiceRootRemote!.OriginalString, ReferenceValue.FhirUri.ResourseName, ReferenceValue.FhirUri.ResourceId, ReferenceValue.FhirUri.VersionId));
-              ResourceStorePredicate = ResourceStorePredicate.Or(AnyIndex(IndexReferencePredicate));
+              ResultList.Add(IndexReferencePredicate);
+              //ResourceStorePredicate = ResourceStorePredicate.Or(AnyIndex(IndexReferencePredicate));
             }
           }
           else
@@ -81,7 +84,9 @@ namespace Bug.Data.Predicates
             switch (SearchQueryReference.Modifier.Value)
             {
               case SearchModifierCode.Missing:
-                ResourceStorePredicate = ResourceStorePredicate.Or(AnyIndexEquals(IndexReferencePredicate, !ReferenceValue.IsMissing));
+                IndexReferencePredicate = IndexReferencePredicate.And(IsNotSearchParameterId(SearchQueryReference.Id));
+                ResultList.Add(IndexReferencePredicate);
+                //ResourceStorePredicate = ResourceStorePredicate.Or(AnyIndexEquals(IndexReferencePredicate, !ReferenceValue.IsMissing));
                 break;
               default:
                 throw new ApplicationException($"Internal Server Error: The search query modifier: {SearchQueryReference.Modifier.Value.GetCode()} has been added to the supported list for {SearchQueryReference.SearchParamTypeId.GetCode()} search parameter queries and yet no database predicate has been provided.");
@@ -94,7 +99,7 @@ namespace Bug.Data.Predicates
         }
 
       }
-      return ResourceStorePredicate;
+      return ResultList;
     }
 
     private Expression<Func<IndexReference, bool>> EqualTo_ByKey_Many_ResourceIds(int PrimaryServiceBaseUrlId, string ResourceName, string[] ResourceIdArray, string VersionId)
@@ -131,6 +136,10 @@ namespace Bug.Data.Predicates
     private Expression<Func<IndexReference, bool>> IsSearchParameterId(int searchParameterId)
     {
       return x => x.SearchParameterId == searchParameterId;
+    }
+    private Expression<Func<IndexReference, bool>> IsNotSearchParameterId(int searchParameterId)
+    {
+      return x => x.SearchParameterId != searchParameterId;
     }
 
     private string? NullIfEmptyString(string value)
